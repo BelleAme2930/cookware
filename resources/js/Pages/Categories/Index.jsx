@@ -29,7 +29,7 @@ const Index = ({categories}) => {
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="text-xl font-semibold leading-tight text-gray-800">Categories</h2>}
+            header={<h2 className="text-lg leading-tight text-gray-800">Categories</h2>}
         >
             <Head title="Categories"/>
             <div className='mx-auto max-w-[90%] py-6'>

@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import DataTable from 'react-data-table-component';
+import TextInput from "@/Components/TextInput.jsx";
 
 const CustomDataTable = ({title, data, columns}) => {
     const [searchText, setSearchText] = useState('');
@@ -12,14 +13,16 @@ const CustomDataTable = ({title, data, columns}) => {
 
     return (
         <div>
-            <div className='flex items-center justify-end'>
-                <input
-                type="text"
-                placeholder={`Search ${title}...`}
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-                style={{marginBottom: '20px', padding: '8px', width: '300px'}}
-            />
+            <div className='flex items-center justify-end mb-5'>
+                <label htmlFor="search" className='mr-3'>Filter by Category:</label>
+                <TextInput
+                    id='search'
+                    type="text"
+                    placeholder={`Search ${title}...`}
+                    value={searchText}
+                    onChange={(e) => setSearchText(e.target.value)}
+                    className='min-w-[300px]'
+                />
             </div>
 
             <DataTable
