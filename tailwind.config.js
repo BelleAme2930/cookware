@@ -28,6 +28,9 @@ export default {
                     900: '#8d0020',
                 },
             },
+            fontSize: {
+                base: '0.875rem',
+            },
         },
     },
 
