@@ -1,16 +1,19 @@
 import React from 'react';
-import { Head, useForm } from "@inertiajs/react";
+import { Head, Link, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import TextInput from "@/Components/TextInput.jsx";
-import Label from "@/Components/Label.jsx";
 import Button from "@/Components/Button.jsx";
 import { toast } from "react-toastify";
+import InputSelect from "@/Components/InputSelect.jsx";
+import ImageUploader from "@/Components/ImageUploader.jsx";
 
-const Create = () => {
+const Create = ({ categories, suppliers }) => {
     const { data, setData, post, errors, processing, reset } = useForm({
         name: '',
-        base_weight: '',
-        price_per_kg: ''
+        category_id: '',
+        supplier_id: '',
+        weight_per_unit: '',
+        image: null,
     });
 
     const handleSubmit = (e) => {
@@ -35,52 +38,71 @@ const Create = () => {
             }
         >
             <Head title="Add Product" />
-            <div className="max-w-lg mx-auto p-4">
+            <div className="max-w-[90%] mx-auto p-4">
                 <form onSubmit={handleSubmit}>
-                    <div className="mb-4">
-                        <Label title='Product Name' htmlFor='name' />
-                        <TextInput
-                            id="name"
-                            value={data.name}
-                            onChange={(e) => setData('name', e.target.value)}
-                            required
-                            className={`w-full ${errors.name ? 'border-red-600' : ''}`}
-                        />
-                        {errors.name && <div className="text-red-600 text-sm">{errors.name}</div>}
-                    </div>
+                    <div className='flex flex-wrap'>
+                        <div className="mb-4 w-full lg:w-1/2 px-2">
+                            <label className="block text-gray-700" htmlFor='name'>Product Name</label>
+                            <TextInput
+                                id="name"
+                                value={data.name}
+                                onChange={(e) => setData('name', e.target.value)}
+                                required
+                                className={`w-full ${errors.name ? 'border-red-600' : ''}`}
+                            />
+                            {errors.name && <div className="text-red-600 text-sm">{errors.name}</div>}
+                        </div>
 
-                    <div className="mb-4">
-                        <Label title='Base Weight (grams)' htmlFor='base_weight' />
-                        <TextInput
-                            id="base_weight"
-                            type="number"
-                            value={data.base_weight}
-                            onChange={(e) => setData('base_weight', e.target.value)}
+                        <InputSelect
+                            id="category_id"
+                            label="Category"
+                            options={categories}
+                            value={data.category_id}
+                            onChange={(e) => setData('category_id', e.target.value)}
+                            error={errors.category_id}
                             required
-                            className={`w-full ${errors.base_weight ? 'border-red-600' : ''}`}
+                            errorMsg={errors.category_id}
+                            link={categories.length === 0 ? route('categories.create') : null}
+                            linkText="Add category?"
                         />
-                        {errors.base_weight && <div className="text-red-600 text-sm">{errors.base_weight}</div>}
-                    </div>
 
-                    <div className="mb-4">
-                        <Label title='Price Per Kilogram' htmlFor='price_per_kg' />
-                        <TextInput
-                            id="price_per_kg"
-                            type="number"
-                            value={data.price_per_kg}
-                            onChange={(e) => setData('price_per_kg', e.target.value)}
+                        <InputSelect
+                            id="supplier_id"
+                            label="Supplier"
+                            options={suppliers}
+                            value={data.supplier_id}
+                            onChange={(e) => setData('supplier_id', e.target.value)}
+                            error={errors.supplier_id}
                             required
-                            className={`w-full ${errors.price_per_kg ? 'border-red-600' : ''}`}
+                            errorMsg={errors.supplier_id}
+                            link={suppliers.length === 0 ? route('suppliers.create') : null}
+                            linkText="Add supplier?"
                         />
-                        {errors.price_per_kg && <div className="text-red-600 text-sm">{errors.price_per_kg}</div>}
-                    </div>
 
-                    <Button
-                        type="submit"
-                        disabled={processing}
-                    >
-                        Add Product
-                    </Button>
+                        <div className="mb-4 w-full lg:w-1/2 px-2">
+                            <label className="block text-gray-700" htmlFor='weight_per_unit'>Weight (KG)</label>
+                            <TextInput
+                                type="number"
+                                id="weight_per_unit"
+                                value={data.weight_per_unit}
+                                onChange={(e) => setData('weight_per_unit', e.target.value)}
+                                required
+                                className={`w-full ${errors.weight_per_unit ? 'border-red-600' : ''}`}
+                            />
+                            {errors.weight_per_unit && <div className="text-red-600 text-sm">{errors.weight_per_unit}</div>}
+                        </div>
+
+                        <ImageUploader
+                            id="image"
+                            onChange={(e) => setData('image', e.target.files[0])}
+                            error={errors.image}
+                        />
+                    </div>
+                    <div className='px-2'>
+                        <Button type="submit" disabled={processing}>
+                            Add Product
+                        </Button>
+                    </div>
                 </form>
             </div>
         </AuthenticatedLayout>
