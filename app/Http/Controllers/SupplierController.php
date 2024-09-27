@@ -25,10 +25,15 @@ class SupplierController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20|min:11',
+            'address' => 'nullable|string|max:500',
         ]);
 
-        Supplier::create($request->only('name', 'phone'));
+        Supplier::create([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'address' => $request->address,
+        ]);
 
         return redirect()->route('suppliers.index');
     }
@@ -51,10 +56,15 @@ class SupplierController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:255',
+            'phone' => 'nullable|string|max:20|min:11',
+            'address' => 'nullable|string|max:500',
         ]);
 
-        $supplier->update($request->only('name', 'phone'));
+        $supplier->update([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'address' => $request->address,
+        ]);
 
         return redirect()->route('suppliers.index');
     }

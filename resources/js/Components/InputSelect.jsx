@@ -18,7 +18,7 @@ const InputSelect = ({ id, label, options, value, onChange, error, required, err
                 value={value}
                 onChange={onChange}
                 required={required}
-                className={`w-full ${error ? 'border-red-600' : ''}`}
+                className={`w-full border-gray-300 shadow-none focus:border-primary-500 ${error ? 'border-red-600' : ''}`}
             >
                 <option value="">Select an option</option>
                 {options.map(option => (

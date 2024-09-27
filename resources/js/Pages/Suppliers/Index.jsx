@@ -29,6 +29,11 @@ const Index = ({ suppliers }) => {
             sortable: true,
         },
         {
+            name: 'Address',
+            selector: row => row.address,
+            sortable: true,
+        },
+        {
             name: 'Actions',
             cell: row => (
                 <div className="flex space-x-2">

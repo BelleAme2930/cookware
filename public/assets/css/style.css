@@ -4,3 +4,6 @@
 .bpcekY svg{
     display: none !important;
 }
+select:focus {
+    --tw-ring-color: #e4023b !important;
+}

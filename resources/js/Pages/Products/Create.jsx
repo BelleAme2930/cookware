@@ -6,6 +6,7 @@ import Button from "@/Components/Button.jsx";
 import { toast } from "react-toastify";
 import InputSelect from "@/Components/InputSelect.jsx";
 import ImageUploader from "@/Components/ImageUploader.jsx";
+import Label from "@/Components/Label.jsx";
 
 const Create = ({ categories, suppliers }) => {
     const { data, setData, post, errors, processing, reset } = useForm({
@@ -42,7 +43,7 @@ const Create = ({ categories, suppliers }) => {
                 <form onSubmit={handleSubmit}>
                     <div className='flex flex-wrap'>
                         <div className="mb-4 w-full lg:w-1/2 px-2">
-                            <label className="block text-gray-700" htmlFor='name'>Product Name</label>
+                            <Label htmlFor='name' title='Product Name' />
                             <TextInput
                                 id="name"
                                 value={data.name}
@@ -80,7 +81,7 @@ const Create = ({ categories, suppliers }) => {
                         />
 
                         <div className="mb-4 w-full lg:w-1/2 px-2">
-                            <label className="block text-gray-700" htmlFor='weight_per_unit'>Weight (KG)</label>
+                            <Label htmlFor='weight_per_unit' title='Weight' />
                             <TextInput
                                 type="number"
                                 id="weight_per_unit"
