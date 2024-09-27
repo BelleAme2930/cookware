@@ -27,9 +27,11 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255',
         ]);
 
-        Category::create($request->only('name'));
+        Category::create([
+            'name' => $request->name,
+        ]);
 
-        return redirect()->route('categories.index')->with('success', 'Category created successfully.');
+        return redirect()->route('categories.index');
     }
 
     public function show(Category $category)
@@ -54,13 +56,13 @@ class CategoryController extends Controller
 
         $category->update($request->only('name'));
 
-        return redirect()->route('categories.index')->with('success', 'Category updated successfully.');
+        return redirect()->route('categories.index');
     }
 
     public function destroy(Category $category)
     {
         $category->delete();
 
-        return redirect()->route('categories.index')->with('success', 'Category deleted successfully.');
+        return redirect()->route('categories.index');
     }
 }

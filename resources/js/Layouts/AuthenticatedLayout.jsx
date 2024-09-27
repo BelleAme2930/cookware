@@ -165,7 +165,7 @@ export default function Authenticated({ header, children }) {
 
             {header && (
                 <header className="bg-white shadow">
-                    <div className="mx-auto max-w-[90%] py-6">
+                    <div className="mx-auto max-w-[90%] py-4">
                         {header}
                     </div>
                 </header>
