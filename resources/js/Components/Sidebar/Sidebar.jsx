@@ -36,13 +36,21 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
 
             <div className={`pb-4 mt-8 ${isCollapsed ? 'hidden' : 'block'}`}>
                 <SideMenuItem label="Dashboard" href={route('dashboard')} />
+                <SideMenuDropdownItem label="Categories">
+                    <SideMenuItem label="Add Category" href={route('categories.create')} />
+                    <SideMenuItem label="Category Listing" href={route('categories.index')} />
+                </SideMenuDropdownItem>
                 <SideMenuDropdownItem label="Products">
                     <SideMenuItem label="Add Product" href={route('products.create')} />
                     <SideMenuItem label="Product Listing" href={route('products.index')} />
                 </SideMenuDropdownItem>
                 <SideMenuDropdownItem label="Suppliers">
                     <SideMenuItem label="Add Supplier" href={route('suppliers.create')} />
-                    <SideMenuItem label="Suppliers Listing" href={route('suppliers.index')} />
+                    <SideMenuItem label="Supplier Listing" href={route('suppliers.index')} />
+                </SideMenuDropdownItem>
+                <SideMenuDropdownItem label="Customers">
+                    <SideMenuItem label="Add Customer" href={route('customers.create')} />
+                    <SideMenuItem label="Customer Listing" href={route('customers.index')} />
                 </SideMenuDropdownItem>
             </div>
         </div>
