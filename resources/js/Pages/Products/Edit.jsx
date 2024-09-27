@@ -85,7 +85,7 @@ const Edit = ({ product, categories, suppliers }) => {
                     </div>
 
                     <div className="mb-4">
-                        <Label title='Weight (grams)' htmlFor='weight_per_unit' />
+                        <Label title='Weight' htmlFor='weight_per_unit' />
                         <TextInput
                             type="number"
                             id="weight_per_unit"

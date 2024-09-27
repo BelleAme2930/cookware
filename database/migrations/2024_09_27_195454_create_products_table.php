@@ -16,8 +16,9 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained()->onDelete('cascade'); // Category link
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade'); // Supplier link
             $table->string('name');
-            $table->unsignedInteger('weight_per_unit');
+            $table->unsignedInteger('weight_in_grams');
             $table->string('image')->nullable();
+            $table->integer('stock')->default(0);
             $table->timestamps();
         });
     }

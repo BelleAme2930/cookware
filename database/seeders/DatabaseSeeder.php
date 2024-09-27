@@ -24,8 +24,6 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
         ]);
 
-        Category::factory(10)->create()->each(function ($category) {
-            Product::factory(5)->create(['category_id' => $category->id]);
-        });
+        Category::factory(10)->create()->unique();
     }
 }
