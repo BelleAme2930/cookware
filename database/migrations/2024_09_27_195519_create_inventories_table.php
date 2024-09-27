@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('inventories', function (Blueprint $table) {
             $table->id();
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->unsignedInteger('weight_in_grams');
+            $table->unsignedInteger('weight');
             $table->timestamps();
         });
     }

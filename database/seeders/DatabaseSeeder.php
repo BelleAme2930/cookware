@@ -24,6 +24,6 @@ class DatabaseSeeder extends Seeder
             'password' => Hash::make('password'),
         ]);
 
-        Category::factory(10)->create()->unique();
+//        Category::factory(10)->create();
     }
 }

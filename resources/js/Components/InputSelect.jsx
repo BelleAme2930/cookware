@@ -9,7 +9,6 @@ const InputSelect = ({ id, label, options, value, onChange, error, required, err
                 <Label title={label} htmlFor={id} />
                 {link && (
                     <div>
-                        <span className='mr-1'>{linkText}</span>
                         <Link className='text-primary-500' href={link}>{linkText}</Link>
                     </div>
                 )}

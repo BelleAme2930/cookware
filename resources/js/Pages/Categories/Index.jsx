@@ -9,6 +9,9 @@ import { toast } from "react-toastify";
 import { router } from '@inertiajs/core';
 
 const Index = ({ categories }) => {
+
+    console.log(categories, 'categories')
+
     const editRoute = (id) => route('categories.edit', id);
     const deleteRoute = (id) => route('categories.destroy', id);
 
@@ -24,13 +27,18 @@ const Index = ({ categories }) => {
             sortable: true,
         },
         {
-            name: 'Created At',
-            selector: row => row.created_at,
-            sortable: true,
+            name: 'Description',
+            selector: row => row.description || "No Description",
+            sortable: false,
         },
         {
-            name: 'Updated At',
-            selector: row => row.updated_at,
+            name: 'Category Stock',
+            selector: row => row.products.length,
+            sortable: false,
+        },
+        {
+            name: 'Created Date',
+            selector: row => row.created_at,
             sortable: true,
         },
         {
@@ -71,7 +79,7 @@ const Index = ({ categories }) => {
                 <CustomDataTable
                     searchLabel='Filter by Category:'
                     title="Categories"
-                    data={categories}
+                    data={categories.data}
                     columns={columns}
                 />
             </div>

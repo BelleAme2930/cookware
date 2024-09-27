@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->date('sale_date');
-            $table->integer('total_weight_in_grams');
+            $table->integer('total_weight');
             $table->integer('total_price');
             $table->string('payment_method')->nullable();
             $table->string('status')->default('completed');

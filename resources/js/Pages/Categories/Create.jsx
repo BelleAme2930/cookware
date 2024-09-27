@@ -5,10 +5,12 @@ import TextInput from "@/Components/TextInput.jsx";
 import Label from "@/Components/Label.jsx";
 import Button from "@/Components/Button.jsx";
 import {toast} from "react-toastify";
+import TextArea from "@/Components/Textarea.jsx";
 
 const Create = () => {
     const { data, setData, post, errors, processing, reset } = useForm({
         name: '',
+        description: '',
     });
 
     const handleSubmit = (e) => {
@@ -46,10 +48,18 @@ const Create = () => {
                         />
                         {errors.name && <div className="text-red-600 text-sm">{errors.name}</div>}
                     </div>
-                    <Button
-                        type="submit"
-                        disabled={processing}
-                    >
+                    <div className="mb-4">
+                        <Label title='Description' htmlFor='description'/>
+                        <TextArea
+                            id="description"
+                            value={data.description}
+                            onChange={(e) => setData('description', e.target.value)}
+                            className={`w-full ${errors.description ? 'border-red-600' : ''}`}
+                            rows={4} // Set the number of rows as needed
+                        />
+                        {errors.description && <div className="text-red-600 text-sm">{errors.description}</div>}
+                    </div>
+                    <Button type="submit" disabled={processing}>
                         Add Category
                     </Button>
                 </form>
@@ -57,5 +67,6 @@ const Create = () => {
         </AuthenticatedLayout>
     );
 };
+
 
 export default Create;

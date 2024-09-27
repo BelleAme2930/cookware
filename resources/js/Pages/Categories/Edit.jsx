@@ -5,10 +5,13 @@ import TextInput from "@/Components/TextInput.jsx";
 import Label from "@/Components/Label.jsx";
 import Button from "@/Components/Button.jsx";
 import { toast } from "react-toastify";
+import TextArea from "@/Components/Textarea.jsx";
 
 const Edit = ({ category }) => {
+    console.log(category)
     const { data, setData, put, errors, processing } = useForm({
         name: category.name,
+        description: category.description || '', // Initialize with existing description
     });
 
     const handleSubmit = (e) => {
@@ -45,10 +48,18 @@ const Edit = ({ category }) => {
                         />
                         {errors.name && <div className="text-red-600 text-sm">{errors.name}</div>}
                     </div>
-                    <Button
-                        type="submit"
-                        disabled={processing}
-                    >
+                    <div className="mb-4">
+                        <Label title='Description' htmlFor='description'/>
+                        <TextArea
+                            id="description"
+                            value={data.description}
+                            onChange={(e) => setData('description', e.target.value)}
+                            className={`w-full ${errors.description ? 'border-red-600' : ''}`}
+                            rows={4}
+                        />
+                        {errors.description && <div className="text-red-600 text-sm">{errors.description}</div>}
+                    </div>
+                    <Button type="submit" disabled={processing}>
                         Update Category
                     </Button>
                 </form>

@@ -35,7 +35,7 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
             'name' => 'required|string|max:255',
-            'weight_per_unit' => 'required|numeric|min:0',
+            'weight_per_unit' => 'required|string|min:0',
             'image' => 'nullable|image|max:2048',
         ]);
 
@@ -48,7 +48,7 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
-            'weight_per_unit' => WeightHelper::toGrams($request->weight_per_unit),
+            'weight_in_grams' => WeightHelper::toGrams($request->weight_per_unit),
             'image' => $imagePath,
         ]);
 
