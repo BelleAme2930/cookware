@@ -84,8 +84,7 @@ const CustomDataTable = ({ title, data, columns, searchLabel, isLoading }) => {
 
             <div>
                 <DataTable
-                    className="datatable"
-                    title={title}
+                    className="datatable border border-gray-200"
                     columns={updatedColumns}
                     data={filteredData}
                     pagination
