@@ -38,13 +38,6 @@ class CategoryController extends Controller
         return redirect()->route('categories.index');
     }
 
-    public function show(Category $category)
-    {
-        return Inertia::render('Categories/Show', [
-            'category' => $category,
-        ]);
-    }
-
     public function edit(Category $category)
     {
         return Inertia::render('Categories/Edit', [
@@ -56,9 +49,13 @@ class CategoryController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
         ]);
 
-        $category->update($request->only('name'));
+        $category->update([
+            'name' => $request->name,
+            'description' => $request->description,
+        ]);
 
         return redirect()->route('categories.index');
     }
