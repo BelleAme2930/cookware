@@ -14,3 +14,6 @@ select:focus {
 .react-select__input{
     box-shadow: none !important;
 }
+.add-items-menu .absolute{
+    left: 0;
+}

@@ -1,11 +1,14 @@
 import Dropdown from '@/Components/Dropdown';
 import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
-import { usePage } from '@inertiajs/react';
-import { useState } from 'react';
+import {usePage} from '@inertiajs/react';
+import {useState} from 'react';
 import Sidebar from "@/Components/Sidebar/Sidebar.jsx";
+import IconButton from "@/Components/IconButton.jsx";
+import {faAdd} from "@fortawesome/free-solid-svg-icons";
+import Button from "@/Components/Button.jsx";
 
-export default function Authenticated({ header, children }) {
+export default function Authenticated({header, children}) {
     const user = usePage().props.auth.user;
     const [showingNavigationDropdown, setShowingNavigationDropdown] = useState(false);
     const [isCollapsed, setIsCollapsed] = useState(false);
@@ -16,25 +19,53 @@ export default function Authenticated({ header, children }) {
 
     return (
         <div className="min-h-screen bg-gray-100 flex">
-            <Sidebar isCollapsed={isCollapsed} toggleSidebar={toggleSidebar} />
+            <Sidebar isCollapsed={isCollapsed} toggleSidebar={toggleSidebar}/>
 
             <div className={`flex-1 ${isCollapsed ? 'ml-16' : 'ml-64'} transition-all duration-300 ease-in-out`}>
                 <nav className="border-b border-gray-100 bg-white">
-                    <div className="mx-auto max-w-[90%]">
+                    <div className="mx-auto px-8">
                         <div className="flex h-16 justify-between">
-                            <div className="flex">
-                                <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                    <NavLink
-                                        href={route('dashboard')}
-                                        active={route().current('dashboard')}
-                                    >
-                                        Dashboard
-                                    </NavLink>
+                            <div className="hidden sm:flex sm:items-center">
+                                <div className="relative add-items-menu">
+                                    <Dropdown>
+                                        <Dropdown.Trigger>
+                                            <span className="inline-flex rounded-md">
+                                                    <IconButton
+                                                        icon={faAdd}
+                                                        className='w-8 h-8 !bg-primary-500 !text-white'
+                                                    />
+                                            </span>
+                                        </Dropdown.Trigger>
+
+                                        <Dropdown.Content>
+                                            <Dropdown.Link href={route('categories.create')}>
+                                                Add Category
+                                            </Dropdown.Link>
+                                            <Dropdown.Link href={route('products.create')}>
+                                                Add Product
+                                            </Dropdown.Link>
+                                            <Dropdown.Link href={route('suppliers.create')}>
+                                                Add Supplier
+                                            </Dropdown.Link>
+                                            <Dropdown.Link href={route('customers.create')}>
+                                                Add Customer
+                                            </Dropdown.Link>
+                                            <Dropdown.Link href={route('customers.create')}>
+                                                Add Purchase
+                                            </Dropdown.Link>
+                                            <Dropdown.Link href={route('sales.create')}>
+                                                Add Purchase
+                                            </Dropdown.Link>
+                                        </Dropdown.Content>
+                                    </Dropdown>
                                 </div>
                             </div>
 
                             <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                                <div className="relative ms-3">
+                                <Button className='!rounded-lg'>
+                                    Point of Sale
+                                </Button>
+                                <div className="relative">
                                     <Dropdown>
                                         <Dropdown.Trigger>
                                             <span className="inline-flex rounded-md">
@@ -78,9 +109,11 @@ export default function Authenticated({ header, children }) {
                                 >
                                     <svg className="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                                         <path className={!showingNavigationDropdown ? 'inline-flex' : 'hidden'}
-                                              strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                                              strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                              d="M4 6h16M4 12h16M4 18h16"/>
                                         <path className={showingNavigationDropdown ? 'inline-flex' : 'hidden'}
-                                              strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                              strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
+                                              d="M6 18L18 6M6 6l12 12"/>
                                     </svg>
                                 </button>
                             </div>
@@ -100,7 +133,8 @@ export default function Authenticated({ header, children }) {
                             </div>
                             <div className="mt-3 space-y-1">
                                 <ResponsiveNavLink href={route('profile.edit')}>Profile</ResponsiveNavLink>
-                                <ResponsiveNavLink method="post" href={route('logout')} as="button">Log Out</ResponsiveNavLink>
+                                <ResponsiveNavLink method="post" href={route('logout')} as="button">Log
+                                    Out</ResponsiveNavLink>
                             </div>
                         </div>
                     </div>

@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 import { router } from '@inertiajs/core';
 
 const Index = ({ products }) => {
-    console.log(products)
     const editRoute = (id) => route('products.edit', id);
     const deleteRoute = (id) => route('products.destroy', id);
 
@@ -41,7 +40,7 @@ const Index = ({ products }) => {
         },
         {
             name: 'Price per KG',
-            selector: row => 'PKR ' + row.price,
+            selector: row => row.price + ' Rs',
             sortable: true,
         },
         {
@@ -63,7 +62,7 @@ const Index = ({ products }) => {
             cell: row => (
                 <div className="flex space-x-2">
                 <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />
-                    <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />
+                    <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash}/>
                 </div>
             )
         },

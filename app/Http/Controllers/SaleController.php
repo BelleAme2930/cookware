@@ -25,42 +25,56 @@ class SaleController extends Controller
     {
         $customers = Customer::all();
         $products = Product::all();
+
+        $products = $products->map(function ($product) {
+            $soldWeight = Sale::where('product_id', $product->id)->sum('weight');
+            $availableWeight = $product->weight - $soldWeight;
+            $product->available_weight_kg = WeightHelper::toKilos($availableWeight);
+            return $product;
+        });
+
+        $sales = Sale::all();
+
         return Inertia::render('Sales/Create', [
             'customers' => $customers,
             'products' => $products,
+            'sales' => SaleResource::collection($sales)->resolve(),
         ]);
     }
+
+
 
     public function store(Request $request)
     {
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
-            'product_id' => 'required|exists:products,id',
-            'weight' => 'required|integer|min:1',
+            'productWeights' => 'required|array',
+            'productWeights.*.product_id' => 'required|exists:products,id',
+            'productWeights.*.weight' => 'required|numeric|min:1',
         ]);
 
-        $product = Product::find($request->product_id);
+        $sales = [];
+        foreach ($request->productWeights as $productWeight) {
+            $product = Product::find($productWeight['product_id']);
+            $total_price = $product->price * $productWeight['weight'];
 
-        $total_price = $product->price_per_kg * WeightHelper::toKilos($request->weight);
+            $product->update([
+                'weight' => $product->weight - WeightHelper::toGrams($productWeight['weight']),
+            ]);
 
-        $product->update([
-            'weight' => $product->weight - WeightHelper::toGrams($request->weight),
-        ]);
+            $sales[] = Sale::create([
+                'customer_id' => $request->customer_id,
+                'product_id' => $productWeight['product_id'],
+                'weight' => WeightHelper::toKilos($productWeight['weight']),
+                'total_price' => $total_price,
+            ]);
+        }
 
-        // Create the sale record
-        Sale::create([
-            'customer_id' => $request->customer_id,
-            'product_id' => $request->product_id,
-            'weight' => $request->weight,
-            'total_price' => $total_price,
-        ]);
-
-        return redirect()->route('sales.index')->with('success', 'Sale created successfully.');
+        return redirect()->route('sales.index')->with('success', 'Sales created successfully.');
     }
 
     public function edit(Sale $sale)
     {
-        // Retrieve all customers and products for the edit form
         $customers = Customer::all();
         $products = Product::all();
         return Inertia::render('Sales/Edit', [
@@ -72,20 +86,16 @@ class SaleController extends Controller
 
     public function update(Request $request, Sale $sale)
     {
-        // Validate the request
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'product_id' => 'required|exists:products,id',
             'weight' => 'required|integer|min:1',
         ]);
 
-        // Find the product
         $product = Product::find($request->product_id);
 
-        // Calculate total price based on weight and price_per_kg
-        $total_price = $product->price_per_kg * WeightHelper::toKilos($request->weight);
+        $total_price = $product->price * WeightHelper::toKilos($request->weight);
 
-        // Update the existing sale record
         $sale->update([
             'customer_id' => $request->customer_id,
             'product_id' => $request->product_id,
@@ -98,7 +108,6 @@ class SaleController extends Controller
 
     public function destroy(Sale $sale)
     {
-        // Delete the sale record
         $sale->delete();
 
         return redirect()->route('sales.index')->with('success', 'Sale deleted successfully.');

@@ -9,8 +9,8 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
         <div
             className={`fixed top-0 left-0 h-full ${isCollapsed ? 'w-16' : 'w-64'} bg-white shadow-md transition-all duration-300 ease-in-out`}
         >
-            <div className="flex justify-between items-center p-4">
-                <Link href="/" className={`${isCollapsed ? 'hidden' : 'block'}`}>
+            <div className={`flex items-center p-4 ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
+                <Link href="/" className={`${isCollapsed ? 'opacity-0' : 'opacity-1'}`}>
                     <Image src="/assets/images/logo.png" className='h-12'/>
                 </Link>
                 <button
