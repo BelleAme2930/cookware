@@ -35,18 +35,28 @@ const Index = ({ products }) => {
         },
         {
             name: 'Weight (kg)',
-            selector: row => (row.weight_per_unit / 1000).toFixed(2),
+            selector: row => row.weight + ' kg',
             sortable: true,
         },
         {
             name: 'Image',
-            cell: row => <img src={`/${row.image}`} alt={row.name} className="h-20 w-20" />,
+            cell: row => (
+                row.image ? (
+                    <img
+                        src={`/${row.image}`}
+                        alt={row.name}
+                        className="h-20 w-20"
+                    />
+                ) : (
+                    'No Image'
+                )
+            ),
         },
         {
             name: 'Actions',
             cell: row => (
                 <div className="flex space-x-2">
-                    <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />
+                <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />
                     <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />
                 </div>
             )
@@ -80,7 +90,7 @@ const Index = ({ products }) => {
                 <CustomDataTable
                     searchLabel='Filter by Product:'
                     title="Products"
-                    data={products}
+                    data={products.data}
                     columns={columns}
                 />
             </div>

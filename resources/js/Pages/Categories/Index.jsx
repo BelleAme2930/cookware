@@ -28,7 +28,7 @@ const Index = ({ categories }) => {
         },
         {
             name: 'Description',
-            selector: row => row.description || "No Description",
+            selector: row => row.description,
             sortable: false,
         },
         {

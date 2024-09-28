@@ -11,7 +11,7 @@ const Edit = ({ product, categories, suppliers }) => {
         category_id: product.category_id,
         supplier_id: product.supplier_id,
         name: product.name,
-        weight_per_unit: product.weight_per_unit,
+        weight: product.weight,
         image: null,
     });
 
@@ -39,7 +39,7 @@ const Edit = ({ product, categories, suppliers }) => {
             <div className="max-w-lg mx-auto p-4">
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <Label title='Product Name' htmlFor='name' />
+                        <Label title='Product Name' htmlFor='name'/>
                         <TextInput
                             id="name"
                             value={data.name}
@@ -51,7 +51,7 @@ const Edit = ({ product, categories, suppliers }) => {
                     </div>
 
                     <div className="mb-4">
-                        <Label title='Category' htmlFor='category_id' />
+                        <Label title='Category' htmlFor='category_id'/>
                         <select
                             id="category_id"
                             value={data.category_id}
@@ -68,7 +68,7 @@ const Edit = ({ product, categories, suppliers }) => {
                     </div>
 
                     <div className="mb-4">
-                        <Label title='Supplier' htmlFor='supplier_id' />
+                        <Label title='Supplier' htmlFor='supplier_id'/>
                         <select
                             id="supplier_id"
                             value={data.supplier_id}
@@ -85,20 +85,21 @@ const Edit = ({ product, categories, suppliers }) => {
                     </div>
 
                     <div className="mb-4">
-                        <Label title='Weight' htmlFor='weight_per_unit' />
+                        <Label title='Weight' htmlFor='weight'/>
                         <TextInput
                             type="number"
-                            id="weight_per_unit"
-                            value={data.weight_per_unit}
-                            onChange={(e) => setData('weight_per_unit', e.target.value)}
+                            id="weight"
+                            value={data.weight}
+                            onChange={(e) => setData('weight', Number(e.target.value))}
                             required
-                            className={`w-full ${errors.weight_per_unit ? 'border-red-600' : ''}`}
+                            className={`w-full ${errors.weight ? 'border-red-600' : ''}`}
                         />
-                        {errors.weight_per_unit && <div className="text-red-600 text-sm">{errors.weight_per_unit}</div>}
+                        {errors.weight && <div className="text-red-600 text-sm">{errors.weight}</div>}
                     </div>
 
+
                     <div className="mb-4">
-                        <Label title='Product Image' htmlFor='image' />
+                        <Label title='Product Image' htmlFor='image'/>
                         <input
                             type="file"
                             id="image"

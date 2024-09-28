@@ -38,12 +38,11 @@ const Create = () => {
             <div className="max-w-lg mx-auto p-4">
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <Label title='Category Name' htmlFor='name' />
+                        <Label title='Category Name' required={true} htmlFor='name' />
                         <TextInput
                             id="name"
                             value={data.name}
                             onChange={(e) => setData('name', e.target.value)}
-                            required
                             className={`w-full ${errors.name ? 'border-red-600' : ''}`}
                         />
                         {errors.name && <div className="text-red-600 text-sm">{errors.name}</div>}
@@ -55,7 +54,7 @@ const Create = () => {
                             value={data.description}
                             onChange={(e) => setData('description', e.target.value)}
                             className={`w-full ${errors.description ? 'border-red-600' : ''}`}
-                            rows={4} // Set the number of rows as needed
+                            rows={4}
                         />
                         {errors.description && <div className="text-red-600 text-sm">{errors.description}</div>}
                     </div>

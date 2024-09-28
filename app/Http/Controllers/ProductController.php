@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ProductResource;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 use App\Helpers\WeightHelper;
 
@@ -15,7 +17,7 @@ class ProductController extends Controller
     {
         $products = Product::with(['category', 'supplier'])->get();
         return Inertia::render('Products/Index', [
-            'products' => $products,
+            'products' => ProductResource::collection($products),
         ]);
     }
 
@@ -35,20 +37,32 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
             'name' => 'required|string|max:255',
-            'weight_per_unit' => 'required|string|min:0',
+            'weight' => 'required|integer|min:0',
             'image' => 'nullable|image|max:2048',
         ]);
 
         $imagePath = null;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('images', 'public');
+            $directoryPath = 'assets/images/uploads/products';
+
+            if (!file_exists($directoryPath)) {
+                mkdir($directoryPath, 0755, true);
+            }
+
+            $randomString = Str::random(10);
+            $extension = $request->file('image')->getClientOriginalExtension();
+            $imageName = $randomString . '.' . $extension;
+
+            $request->file('image')->move($directoryPath, $imageName);
+
+            $imagePath = 'assets/images/uploads/products/' . $imageName;
         }
 
         Product::create([
             'category_id' => $request->category_id,
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
-            'weight_in_grams' => WeightHelper::toGrams($request->weight_per_unit),
+            'weight' => WeightHelper::toGrams($request->weight),
             'image' => $imagePath,
         ]);
 
@@ -85,7 +99,7 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
             'name' => 'required|string|max:255',
-            'weight_per_unit' => 'required|numeric|min:0',
+            'weight' => 'required|numeric|min:0',
             'image' => 'nullable|image|max:2048',
         ]);
 
@@ -98,7 +112,7 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
-            'weight_per_unit' => WeightHelper::toGrams($request->weight_per_unit),
+            'weight' => WeightHelper::toGrams($request->weight),
             'image' => $imagePath,
         ]);
 

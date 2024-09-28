@@ -26,12 +26,24 @@ const CustomDataTable = ({ title, data, columns, searchLabel, isLoading }) => {
                 color: '#374151',
             },
         },
+        headCells: {
+            style: {
+                textAlign: 'center',
+                justifyContent: 'center',
+            },
+        },
         rows: {
             style: {
-                minHeight: '56px',
+                minHeight: '78px',
                 '&:hover': {
                     backgroundColor: '#e5e7eb',
                 },
+            },
+        },
+        cells: {
+            style: {
+                textAlign: 'center',
+                justifyContent: 'center',
             },
         },
         pagination: {

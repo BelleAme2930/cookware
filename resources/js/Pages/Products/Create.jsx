@@ -13,7 +13,7 @@ const Create = ({ categories, suppliers }) => {
         name: '',
         category_id: '',
         supplier_id: '',
-        weight_per_unit: '',
+        weight: 0,
         image: null,
     });
 
@@ -43,7 +43,7 @@ const Create = ({ categories, suppliers }) => {
                 <form onSubmit={handleSubmit}>
                     <div className='flex flex-wrap'>
                         <div className="mb-4 w-full lg:w-1/2 px-2">
-                            <Label htmlFor='name' title='Product Name' />
+                            <Label htmlFor='name' title='Product Name'/>
                             <TextInput
                                 id="name"
                                 value={data.name}
@@ -81,17 +81,18 @@ const Create = ({ categories, suppliers }) => {
                         />
 
                         <div className="mb-4 w-full lg:w-1/2 px-2">
-                            <Label htmlFor='weight_per_unit' title='Weight' />
+                            <Label htmlFor='weight' title='Weight'/>
                             <TextInput
                                 type="number"
-                                id="weight_per_unit"
-                                value={data.weight_per_unit}
-                                onChange={(e) => setData('weight_per_unit', e.target.value)}
+                                id="weight"
+                                value={data.weight}
+                                onChange={(e) => setData('weight', Number(e.target.value))}
                                 required
-                                className={`w-full ${errors.weight_per_unit ? 'border-red-600' : ''}`}
+                                className={`w-full ${errors.weight ? 'border-red-600' : ''}`}
                             />
-                            {errors.weight_per_unit && <div className="text-red-600 text-sm">{errors.weight_per_unit}</div>}
+                            {errors.weight && <div className="text-red-600 text-sm">{errors.weight}</div>}
                         </div>
+
 
                         <ImageUploader
                             id="image"
