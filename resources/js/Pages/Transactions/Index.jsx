@@ -2,14 +2,16 @@ import React from 'react';
 import CustomDataTable from "@/Components/CustomDataTable.jsx";
 import { Head } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import {faAdd, faTrash} from "@fortawesome/free-solid-svg-icons";
+import { faAdd, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 import IconButton from "@/Components/IconButton.jsx";
 import { toast } from "react-toastify";
 import { router } from '@inertiajs/core';
-import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 
 const Index = ({ transactions }) => {
-    const deleteRoute = (id) => route('sales.destroy', id);
+
+    const editRoute = (id) => route('transactions.edit', id);
+    const deleteRoute = (id) => route('transactions.destroy', id);
 
     const columns = [
         {
@@ -19,22 +21,22 @@ const Index = ({ transactions }) => {
         },
         {
             name: 'Customer',
-            selector: row => row.customer.name, // Assuming customer has a 'name' field
+            selector: row => row.customer.name,
             sortable: true,
         },
         {
             name: 'Product',
-            selector: row => row.product.name, // Assuming product has a 'name' field
-            sortable: true,
+            selector: row => row.products.map(product => product.name).join(', '),
+            sortable: false,
         },
         {
-            name: 'Quantity (g)',
-            selector: row => row.quantity, // This is in grams
-            sortable: true,
+            name: 'Weight (kg)',
+            selector: row => row.products.reduce((total, product) => total + product.pivot.weight, 0),
+            sortable: false,
         },
         {
             name: 'Total Price',
-            selector: row => `$${(row.total_price / 100).toFixed(2)}`, // Assuming total_price is stored in cents
+            selector: row => row.total_price,
             sortable: true,
         },
         {
@@ -46,9 +48,10 @@ const Index = ({ transactions }) => {
             name: 'Actions',
             cell: row => (
                 <div className="flex space-x-2">
+                    <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />
                     <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />
                 </div>
-            ),
+            )
         },
     ];
 
@@ -69,18 +72,17 @@ const Index = ({ transactions }) => {
         <AuthenticatedLayout
             header={
                 <div className='flex items-center justify-between'>
-                    header={<h2 className="text-lg leading-tight text-gray-800">Sales Transactions</h2>}
-                    <PrimaryIconLink href={route('sales.create')} icon={faAdd}>Add Sales</PrimaryIconLink>
+                    <h2 className="text-lg leading-tight text-gray-800">Transactions</h2>
+                    <PrimaryIconLink href={route('transactions.create')} icon={faAdd}>Add Transaction</PrimaryIconLink>
                 </div>
             }
-
         >
-            <Head title="Sales Transactions" />
+            <Head title="Transactions" />
             <div className='mx-auto max-w-[90%] py-6'>
                 <CustomDataTable
                     searchLabel='Filter by Transaction:'
-                    title="Sales Transactions"
-                    data={transactions}
+                    title="Transactions"
+                    data={transactions.data}
                     columns={columns}
                 />
             </div>

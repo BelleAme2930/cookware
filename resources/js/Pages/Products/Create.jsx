@@ -81,12 +81,12 @@ const Create = ({ categories, suppliers }) => {
                         />
 
                         <div className="mb-4 w-full lg:w-1/2 px-2">
-                            <Label htmlFor='weight' title='Weight'/>
+                            <Label htmlFor='weight' title='Weisght'/>
                             <TextInput
                                 type="number"
                                 id="weight"
                                 value={data.weight}
-                                onChange={(e) => setData('weight', Number(e.target.value))}
+                                onChange={(e) => setData('weight', e.target.value)}
                                 required
                                 className={`w-full ${errors.weight ? 'border-red-600' : ''}`}
                             />
@@ -95,6 +95,7 @@ const Create = ({ categories, suppliers }) => {
 
 
                         <ImageUploader
+                            title='Select Product Image'
                             id="image"
                             onChange={(e) => setData('image', e.target.files[0])}
                             error={errors.image}

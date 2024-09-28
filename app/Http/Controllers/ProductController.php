@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductResource;
+use App\Http\Resources\SupplierResource;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Supplier;
@@ -37,7 +39,7 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
             'name' => 'required|string|max:255',
-            'weight' => 'required|integer|min:0',
+            'weight' => 'required|numeric',
             'image' => 'nullable|image|max:2048',
         ]);
 
@@ -84,12 +86,12 @@ class ProductController extends Controller
         $categories = Category::all();
         $suppliers = Supplier::all();
 
-        $product->weight_per_unit_kilos = WeightHelper::toKilos($product->weight_per_unit);
+        $product->load(['category', 'supplier']);
 
         return Inertia::render('Products/Edit', [
-            'product' => $product,
-            'categories' => $categories,
-            'suppliers' => $suppliers,
+            'product' => ProductResource::make($product)->resolve(),
+            'categories' => CategoryResource::collection($categories)->resolve(),
+            'suppliers' => SupplierResource::collection($suppliers)->resolve(),
         ]);
     }
 

@@ -24,6 +24,7 @@
         "@fortawesome/react-fontawesome": "^0.2.2",
         "@inertiajs/core": "^1.2.0",
         "react-data-table-component": "^7.6.2",
+        "react-select": "^5.8.1",
         "react-toastify": "^10.0.5",
         "ziggy-js": "^2.3.0"
     }

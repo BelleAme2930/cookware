@@ -7,10 +7,10 @@ class WeightHelper
     /**
      * Convert weight from kilograms to grams.
      *
-     * @param float $kilograms
-     * @return float
+     * @param int $kilograms
+     * @return int
      */
-    public static function toGrams(float $kilograms): float
+    public static function toGrams(int $kilograms): int
     {
         return $kilograms * 1000;
     }
@@ -18,10 +18,10 @@ class WeightHelper
     /**
      * Convert weight from grams to kilograms.
      *
-     * @param float $grams
-     * @return float
+     * @param int $grams
+     * @return int
      */
-    public static function toKilos(float $grams): float
+    public static function toKilos(int $grams): int
     {
         return $grams / 1000;
     }

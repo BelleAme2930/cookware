@@ -17,6 +17,8 @@ class ProductResource extends JsonResource
     {
         $data =  [
             'id' => $this->id,
+            'category_id' => $this->category_id,
+            'supplier_id' => $this->supplier_id,
             'name' => $this->name,
             'weight' => WeightHelper::toKilos($this->weight),
             'image' => $this->image,
@@ -26,11 +28,11 @@ class ProductResource extends JsonResource
         ];
 
         if ($this->relationLoaded('category')) {
-            $data['category'] = CategoryResource::make($this->category);
+            $data['category'] = CategoryResource::make($this->category)->resolve();
         }
 
         if ($this->relationLoaded('supplier')) {
-            $data['supplier'] = CategoryResource::make($this->supplier);
+            $data['supplier'] = SupplierResource::make($this->supplier)->resolve();
         }
 
         return $data;
