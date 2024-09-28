@@ -1,48 +1,87 @@
-// resources/js/Pages/Sales/Edit.jsx
 import React from 'react';
-import { Head, useForm } from '@inertiajs/react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.jsx';
-import Button from '@/Components/Button.jsx';
-import TextInput from '@/Components/TextInput.jsx';
+import { Head, useForm } from "@inertiajs/react";
+import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
+import TextInput from "@/Components/TextInput.jsx";
+import Label from "@/Components/Label.jsx";
+import Button from "@/Components/Button.jsx";
+import { toast } from "react-toastify";
 
-const Edit = ({ sale, products }) => {
-    const { data, setData, put } = useForm({
-        customer_id: sale.customer_id,
-        products: sale.products.map(p => ({ id: p.id, weight: p.weight })),
+const Edit = ({ transaction, customers, products }) => {
+    const { data, setData, put, errors, processing } = useForm({
+        customer_id: transaction.customer_id,
+        product_id: transaction.product_id,
+        quantity: transaction.quantity / 1000, // Convert grams to kg for display
     });
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        put(route('sales.update', sale.id));
+        put(route('sales.update', transaction.id), {
+            onSuccess: () => {
+                toast.success('Transaction updated successfully');
+            },
+            onError: () => {
+                toast.error('Failed to update transaction');
+            },
+        });
     };
 
     return (
-        <AuthenticatedLayout>
-            <Head title={`Edit Sale ID: ${sale.id}`} />
-            <form onSubmit={handleSubmit}>
-                <TextInput
-                    type="text"
-                    value={data.customer_id}
-                    onChange={(e) => setData('customer_id', e.target.value)}
-                    placeholder="Customer ID"
-                    required
-                />
-                {data.products.map((product, index) => (
-                    <div key={index}>
-                        <label>{products.find(p => p.id === product.id)?.name}</label>
-                        <input
-                            type="number"
-                            value={product.weight}
-                            onChange={(e) => {
-                                const newProducts = [...data.products];
-                                newProducts[index].weight = parseInt(e.target.value);
-                                setData('products', newProducts);
-                            }}
-                        />
+        <AuthenticatedLayout
+            header={
+                <div className='flex items-center justify-between'>
+                    <h2 className="text-lg leading-tight text-gray-800">Edit Sale Transaction</h2>
+                </div>
+            }
+        >
+            <Head title="Edit Transaction" />
+            <div className="max-w-lg mx-auto p-4">
+                <form onSubmit={handleSubmit}>
+                    <div className="mb-4">
+                        <Label title='Customer' required={true} htmlFor='customer_id' />
+                        <select
+                            id="customer_id"
+                            value={data.customer_id}
+                            onChange={(e) => setData('customer_id', e.target.value)}
+                            className={`w-full ${errors.customer_id ? 'border-red-600' : ''}`}
+                        >
+                            <option value="">Select Customer</option>
+                            {customers.map(customer => (
+                                <option key={customer.id} value={customer.id}>{customer.name}</option>
+                            ))}
+                        </select>
+                        {errors.customer_id && <div className="text-red-600 text-sm">{errors.customer_id}</div>}
                     </div>
-                ))}
-                <Button type="submit">Update Sale</Button>
-            </form>
+                    <div className="mb-4">
+                        <Label title='Product' required={true} htmlFor='product_id' />
+                        <select
+                            id="product_id"
+                            value={data.product_id}
+                            onChange={(e) => setData('product_id', e.target.value)}
+                            className={`w-full ${errors.product_id ? 'border-red-600' : ''}`}
+                        >
+                            <option value="">Select Product</option>
+                            {products.map(product => (
+                                <option key={product.id} value={product.id}>{product.name}</option>
+                            ))}
+                        </select>
+                        {errors.product_id && <div className="text-red-600 text-sm">{errors.product_id}</div>}
+                    </div>
+                    <div className="mb-4">
+                        <Label title='Quantity (kg)' required={true} htmlFor='quantity' />
+                        <TextInput
+                            id="quantity"
+                            type="number"
+                            value={data.quantity}
+                            onChange={(e) => setData('quantity', e.target.value)}
+                            className={`w-full ${errors.quantity ? 'border-red-600' : ''}`}
+                        />
+                        {errors.quantity && <div className="text-red-600 text-sm">{errors.quantity}</div>}
+                    </div>
+                    <Button type="submit" disabled={processing}>
+                        Update Transaction
+                    </Button>
+                </form>
+            </div>
         </AuthenticatedLayout>
     );
 };

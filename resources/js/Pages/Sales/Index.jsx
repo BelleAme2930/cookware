@@ -2,14 +2,12 @@ import React from 'react';
 import CustomDataTable from "@/Components/CustomDataTable.jsx";
 import { Head } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import { faAdd, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
-import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import IconButton from "@/Components/IconButton.jsx";
 import { toast } from "react-toastify";
 import { router } from '@inertiajs/core';
 
-const Index = ({ sales }) => {
-    const editRoute = (id) => route('sales.edit', id);
+const Index = ({ transactions }) => {
     const deleteRoute = (id) => route('sales.destroy', id);
 
     const columns = [
@@ -20,21 +18,26 @@ const Index = ({ sales }) => {
         },
         {
             name: 'Customer',
-            selector: row => row.customer.name,
+            selector: row => row.customer.name, // Assuming customer has a 'name' field
             sortable: true,
         },
         {
-            name: 'Total Weight (g)',
-            selector: row => row.total_weight,
+            name: 'Product',
+            selector: row => row.product.name, // Assuming product has a 'name' field
+            sortable: true,
+        },
+        {
+            name: 'Quantity (g)',
+            selector: row => row.quantity, // This is in grams
             sortable: true,
         },
         {
             name: 'Total Price',
-            selector: row => row.total_price,
+            selector: row => `$${(row.total_price / 100).toFixed(2)}`, // Assuming total_price is stored in cents
             sortable: true,
         },
         {
-            name: 'Created At',
+            name: 'Created Date',
             selector: row => row.created_at,
             sortable: true,
         },
@@ -42,21 +45,20 @@ const Index = ({ sales }) => {
             name: 'Actions',
             cell: row => (
                 <div className="flex space-x-2">
-                    <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />
                     <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />
                 </div>
-            )
+            ),
         },
     ];
 
     const confirmDelete = (id) => {
-        if (window.confirm("Are you sure you want to delete this sale?")) {
+        if (window.confirm("Are you sure you want to delete this transaction?")) {
             router.delete(deleteRoute(id), {
                 onSuccess: () => {
-                    toast.success('Sale deleted successfully.');
+                    toast.success('Transaction deleted successfully.');
                 },
                 onError: () => {
-                    toast.error('Failed to delete sale.');
+                    toast.error('Failed to delete transaction.');
                 },
             });
         }
@@ -64,19 +66,14 @@ const Index = ({ sales }) => {
 
     return (
         <AuthenticatedLayout
-            header={
-                <div className='flex items-center justify-between'>
-                    <h2 className="text-lg leading-tight text-gray-800">Sales</h2>
-                    <PrimaryIconLink href={route('sales.create')} icon={faAdd}>Add Sale</PrimaryIconLink>
-                </div>
-            }
+            header={<h2 className="text-lg leading-tight text-gray-800">Sales Transactions</h2>}
         >
-            <Head title="Sales" />
+            <Head title="Sales Transactions" />
             <div className='mx-auto max-w-[90%] py-6'>
                 <CustomDataTable
-                    searchLabel='Filter by Sale ID or Customer:'
-                    title="Sales List"
-                    data={sales}
+                    searchLabel='Filter by Transaction:'
+                    title="Sales Transactions"
+                    data={transactions}
                     columns={columns}
                 />
             </div>
