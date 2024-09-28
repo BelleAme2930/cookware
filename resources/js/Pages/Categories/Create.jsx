@@ -35,7 +35,7 @@ const Create = () => {
             }
         >
             <Head title="Categories" />
-            <div className="max-w-lg mx-auto p-4">
+            <div className="max-w-[800px] mx-auto p-4">
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <Label title='Category Name' required={true} htmlFor='name' />

@@ -4,8 +4,8 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\TransactionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -29,7 +29,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('suppliers', SupplierController::class);
     Route::resource('products', ProductController::class);
     Route::resource('customers', CustomerController::class);
-    Route::resource('transactions', TransactionController::class);
+    Route::resource('sales', SaleController::class);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

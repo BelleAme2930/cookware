@@ -35,7 +35,7 @@ const Edit = ({ supplier }) => {
             }
         >
             <Head title="Edit Supplier" />
-            <div className="max-w-lg mx-auto p-4">
+            <div className="max-w-[800px] mx-auto p-4">
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <Label title='Supplier Name' required htmlFor='name' />

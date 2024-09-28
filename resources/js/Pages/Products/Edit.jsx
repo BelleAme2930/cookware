@@ -2,20 +2,30 @@ import React from 'react';
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import TextInput from "@/Components/TextInput.jsx";
-import Label from "@/Components/Label.jsx";
 import Button from "@/Components/Button.jsx";
 import { toast } from "react-toastify";
-import ImageUploader from "@/Components/ImageUploader.jsx";
 import InputSelect from "@/Components/InputSelect.jsx";
+import ImageUploader from "@/Components/ImageUploader.jsx";
+import Label from "@/Components/Label.jsx";
 
 const Edit = ({ product, categories, suppliers }) => {
-    const { data, setData, put, errors, processing, isDirty } = useForm({
-        category_id: product.category_id ?? 1,
-        supplier_id: product.supplier_id ?? 1,
-        name: product.name ?? '',
-        weight: product.weight ?? 0,
+    const { data, setData, put, errors, processing } = useForm({
+        name: product.name,
+        category_id: product.category_id,
+        supplier_id: product.supplier_id,
+        weight: product.weight,
         image: null,
     });
+
+    const categoryOptions = categories.map(category => ({
+        value: category.id,
+        label: category.name,
+    }));
+
+    const supplierOptions = suppliers.map(sup => ({
+        value: sup.id,
+        label: sup.name,
+    }));
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -38,16 +48,16 @@ const Edit = ({ product, categories, suppliers }) => {
             }
         >
             <Head title="Edit Product" />
-            <div className="max-w-[90%] mx-auto p-4">
+            <div className="max-w-[800px] mx-auto p-4">
                 <form onSubmit={handleSubmit}>
                     <div className='flex flex-wrap'>
-                        <div className="mb-4 w-full lg:w-1/2 px-2">
-                            <Label title='Product Name' required htmlFor='name'/>
+                        <div className="mb-4 w-full">
+                            <Label htmlFor='name' required title='Product Name'/>
                             <TextInput
+                                required
                                 id="name"
                                 value={data.name}
                                 onChange={(e) => setData('name', e.target.value)}
-                                required
                                 className={`w-full ${errors.name ? 'border-red-600' : ''}`}
                             />
                             {errors.name && <div className="text-red-600 text-sm">{errors.name}</div>}
@@ -56,36 +66,32 @@ const Edit = ({ product, categories, suppliers }) => {
                         <InputSelect
                             id="category_id"
                             label="Category"
-                            options={categories}
+                            options={categoryOptions}
                             value={data.category_id}
-                            onChange={(e) => setData('category_id', e.target.value)}
-                            error={errors.category_id}
-                            required
-                            errorMsg={errors.category_id}
+                            onChange={(value) => setData('category_id', value.value)}
                             link={categories.length === 0 ? route('categories.create') : null}
                             linkText="Add category?"
+                            required
                         />
 
                         <InputSelect
                             id="supplier_id"
                             label="Supplier"
-                            options={suppliers}
+                            options={supplierOptions}
                             value={data.supplier_id}
-                            onChange={(e) => setData('supplier_id', e.target.value)}
-                            error={errors.supplier_id}
-                            required
-                            errorMsg={errors.supplier_id}
+                            onChange={(value) => setData('supplier_id', value.value)}
                             link={suppliers.length === 0 ? route('suppliers.create') : null}
                             linkText="Add supplier?"
+                            required
                         />
 
-                        <div className="mb-4 w-full lg:w-1/2 px-2">
-                            <Label title='Weight' required htmlFor='weight'/>
+                        <div className="mb-4 w-full">
+                            <Label htmlFor='weight' required title='Weight'/>
                             <TextInput
                                 type="number"
                                 id="weight"
                                 value={data.weight}
-                                onChange={(e) => setData('weight', parseFloat(e.target.value))}
+                                onChange={(e) => setData('weight', e.target.value)}
                                 required
                                 className={`w-full ${errors.weight ? 'border-red-600' : ''}`}
                             />
@@ -93,15 +99,14 @@ const Edit = ({ product, categories, suppliers }) => {
                         </div>
 
                         <ImageUploader
-                            title='Change Product Image'
+                            title='Select Product Image'
                             id="image"
                             onChange={(e) => setData('image', e.target.files[0])}
                             error={errors.image}
-                            value={product.image}
                         />
                     </div>
                     <div className='px-2'>
-                        <Button type="submit" disabled={processing | !isDirty}>
+                        <Button type="submit" disabled={processing}>
                             Update Product
                         </Button>
                     </div>

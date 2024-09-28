@@ -17,6 +17,16 @@ const Create = ({ categories, suppliers }) => {
         image: null,
     });
 
+    const categoryOptions = categories.map(cat => ({
+        value: cat.id,
+        label: cat.name,
+    }));
+
+    const supplierOptions = suppliers.map(sup => ({
+        value: sup.id,
+        label: sup.name,
+    }));
+
     const handleSubmit = (e) => {
         e.preventDefault();
         post(route('products.store'), {
@@ -26,6 +36,7 @@ const Create = ({ categories, suppliers }) => {
             },
             onError: () => {
                 toast.error('Failed to add product');
+                console.error(errors);
             },
         });
     };
@@ -39,10 +50,10 @@ const Create = ({ categories, suppliers }) => {
             }
         >
             <Head title="Add Product" />
-            <div className="max-w-[90%] mx-auto p-4">
+            <div className="max-w-[800px] mx-auto p-4">
                 <form onSubmit={handleSubmit}>
                     <div className='flex flex-wrap'>
-                        <div className="mb-4 w-full lg:w-1/2 px-2">
+                        <div className="mb-4 w-full">
                             <Label htmlFor='name' required title='Product Name'/>
                             <TextInput
                                 required
@@ -57,11 +68,9 @@ const Create = ({ categories, suppliers }) => {
                         <InputSelect
                             id="category_id"
                             label="Category"
-                            options={categories}
+                            options={categoryOptions}
                             value={data.category_id}
-                            onChange={(e) => setData('category_id', e.target.value)}
-                            error={errors.category_id}
-                            errorMsg={errors.category_id}
+                            onChange={(value) => setData('category_id', value.value)}
                             link={categories.length === 0 ? route('categories.create') : null}
                             linkText="Add category?"
                             required
@@ -70,17 +79,15 @@ const Create = ({ categories, suppliers }) => {
                         <InputSelect
                             id="supplier_id"
                             label="Supplier"
-                            options={suppliers}
+                            options={supplierOptions}
                             value={data.supplier_id}
-                            onChange={(e) => setData('supplier_id', e.target.value)}
-                            error={errors.supplier_id}
-                            required
-                            errorMsg={errors.supplier_id}
+                            onChange={(value) => setData('supplier_id', value.value)}
                             link={suppliers.length === 0 ? route('suppliers.create') : null}
                             linkText="Add supplier?"
+                            required
                         />
 
-                        <div className="mb-4 w-full lg:w-1/2 px-2">
+                        <div className="mb-4 w-full">
                             <Label htmlFor='weight' required title='Weight'/>
                             <TextInput
                                 type="number"
@@ -92,7 +99,6 @@ const Create = ({ categories, suppliers }) => {
                             />
                             {errors.weight && <div className="text-red-600 text-sm">{errors.weight}</div>}
                         </div>
-
 
                         <ImageUploader
                             title='Select Product Image'

@@ -8,10 +8,12 @@ import IconButton from "@/Components/IconButton.jsx";
 import { toast } from "react-toastify";
 import { router } from '@inertiajs/core';
 
-const Index = ({ transactions }) => {
+const Index = ({ sales }) => {
 
-    const editRoute = (id) => route('transactions.edit', id);
-    const deleteRoute = (id) => route('transactions.destroy', id);
+    console.log(sales, 'sales');
+
+    const editRoute = (id) => route('sales.edit', id);
+    const deleteRoute = (id) => route('sales.destroy', id);
 
     const columns = [
         {
@@ -26,12 +28,12 @@ const Index = ({ transactions }) => {
         },
         {
             name: 'Product',
-            selector: row => row.products.map(product => product.name).join(', '),
-            sortable: false,
+            selector: row => row.product.name,
+            sortable: true,
         },
         {
             name: 'Weight (kg)',
-            selector: row => row.products.reduce((total, product) => total + product.pivot.weight, 0),
+            selector: row => row.weight,
             sortable: false,
         },
         {
@@ -56,13 +58,13 @@ const Index = ({ transactions }) => {
     ];
 
     const confirmDelete = (id) => {
-        if (window.confirm("Are you sure you want to delete this transaction?")) {
+        if (window.confirm("Are you sure you want to delete this sale?")) {
             router.delete(deleteRoute(id), {
                 onSuccess: () => {
-                    toast.success('Transaction deleted successfully.');
+                    toast.success('Sale deleted successfully.');
                 },
                 onError: () => {
-                    toast.error('Failed to delete transaction.');
+                    toast.error('Failed to delete sale.');
                 },
             });
         }
@@ -72,17 +74,17 @@ const Index = ({ transactions }) => {
         <AuthenticatedLayout
             header={
                 <div className='flex items-center justify-between'>
-                    <h2 className="text-lg leading-tight text-gray-800">Transactions</h2>
-                    <PrimaryIconLink href={route('transactions.create')} icon={faAdd}>Add Transaction</PrimaryIconLink>
+                    <h2 className="text-lg leading-tight text-gray-800">Sales Transactions</h2>
+                    <PrimaryIconLink href={route('sales.create')} icon={faAdd}>Add Sale</PrimaryIconLink>
                 </div>
             }
         >
-            <Head title="Transactions" />
+            <Head title="Sales Transactions" />
             <div className='mx-auto max-w-[90%] py-6'>
                 <CustomDataTable
-                    searchLabel='Filter by Transaction:'
-                    title="Transactions"
-                    data={transactions.data}
+                    searchLabel='Filter by Sale:'
+                    title="Sales Transactions"
+                    data={sales.data}
                     columns={columns}
                 />
             </div>

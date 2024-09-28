@@ -40,6 +40,7 @@ class ProductController extends Controller
             'supplier_id' => 'required|exists:suppliers,id',
             'name' => 'required|string|max:255',
             'weight' => 'required|numeric',
+            'stock' => 'required|integer|min:0', // Added validation for stock
             'image' => 'nullable|image|max:2048',
         ]);
 
@@ -65,17 +66,16 @@ class ProductController extends Controller
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
             'weight' => WeightHelper::toGrams($request->weight),
+            'stock' => $request->stock, // Save stock during product creation
             'image' => $imagePath,
         ]);
 
-        return redirect()->route('products.index');
+        return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }
 
     public function show(Product $product)
     {
-
         $product->weight_per_unit_kilos = WeightHelper::toKilos($product->weight_per_unit);
-
         return Inertia::render('Products/Show', [
             'product' => $product,
         ]);
@@ -102,12 +102,23 @@ class ProductController extends Controller
             'supplier_id' => 'required|exists:suppliers,id',
             'name' => 'required|string|max:255',
             'weight' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0', // Added validation for stock
             'image' => 'nullable|image|max:2048',
         ]);
 
         $imagePath = $product->image;
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('images', 'public');
+            $randomString = Str::random(10);
+            $extension = $request->file('image')->getClientOriginalExtension();
+            $imageName = $randomString . '.' . $extension;
+            $directoryPath = 'assets/images/uploads/products';
+
+            if (!file_exists($directoryPath)) {
+                mkdir($directoryPath, 0755, true);
+            }
+
+            $request->file('image')->move($directoryPath, $imageName);
+            $imagePath = 'assets/images/uploads/products/' . $imageName;
         }
 
         $product->update([
@@ -115,15 +126,16 @@ class ProductController extends Controller
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
             'weight' => WeightHelper::toGrams($request->weight),
+            'stock' => $request->stock, // Update stock during product update
             'image' => $imagePath,
         ]);
 
-        return redirect()->route('products.index');
+        return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
 
     public function destroy(Product $product)
     {
         $product->delete();
-        return redirect()->route('products.index');
+        return redirect()->route('products.index')->with('success', 'Product deleted successfully.');
     }
 }

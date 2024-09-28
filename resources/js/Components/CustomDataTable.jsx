@@ -107,7 +107,7 @@ const CustomDataTable = ({ title, data, columns, searchLabel, isLoading }) => {
                     progressPending={isLoading}
                     progressComponent={<Loader />}
                     customStyles={customStyles}
-                    noDataComponent="No records found"
+                    noDataComponent={<div className='py-1'>No records found</div>}
                 />
             </div>
         </div>

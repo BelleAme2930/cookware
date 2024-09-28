@@ -34,7 +34,7 @@ const Edit = ({ customer }) => {
             }
         >
             <Head title="Edit Customer" />
-            <div className="max-w-lg mx-auto p-4">
+            <div className="max-w-[800px] mx-auto p-4">
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
                         <Label title='Customer Name' htmlFor='name' />

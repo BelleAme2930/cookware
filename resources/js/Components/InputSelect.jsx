@@ -3,18 +3,7 @@ import Label from "@/Components/Label.jsx";
 import { Link } from "@inertiajs/react";
 import Select from 'react-select';
 
-const InputSelect = ({ id, label, options, value, onChange, error, required, errorMsg, link, linkText }) => {
-
-    const formattedOptions = options.map(option => ({
-        value: option.id,
-        label: option.name,
-    }));
-
-
-    const handleChange = (selectedOption) => {
-        onChange(selectedOption ? selectedOption.value : '');
-    };
-
+const InputSelect = ({ id, label, options, value, onChange, error, required, errorMsg, link, linkText, className }) => {
 
     const customStyles = {
         control: (provided, state) => ({
@@ -45,7 +34,7 @@ const InputSelect = ({ id, label, options, value, onChange, error, required, err
     };
 
     return (
-        <div className="mb-4 w-full lg:w-1/2 px-2">
+        <div className="mb-4 w-full">
             <div className="flex items-center justify-between">
                 <Label title={label} htmlFor={id} required={required} />
                 {link && (
@@ -56,12 +45,12 @@ const InputSelect = ({ id, label, options, value, onChange, error, required, err
             </div>
             <Select
                 id={id}
-                value={formattedOptions.find(option => option.value === value)}
-                onChange={handleChange}
-                options={formattedOptions}
+                value={options.find(option => option.value === value)}
+                onChange={onChange}
+                options={options}
                 isClearable
                 required={required}
-                className={`react-select ${error ? 'border-red-600' : ''}`}
+                className={`${className} react-select ${error ? 'border-red-600' : ''}`}
                 classNamePrefix="react-select"
                 styles={customStyles}
                 placeholder="Select an option"
