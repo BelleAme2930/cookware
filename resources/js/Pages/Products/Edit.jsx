@@ -42,7 +42,7 @@ const Edit = ({ product, categories, suppliers }) => {
                 <form onSubmit={handleSubmit}>
                     <div className='flex flex-wrap'>
                         <div className="mb-4 w-full lg:w-1/2 px-2">
-                            <Label title='Product Name' htmlFor='name'/>
+                            <Label title='Product Name' required htmlFor='name'/>
                             <TextInput
                                 id="name"
                                 value={data.name}
@@ -80,7 +80,7 @@ const Edit = ({ product, categories, suppliers }) => {
                         />
 
                         <div className="mb-4 w-full lg:w-1/2 px-2">
-                            <Label title='Weight' htmlFor='weight'/>
+                            <Label title='Weight' required htmlFor='weight'/>
                             <TextInput
                                 type="number"
                                 id="weight"

@@ -7,3 +7,10 @@
 select:focus {
     --tw-ring-color: #e4023b !important;
 }
+.react-select__control{
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+.react-select__input{
+    box-shadow: none !important;
+}

@@ -43,12 +43,12 @@ const Create = ({ categories, suppliers }) => {
                 <form onSubmit={handleSubmit}>
                     <div className='flex flex-wrap'>
                         <div className="mb-4 w-full lg:w-1/2 px-2">
-                            <Label htmlFor='name' title='Product Name'/>
+                            <Label htmlFor='name' required title='Product Name'/>
                             <TextInput
+                                required
                                 id="name"
                                 value={data.name}
                                 onChange={(e) => setData('name', e.target.value)}
-                                required
                                 className={`w-full ${errors.name ? 'border-red-600' : ''}`}
                             />
                             {errors.name && <div className="text-red-600 text-sm">{errors.name}</div>}
@@ -61,10 +61,10 @@ const Create = ({ categories, suppliers }) => {
                             value={data.category_id}
                             onChange={(e) => setData('category_id', e.target.value)}
                             error={errors.category_id}
-                            required
                             errorMsg={errors.category_id}
                             link={categories.length === 0 ? route('categories.create') : null}
                             linkText="Add category?"
+                            required
                         />
 
                         <InputSelect
@@ -81,7 +81,7 @@ const Create = ({ categories, suppliers }) => {
                         />
 
                         <div className="mb-4 w-full lg:w-1/2 px-2">
-                            <Label htmlFor='weight' title='Weisght'/>
+                            <Label htmlFor='weight' required title='Weight'/>
                             <TextInput
                                 type="number"
                                 id="weight"
