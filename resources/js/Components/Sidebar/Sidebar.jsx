@@ -52,6 +52,10 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
                     <SideMenuItem label="Add Customer" href={route('customers.create')} />
                     <SideMenuItem label="Customer Listing" href={route('customers.index')} />
                 </SideMenuDropdownItem>
+                <SideMenuDropdownItem label="Sales">
+                    <SideMenuItem label="Add Sale" href={route('sales.create')} />
+                    <SideMenuItem label="Sale Listing" href={route('sales.index')} />
+                </SideMenuDropdownItem>
             </div>
         </div>
     );

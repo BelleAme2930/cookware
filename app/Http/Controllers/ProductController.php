@@ -40,7 +40,7 @@ class ProductController extends Controller
             'supplier_id' => 'required|exists:suppliers,id',
             'name' => 'required|string|max:255',
             'weight' => 'required|numeric',
-            'stock' => 'required|integer|min:0', // Added validation for stock
+            'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|max:2048',
         ]);
 
@@ -65,8 +65,8 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
+            'price' => $request->price,
             'weight' => WeightHelper::toGrams($request->weight),
-            'stock' => $request->stock, // Save stock during product creation
             'image' => $imagePath,
         ]);
 
@@ -102,7 +102,7 @@ class ProductController extends Controller
             'supplier_id' => 'required|exists:suppliers,id',
             'name' => 'required|string|max:255',
             'weight' => 'required|numeric|min:0',
-            'stock' => 'required|integer|min:0', // Added validation for stock
+            'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|max:2048',
         ]);
 
@@ -125,8 +125,8 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
+            'price' => $request->price,
             'weight' => WeightHelper::toGrams($request->weight),
-            'stock' => $request->stock, // Update stock during product update
             'image' => $imagePath,
         ]);
 

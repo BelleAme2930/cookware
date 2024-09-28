@@ -17,8 +17,8 @@ return new class extends Migration
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->unsignedBigInteger('weight');
+            $table->unsignedBigInteger('price');
             $table->string('image')->nullable();
-            $table->integer('stock')->default(0);
             $table->timestamps();
         });
     }

@@ -12,14 +12,22 @@ class SaleResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        $data =  [
             'id' => $this->id,
-            'customer' => $this->customer->name,
-            'product' => $this->product->name,
             'weight' => $this->weight,
             'total_price' => $this->total_price,
-            'created_at' => $this->created_at,
-            'updated_at' => $this->updated_at,
+            'created_at' => $this->created_at->format('Y-m-d'),
+            'updated_at' => $this->updated_at->format('Y-m-d'),
         ];
+
+        if ($this->relationLoaded('customer')) {
+            $data['customer'] = new CustomerResource($this->customer);
+        }
+
+        if ($this->relationLoaded('product')) {
+            $data['product'] = new ProductResource($this->product);
+        }
+
+        return $data;
     }
 }

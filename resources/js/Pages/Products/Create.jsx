@@ -14,6 +14,7 @@ const Create = ({ categories, suppliers }) => {
         category_id: '',
         supplier_id: '',
         weight: 0,
+        price: 0,
         image: null,
     });
 
@@ -98,6 +99,19 @@ const Create = ({ categories, suppliers }) => {
                                 className={`w-full ${errors.weight ? 'border-red-600' : ''}`}
                             />
                             {errors.weight && <div className="text-red-600 text-sm">{errors.weight}</div>}
+                        </div>
+
+                        <div className="mb-4 w-full">
+                            <Label htmlFor='price' required title='Price Per KG' suffix='PKR'/>
+                            <TextInput
+                                type="number"
+                                id="price"
+                                value={data.price}
+                                onChange={(e) => setData('price', e.target.value)}
+                                required
+                                className={`w-full ${errors.price ? 'border-red-600' : ''}`}
+                            />
+                            {errors.price && <div className="text-red-600 text-sm">{errors.price}</div>}
                         </div>
 
                         <ImageUploader

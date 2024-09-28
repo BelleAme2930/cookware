@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\WeightHelper;
 use App\Http\Resources\SaleResource;
 use App\Models\Sale;
 use App\Models\Product;
@@ -13,8 +14,8 @@ class SaleController extends Controller
 {
     public function index()
     {
-        // Retrieve all sales with their associated customer and product
         $sales = Sale::with(['customer', 'product'])->get();
+
         return Inertia::render('Sales/Index', [
             'sales' => SaleResource::collection($sales),
         ]);
@@ -22,7 +23,6 @@ class SaleController extends Controller
 
     public function create()
     {
-        // Retrieve all customers and products for the form
         $customers = Customer::all();
         $products = Product::all();
         return Inertia::render('Sales/Create', [
@@ -33,18 +33,21 @@ class SaleController extends Controller
 
     public function store(Request $request)
     {
-        // Validate the request
         $request->validate([
             'customer_id' => 'required|exists:customers,id',
             'product_id' => 'required|exists:products,id',
             'weight' => 'required|integer|min:1',
         ]);
 
-        // Calculate the total price based on product weight and stock
         $product = Product::find($request->product_id);
-        $total_price = ($product->weight / $product->stock) * $request->weight;
 
-        // Create a new sale record
+        $total_price = $product->price_per_kg * WeightHelper::toKilos($request->weight);
+
+        $product->update([
+            'weight' => $product->weight - WeightHelper::toGrams($request->weight),
+        ]);
+
+        // Create the sale record
         Sale::create([
             'customer_id' => $request->customer_id,
             'product_id' => $request->product_id,
@@ -76,9 +79,11 @@ class SaleController extends Controller
             'weight' => 'required|integer|min:1',
         ]);
 
-        // Calculate the total price based on product weight and stock
+        // Find the product
         $product = Product::find($request->product_id);
-        $total_price = ($product->weight / $product->stock) * $request->weight;
+
+        // Calculate total price based on weight and price_per_kg
+        $total_price = $product->price_per_kg * WeightHelper::toKilos($request->weight);
 
         // Update the existing sale record
         $sale->update([

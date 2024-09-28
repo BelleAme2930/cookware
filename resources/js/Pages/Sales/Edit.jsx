@@ -44,7 +44,7 @@ const Edit = ({ sale, customers, products }) => {
             }
         >
             <Head title="Edit Sale" />
-            <div className="max-w-lg mx-auto p-4">
+            <div className="max-w-[800px] mx-auto p-4">
                 <form onSubmit={handleSubmit}>
                     <InputSelect
                         id="customer_id"

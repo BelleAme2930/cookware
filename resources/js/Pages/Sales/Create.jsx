@@ -47,7 +47,7 @@ const Create = ({ customers, products }) => {
             }
         >
             <Head title="Add Sale" />
-            <div className="max-w-lg mx-auto p-4">
+            <div className="max-w-[800px] mx-auto p-4">
                 <form onSubmit={handleSubmit}>
                     <InputSelect
                         id="customer_id"
@@ -55,8 +55,8 @@ const Create = ({ customers, products }) => {
                         options={customerOptions}
                         value={data.customer_id}
                         onChange={(selectedOption) => setData('customer_id', selectedOption.value)}
-                        error={errors.customer_id}
-                        errorMsg={errors.customer_id ? 'Customer is required' : ''}
+                        link={customers.length === 0 ? route('customers.create') : null}
+                        linkText="Add customer?"
                         required
                     />
                     <InputSelect
@@ -65,8 +65,8 @@ const Create = ({ customers, products }) => {
                         options={productOptions}
                         value={data.product_id}
                         onChange={(selectedOption) => setData('product_id', selectedOption.value)}
-                        error={errors.product_id}
-                        errorMsg={errors.product_id ? 'Product is required' : ''}
+                        link={products.length === 0 ? route('products.create') : null}
+                        linkText="Add product?"
                         required
                     />
                     <div className="mb-4">
