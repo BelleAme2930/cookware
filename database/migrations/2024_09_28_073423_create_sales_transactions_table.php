@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('sales', function (Blueprint $table) {
+        Schema::create('sales_transactions', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
-            $table->date('sale_date');
-            $table->integer('total_weight');
-            $table->integer('total_price');
-            $table->string('payment_method')->nullable();
-            $table->string('status')->default('completed');
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
+            $table->unsignedBigInteger('quantity'); // Weight in grams
+            $table->unsignedBigInteger('total_price'); // Total price in cents or smallest currency unit
             $table->timestamps();
         });
     }
@@ -28,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('sales');
+        Schema::dropIfExists('sales_transactions');
     }
 };
