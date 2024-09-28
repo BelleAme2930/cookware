@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import SideMenuItem from './SideMenuItem';
 import SideMenuDropdownItem from './SideMenuDropdownItem';
 import { Link } from "@inertiajs/react";

@@ -5,7 +5,7 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.jsx';
 import Button from '@/Components/Button.jsx';
 import TextInput from '@/Components/TextInput.jsx';
 
-const Edit = ({ sale, products, customers }) => {
+const Edit = ({ sale, products }) => {
     const { data, setData, put } = useForm({
         customer_id: sale.customer_id,
         products: sale.products.map(p => ({ id: p.id, weight: p.weight })),
