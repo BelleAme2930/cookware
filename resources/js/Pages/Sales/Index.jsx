@@ -1,4 +1,3 @@
-// resources/js/Pages/Sales/Index.jsx
 import React from 'react';
 import CustomDataTable from "@/Components/CustomDataTable.jsx";
 import { Head } from "@inertiajs/react";
@@ -21,7 +20,7 @@ const Index = ({ sales }) => {
         },
         {
             name: 'Customer',
-            selector: row => row.customer.name, // Assuming a relationship between Sale and Customer
+            selector: row => row.customer.name,
             sortable: true,
         },
         {
@@ -31,7 +30,7 @@ const Index = ({ sales }) => {
         },
         {
             name: 'Total Price',
-            selector: row => row.total_price, // Assuming total_price is stored as an integer
+            selector: row => row.total_price,
             sortable: true,
         },
         {

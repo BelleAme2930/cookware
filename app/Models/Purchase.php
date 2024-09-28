@@ -13,7 +13,7 @@ class Purchase extends Model
     protected $fillable = [
         'customer_id',
         'product_id',
-        'weight_in_grams',
+        'weight',
         'total_price',
         'purchase_date',
     ];

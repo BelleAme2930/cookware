@@ -12,7 +12,7 @@ class Inventory extends Model
 
     protected $fillable = [
         'product_id',
-        'weight_in_grams',
+        'weight',
     ];
 
     public function product(): BelongsTo
