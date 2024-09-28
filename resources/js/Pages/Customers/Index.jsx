@@ -6,6 +6,7 @@ import IconButton from "@/Components/IconButton.jsx";
 import { faAdd, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { router } from '@inertiajs/core';
+import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 
 const Index = ({ customers }) => {
     const editRoute = (id) => route('customers.edit', id);
@@ -61,7 +62,7 @@ const Index = ({ customers }) => {
             header={
                 <div className='flex items-center justify-between'>
                     <h2 className="text-lg leading-tight text-gray-800">Customers</h2>
-                    <IconButton href={route('customers.create')} icon={faAdd}>Add Customer</IconButton>
+                    <PrimaryIconLink href={route('customers.create')} icon={faAdd}>Add Customer</PrimaryIconLink>
                 </div>
             }
         >

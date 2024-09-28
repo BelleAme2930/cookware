@@ -2,10 +2,11 @@ import React from 'react';
 import CustomDataTable from "@/Components/CustomDataTable.jsx";
 import { Head } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
+import {faAdd, faTrash} from "@fortawesome/free-solid-svg-icons";
 import IconButton from "@/Components/IconButton.jsx";
 import { toast } from "react-toastify";
 import { router } from '@inertiajs/core';
+import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 
 const Index = ({ transactions }) => {
     const deleteRoute = (id) => route('sales.destroy', id);
@@ -66,7 +67,13 @@ const Index = ({ transactions }) => {
 
     return (
         <AuthenticatedLayout
-            header={<h2 className="text-lg leading-tight text-gray-800">Sales Transactions</h2>}
+            header={
+                <div className='flex items-center justify-between'>
+                    header={<h2 className="text-lg leading-tight text-gray-800">Sales Transactions</h2>}
+                    <PrimaryIconLink href={route('sales.create')} icon={faAdd}>Add Sales</PrimaryIconLink>
+                </div>
+            }
+
         >
             <Head title="Sales Transactions" />
             <div className='mx-auto max-w-[90%] py-6'>
