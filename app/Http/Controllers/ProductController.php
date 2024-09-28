@@ -39,7 +39,8 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
             'name' => 'required|string|max:255',
-            'weight' => 'required|numeric',
+            'item_stock' => 'nullable|numeric',
+            'weight' => 'required_if:product_type,weight|numeric',
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|max:2048',
         ]);
@@ -66,7 +67,9 @@ class ProductController extends Controller
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
             'price' => $request->price,
-            'weight' => WeightHelper::toGrams($request->weight),
+            'weight' => $request->product_type === 'weight' ? WeightHelper::toGrams($request->weight) : null,
+            'item_stock' => $request->product_type === 'item' ? $request->item_stock : null,
+            'product_type' => $request->product_type,
             'image' => $imagePath,
         ]);
 
@@ -97,14 +100,23 @@ class ProductController extends Controller
 
     public function update(Request $request, Product $product)
     {
-        $request->validate([
+        $rules = [
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
             'name' => 'required|string|max:255',
-            'weight' => 'required|numeric|min:0',
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|max:2048',
-        ]);
+        ];
+
+        if ($request->product_type === 'weight') {
+            $rules['weight'] = 'required|numeric|min:0';
+            $rules['item_stock'] = 'nullable|numeric|min:0';
+        } else {
+            $rules['item_stock'] = 'required|numeric|min:0';
+            $rules['weight'] = 'nullable|numeric|min:0';
+        }
+
+        $request->validate($rules);
 
         $imagePath = $product->image;
         if ($request->hasFile('image')) {
@@ -121,12 +133,14 @@ class ProductController extends Controller
             $imagePath = 'assets/images/uploads/products/' . $imageName;
         }
 
+
         $product->update([
             'category_id' => $request->category_id,
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
             'price' => $request->price,
-            'weight' => WeightHelper::toGrams($request->weight),
+            'weight' => $request->product_type === 'weight' ? WeightHelper::toGrams($request->weight) : null,
+            'item_stock' => $request->product_type === 'item' ? $request->item_stock : null,
             'image' => $imagePath,
         ]);
 

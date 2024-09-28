@@ -16,32 +16,38 @@ const Index = ({ products }) => {
         {
             name: 'ID',
             selector: row => row.id,
-            sortable: true,
         },
         {
             name: 'Name',
             selector: row => row.name,
-            sortable: true,
         },
         {
             name: 'Category',
             selector: row => row.category.name,
-            sortable: true,
         },
         {
             name: 'Supplier',
             selector: row => row.supplier.name,
-            sortable: true,
         },
         {
             name: 'Weight (kg)',
-            selector: row => row.weight + ' kg',
-            sortable: true,
+            selector: row => row.weight > 0 ? row.weight : 'N/A',
+        },
+        {
+            name: 'Quantity',
+            selector: row => row.item_stock > 0 ? row.item_stock : 'N/A',
         },
         {
             name: 'Price per KG',
             selector: row => row.price + ' Rs',
-            sortable: true,
+        },
+        {
+            name: 'Type',
+            selector: row => (
+                <div className="capitalize">
+                    {row.product_type}
+                </div>
+            ),
         },
         {
             name: 'Image',

@@ -2,7 +2,7 @@ import React from 'react';
 
 const ImageUploader = ({ id, onChange, error, value, title }) => {
     return (
-        <div className="mb-4 w-full px-2">
+        <div className="mb-4 w-full">
             <div className='flex justify-between items-center'>
                 <label className="block text-gray-700" htmlFor={id}>{title ? title : 'Select Image'}</label>
                 {value && (
