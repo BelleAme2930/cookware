@@ -24,7 +24,7 @@ class AccountController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255|unique:accounts,title',
             'account_number' => 'required|string|max:255|unique:accounts,account_number',
             'bank_name' => 'required|string|max:255',
@@ -33,21 +33,21 @@ class AccountController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        Account::create($request->all());
+        Account::create($validated);
 
-        return redirect()->route('accounts.index');
+        return redirect()->route('accounts.index')->with('success', 'Account created successfully.');
     }
 
     public function edit(Account $account)
     {
         return Inertia::render('Accounts/Edit', [
-            'account' => $account,
+            'account' => new AccountResource($account),
         ]);
     }
 
     public function update(Request $request, Account $account)
     {
-        $request->validate([
+        $validated = $request->validate([
             'title' => 'required|string|max:255|unique:accounts,title,' . $account->id,
             'account_number' => 'required|string|max:255|unique:accounts,account_number,' . $account->id,
             'bank_name' => 'required|string|max:255',
@@ -56,15 +56,15 @@ class AccountController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        $account->update($request->all());
+        $account->update($validated);
 
-        return redirect()->route('accounts.index');
+        return redirect()->route('accounts.index')->with('success', 'Account updated successfully.');
     }
 
     public function destroy(Account $account)
     {
         $account->delete();
 
-        return redirect()->route('accounts.index');
+        return redirect()->route('accounts.index')->with('success', 'Account deleted successfully.');
     }
 }
