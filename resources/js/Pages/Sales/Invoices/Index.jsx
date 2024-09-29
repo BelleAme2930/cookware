@@ -44,9 +44,10 @@ const Index = ({sales}) => {
     ];
 
     const filterCriteria = [
-        {selector: row => `${row.id}`},
+        {selector: row => row.id},
         {selector: row => row.customer.name},
     ];
+
 
 
     const confirmDelete = (id) => {
@@ -70,7 +71,7 @@ const Index = ({sales}) => {
             <div className="mx-auto max-w-[90%] py-6">
                 <CustomDataTable
                     title="Sales Invoices"
-                    data={sales.data}
+                    data={sales}
                     columns={columns}
                     filterCriteria={filterCriteria}
                 />
