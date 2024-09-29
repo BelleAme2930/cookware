@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ProductTypeEnum;
 use App\Http\Resources\CategoryResource;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\SupplierResource;
@@ -39,7 +40,7 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
             'name' => 'required|string|max:255',
-            'item_stock' => 'nullable|numeric',
+            'quantity' => 'nullable|numeric',
             'weight' => 'required_if:product_type,weight|numeric',
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|max:2048',
@@ -67,8 +68,8 @@ class ProductController extends Controller
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
             'price' => $request->price,
-            'weight' => $request->product_type === 'weight' ? WeightHelper::toGrams($request->weight) : null,
-            'item_stock' => $request->product_type === 'item' ? $request->item_stock : null,
+            'weight' => $request->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toGrams($request->weight) : null,
+            'quantity' => $request->product_type === ProductTypeEnum::ITEM->value ? $request->quantity : null,
             'product_type' => $request->product_type,
             'image' => $imagePath,
         ]);
@@ -110,9 +111,9 @@ class ProductController extends Controller
 
         if ($request->product_type === 'weight') {
             $rules['weight'] = 'required|numeric|min:0';
-            $rules['item_stock'] = 'nullable|numeric|min:0';
+            $rules['quantity'] = 'nullable|numeric|min:0';
         } else {
-            $rules['item_stock'] = 'required|numeric|min:0';
+            $rules['quantity'] = 'required|numeric|min:0';
             $rules['weight'] = 'nullable|numeric|min:0';
         }
 
@@ -140,7 +141,7 @@ class ProductController extends Controller
             'name' => $request->name,
             'price' => $request->price,
             'weight' => $request->product_type === 'weight' ? WeightHelper::toGrams($request->weight) : null,
-            'item_stock' => $request->product_type === 'item' ? $request->item_stock : null,
+            'quantity' => $request->product_type === 'item' ? $request->item_stock : null,
             'image' => $imagePath,
         ]);
 

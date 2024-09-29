@@ -10,7 +10,7 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['category_id', 'supplier_id', 'name', 'weight', 'image', 'price', 'product_type', 'item_stock'];
+    protected $fillable = ['category_id', 'supplier_id', 'name', 'weight', 'image', 'price', 'product_type', 'quantity'];
 
     public function category(): BelongsTo
     {
@@ -20,6 +20,11 @@ class Product extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function sales()
+    {
+        return $this->hasMany(Sale::class);
     }
 
 }

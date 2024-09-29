@@ -33,7 +33,12 @@ const Index = ({ sales }) => {
         },
         {
             name: 'Weight (kg)',
-            selector: row => row.weight,
+            selector: row => row.weight || '-',
+            sortable: false,
+        },
+        {
+            name: 'Quantity',
+            selector: row => row.quantity || '-',
             sortable: false,
         },
         {
@@ -56,6 +61,7 @@ const Index = ({ sales }) => {
             )
         },
     ];
+
 
     const confirmDelete = (id) => {
         if (window.confirm("Are you sure you want to delete this sale?")) {

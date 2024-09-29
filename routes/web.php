@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
@@ -30,6 +31,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('products', ProductController::class);
     Route::resource('customers', CustomerController::class);
     Route::resource('sales', SaleController::class);
+    Route::resource('accounts', AccountController::class);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

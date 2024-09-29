@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ProductTypeEnum;
 use App\Helpers\WeightHelper;
 use App\Http\Resources\SaleResource;
 use App\Models\Sale;
@@ -24,54 +25,66 @@ class SaleController extends Controller
     public function create()
     {
         $customers = Customer::all();
-        $products = Product::all();
-
-        $products = $products->map(function ($product) {
-            $soldWeight = Sale::where('product_id', $product->id)->sum('weight');
-            $availableWeight = $product->weight - $soldWeight;
-            $product->available_weight_kg = WeightHelper::toKilos($availableWeight);
-            return $product;
-        });
-
-        $sales = Sale::all();
+        $products = Product::with('sales')->get(['id', 'name', 'product_type']);
 
         return Inertia::render('Sales/Create', [
             'customers' => $customers,
             'products' => $products,
-            'sales' => SaleResource::collection($sales)->resolve(),
         ]);
     }
-
-
 
     public function store(Request $request)
     {
-        $request->validate([
+        $validated = $request->validate([
             'customer_id' => 'required|exists:customers,id',
-            'productWeights' => 'required|array',
-            'productWeights.*.product_id' => 'required|exists:products,id',
-            'productWeights.*.weight' => 'required|numeric|min:1',
+            'products' => 'required|array',
+            'products.*.product_id' => 'required|exists:products,id',
+            'products.*.quantity' => 'nullable|integer|min:1',
+            'products.*.weight' => 'nullable|integer',
         ]);
 
-        $sales = [];
-        foreach ($request->productWeights as $productWeight) {
-            $product = Product::find($productWeight['product_id']);
-            $total_price = $product->price * $productWeight['weight'];
+        foreach ($validated['products'] as $productData) {
+            $product = Product::find($productData['product_id']);
 
-            $product->update([
-                'weight' => $product->weight - WeightHelper::toGrams($productWeight['weight']),
+            $quantity = $product->product_type === ProductTypeEnum::ITEM->value ? $productData['quantity'] : null;
+            $weight = $product->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toGrams($productData['weight']) : null;
+
+            Sale::create([
+                'customer_id' => $validated['customer_id'],
+                'product_id' => $productData['product_id'],
+                'quantity' => $quantity,
+                'weight' => $weight,
+                'total_price' => $this->calculateTotalPrice($productData, $product->product_type),
             ]);
 
-            $sales[] = Sale::create([
-                'customer_id' => $request->customer_id,
-                'product_id' => $productWeight['product_id'],
-                'weight' => WeightHelper::toKilos($productWeight['weight']),
-                'total_price' => $total_price,
-            ]);
+            if ($product->product_type === ProductTypeEnum::ITEM->value) {
+                $product->update([
+                    'quantity' => $product->quantity - $quantity,
+                ]);
+            } else {
+                $product->update([
+                    'weight' => $product->weight - $weight,
+                ]);
+            }
+
         }
 
-        return redirect()->route('sales.index')->with('success', 'Sales created successfully.');
+        return redirect()->route('sales.index')->with('success', 'Sale added successfully');
     }
+
+    private function calculateTotalPrice($productData, $productType)
+    {
+        $product = Product::find($productData['product_id']);
+
+        if ($productType === 'item') {
+            return ($product->price * $productData['quantity']);
+        } elseif ($productType === ProductTypeEnum::WEIGHT->value) {
+            return ($product->price * $productData['weight']);
+        }
+
+        return 0;
+    }
+
 
     public function edit(Sale $sale)
     {

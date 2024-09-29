@@ -10,9 +10,9 @@ const ProductRow = ({
                         productWeight,
                         products,
                         productWeights,
-                        remainingWeight,
                         handleProductChange,
                         handleWeightChange,
+                        handleQuantityChange,
                         handleRemoveProduct,
                         errors,
                     }) => {
@@ -53,28 +53,52 @@ const ProductRow = ({
                     />
                 </div>
                 <div>
-                    <div className='flex items-center justify-between'>
-                        <Label title="Weight (kg)" required={true} htmlFor={`weight_${index}`} />
-                        {productWeight.product_id && (
-                            <div className={`text-sm ${remainingWeight < 0 ? 'text-red-600' : 'text-gray-600'}`}>
-                                Available weight: {remainingWeight || selectedProduct?.available_weight_kg || 0} kg
+                    {selectedProduct?.product_type === 'weight' ? (
+                        <div>
+                            <div className='flex items-center justify-between'>
+                                <Label title="Weight (kg)" required={true} htmlFor={`weight_${index}`} />
+                                {productWeight.product_id && (
+                                    <div className={`text-sm ${remainingWeight < 0 ? 'text-red-600' : 'text-gray-600'}`}>
+                                        Available weight:
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
-                    <TextInput
-                        type="number"
-                        id={`weight_${index}`}
-                        value={productWeight.weight}
-                        onChange={(e) => handleWeightChange(index, parseFloat(e.target.value) || 0)}
-                        className="w-full"
-                        aria-invalid={errors.weight ? 'true' : 'false'}
-                    />
-                    {errors.weight && <div className="text-red-600 text-sm">{errors.weight}</div>}
+                            <TextInput
+                                type="number"
+                                id={`weight_${index}`}
+                                value={productWeight.weight}
+                                onChange={(e) => handleWeightChange(index, parseFloat(e.target.value) || 0)}
+                                className="w-full"
+                                aria-invalid={errors.weight ? 'true' : 'false'}
+                            />
+                            {errors.weight && <div className="text-red-600 text-sm">{errors.weight}</div>}
+                        </div>
+                    ) : (
+                        selectedProduct?.product_type === 'item' && (
+                            <div>
+                                <div className='flex items-center justify-between'>
+                                <Label title="Quantity" required={true} htmlFor={`quantity_${index}`}/>
+                                <div
+                                    className={`text-sm ${productWeight.quantity > selectedProduct?.quantity ? 'text-red-600' : 'text-gray-600'}`}>
+                                    Available:
+                                </div>
+                                </div>
+                                <TextInput
+                                    type="number"
+                                    id={`quantity_${index}`}
+                                    value={productWeight.quantity}
+                                    onChange={(e) => handleQuantityChange(index, parseInt(e.target.value) || 0)}
+                                    className="w-full"
+                                    aria-invalid={errors.quantity ? 'true' : 'false'}
+                                />
+                                {errors.quantity && <div className="text-red-600 text-sm">{errors.quantity}</div>}
+                            </div>
+                        )
+                    )}
                 </div>
             </div>
         </div>
     );
 };
-
 
 export default ProductRow;

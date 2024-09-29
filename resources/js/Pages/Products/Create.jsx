@@ -14,7 +14,7 @@ const Create = ({categories, suppliers}) => {
         category_id: '',
         supplier_id: '',
         weight: 0,
-        item_stock: 0,
+        quantity: 0,
         price: 0,
         image: null,
         product_type: 'weight',
@@ -133,17 +133,17 @@ const Create = ({categories, suppliers}) => {
                         ) : (
                             <>
                                 <div className="mb-4 w-full">
-                                    <Label htmlFor='item_stock' required title='Item Stock'/>
+                                    <Label htmlFor='quantity' required title='Quantity'/>
                                     <TextInput
                                         type="number"
-                                        id="item_stock"
-                                        value={data.item_stock}
-                                        onChange={(e) => setData('item_stock', e.target.value)}
+                                        id="quantity"
+                                        value={data.quantity}
+                                        onChange={(e) => setData('quantity', parseFloat(e.target.value))}
                                         required
-                                        className={`w-full ${errors.item_stock ? 'border-red-600' : ''}`}
+                                        className={`w-full ${errors.quantity ? 'border-red-600' : ''}`}
                                     />
-                                    {errors.item_stock &&
-                                        <div className="text-red-600 text-sm">{errors.item_stock}</div>}
+                                    {errors.quantity &&
+                                        <div className="text-red-600 text-sm">{errors.quantity}</div>}
                                 </div>
 
                                 <div className="mb-4 w-full">

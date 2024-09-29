@@ -31,11 +31,11 @@ const Index = ({ products }) => {
         },
         {
             name: 'Weight (kg)',
-            selector: row => row.weight > 0 ? row.weight : 'N/A',
+            selector: row => row.weight > 0 ? row.weight : '-',
         },
         {
             name: 'Quantity',
-            selector: row => row.item_stock > 0 ? row.item_stock : 'N/A',
+            selector: row => row.quantity > 0 ? row.quantity : '-',
         },
         {
             name: 'Price per KG',

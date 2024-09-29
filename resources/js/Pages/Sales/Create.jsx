@@ -1,100 +1,64 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import TextInput from "@/Components/TextInput.jsx";
 import Button from "@/Components/Button.jsx";
-import { toast } from "react-toastify";
 import InputSelect from "@/Components/InputSelect.jsx";
-import Label from "@/Components/Label.jsx";
-import ProductRow from "@/Pages/Sales/Partials/ProductRow.jsx";
 import PageHeader from "@/Components/PageHeader.jsx";
-import SecondaryButton from "@/Components/SecondaryButton.jsx";
-import PrimaryButton from "@/Components/PrimaryButton.jsx";
 import BorderButton from "@/Components/BorderButton.jsx";
+import TextInput from "@/Components/TextInput.jsx";
 
 const Create = ({ customers, products }) => {
-    const { data, setData, post, errors, processing, reset } = useForm({
+    const { data, setData, post, processing } = useForm({
         customer_id: '',
-        productWeights: [{ product_id: '', weight: 0 }],
+        products: []
     });
 
-    const [remainingWeights, setRemainingWeights] = useState({});
-
-    useEffect(() => {
-        if (products.length > 0 && data.productWeights.length === 0) {
-            setData('productWeights', [{ product_id: products[0].id, weight: 0 }]);
-        }
-    }, [products, data.productWeights.length, setData]);
-
-    const handleAddProduct = () => {
-        setData('productWeights', [...data.productWeights, { product_id: '', weight: 0 }]);
-    };
-
-    const handleRemoveProduct = (index) => {
-        setData('productWeights', data.productWeights.filter((_, i) => i !== index));
-    };
-
-    const handleProductChange = (index, value) => {
-        const updatedProductWeights = data.productWeights.map((pw, i) => (
-            i === index ? { ...pw, product_id: value, weight: '' } : pw
-        ));
-        setData('productWeights', updatedProductWeights);
-
-        const selectedProduct = products.find(product => product.id === value);
-        setRemainingWeights(prevState => ({
-            ...prevState,
-            [index]: selectedProduct?.available_weight_kg || 0,
-        }));
-    };
-
-    const handleWeightChange = (index, value) => {
-        const inputWeight = parseFloat(value) || 0; // Ensure this is always a number
-        const selectedProduct = products.find(p => p.id === data.productWeights[index].product_id);
-        const remainingWeight = (selectedProduct?.available_weight_kg || 0) - inputWeight;
-
-        const updatedProductWeights = data.productWeights.map((pw, i) => (
-            i === index ? { ...pw, weight: inputWeight } : pw // Store as a number
-        ));
-        setData('productWeights', updatedProductWeights);
-
-        setRemainingWeights(prevState => ({
-            ...prevState,
-            [index]: remainingWeight,
-        }));
-    };
-
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        if (data.productWeights.some((pw, i) => {
-            const product = products.find(p => p.id === pw.product_id);
-            return parseFloat(pw.weight) > (product?.available_weight_kg || 0);
-        })) {
-            toast.error('One or more products exceed the available weight.');
-            return;
-        }
-
-        post(route('sales.store'), {
-            onSuccess: () => {
-                toast.success('Sale added successfully');
-                reset();
-            },
-            onError: (error) => {
-                if (error?.errors) {
-                    Object.keys(error.errors).forEach(key => {
-                        toast.error(`${key}: ${error.errors[key].join(', ')}`);
-                    });
-                } else {
-                    toast.error('Failed to add sale');
-                }
-            },
-        });
-    };
+    const [productFields, setProductFields] = useState([{
+        product_id: '',
+        product_type: '',
+        quantity: 1,
+        weight: '',
+    }]);
 
     const customerOptions = customers.map(customer => ({
         value: customer.id,
         label: customer.name,
     }));
+
+    const productOptions = products.map(product => ({
+        value: product.id,
+        label: product.name,
+        product_type: product.product_type,
+    }));
+
+    const handleAddProduct = () => {
+        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '' }]);
+    };
+
+    const handleRemoveProduct = (index) => {
+        const updatedFields = [...productFields];
+        updatedFields.splice(index, 1);
+        setProductFields(updatedFields);
+    };
+
+    const handleProductChange = (index, field, value) => {
+        const updatedFields = [...productFields];
+        updatedFields[index][field] = value;
+
+        // Set product_type based on the selected product
+        if (field === 'product_id') {
+            const selectedProduct = products.find(product => product.id === value);
+            updatedFields[index]['product_type'] = selectedProduct ? selectedProduct.product_type : '';
+        }
+
+        setProductFields(updatedFields);
+        setData('products', updatedFields);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        post(route('sales.store'));
+    };
 
     return (
         <AuthenticatedLayout header={<PageHeader title='Add New Sale' />}>
@@ -111,23 +75,50 @@ const Create = ({ customers, products }) => {
                         linkText="Add customer?"
                         required
                     />
-                    {data.productWeights.map((productWeight, index) => (
-                        <ProductRow
-                            key={index}
-                            index={index}
-                            productWeight={productWeight}
-                            products={products}
-                            productWeights={data.productWeights}
-                            remainingWeight={remainingWeights[index]}
-                            handleProductChange={handleProductChange}
-                            handleWeightChange={handleWeightChange}
-                            handleRemoveProduct={handleRemoveProduct}
-                            errors={errors}
-                        />
+
+                    {productFields.map((product, index) => (
+                        <div key={index} className="mb-4">
+                            <InputSelect
+                                id={`product_id_${index}`}
+                                label="Product"
+                                options={productOptions}
+                                value={product.product_id}
+                                onChange={(selected) => handleProductChange(index, 'product_id', selected.value)}
+                                required
+                            />
+
+                            {product.product_type === 'weight' && (
+                                <TextInput
+                                    id={`weight_${index}`}
+                                    label="Weight"
+                                    type="number"
+                                    value={product.weight}
+                                    onChange={(e) => handleProductChange(index, 'weight', e.target.value)}
+                                    required
+                                />
+                            )}
+
+                            {product.product_type === 'item' && (
+                                <TextInput
+                                    id={`quantity_${index}`}
+                                    label="Quantity"
+                                    type="number"
+                                    value={product.quantity}
+                                    onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
+                                    required
+                                />
+                            )}
+
+                            {index > 0 && (
+                                <Button type="button" onClick={() => handleRemoveProduct(index)}>
+                                    Remove Product
+                                </Button>
+                            )}
+                        </div>
                     ))}
 
                     <div className="flex justify-between items-center">
-                        <BorderButton type='button' disabled={processing} onClick={handleAddProduct}>
+                        <BorderButton type="button" disabled={processing} onClick={handleAddProduct}>
                             Add Product
                         </BorderButton>
                         <Button type="submit" disabled={processing}>
