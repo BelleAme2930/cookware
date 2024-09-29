@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import TextInput from "@/Components/TextInput.jsx";
@@ -13,16 +13,16 @@ const Edit = ({ product, categories, suppliers }) => {
         name: product.name,
         category_id: product.category_id,
         supplier_id: product.supplier_id,
-        weight: product.weight || 0,
-        quantity: product.quantity || 0,
-        price: product.price || 0,
+        weight: product.weight,
+        quantity: product.quantity,
+        price: product.price,
         image: null,
-        product_type: product.product_type || 'weight',
+        product_type: product.product_type,
     });
 
-    const categoryOptions = categories.map(category => ({
-        value: category.id,
-        label: category.name,
+    const categoryOptions = categories.map(cat => ({
+        value: cat.id,
+        label: cat.name,
     }));
 
     const supplierOptions = suppliers.map(sup => ({
@@ -38,9 +38,19 @@ const Edit = ({ product, categories, suppliers }) => {
             },
             onError: () => {
                 toast.error('Failed to update product');
+                console.error(errors);
             },
         });
     };
+
+    useEffect(() => {
+        setData({
+            ...data,
+            weight: product.weight,
+            quantity: product.quantity || 0,
+            price: product.price || 0,
+        });
+    }, [product]);
 
     return (
         <AuthenticatedLayout
@@ -55,7 +65,7 @@ const Edit = ({ product, categories, suppliers }) => {
                 <form onSubmit={handleSubmit}>
                     <div className='flex flex-wrap'>
                         <div className="mb-4 w-full">
-                            <Label htmlFor='name' required title='Product Name'/>
+                            <Label htmlFor='name' required title='Product Name' />
                             <TextInput
                                 required
                                 id="name"
@@ -103,7 +113,7 @@ const Edit = ({ product, categories, suppliers }) => {
                         {data.product_type === 'weight' ? (
                             <>
                                 <div className="mb-4 w-full">
-                                    <Label htmlFor='weight' required title='Weight (KG)'/>
+                                    <Label htmlFor='weight' required title='Weight (KG)' />
                                     <TextInput
                                         type="number"
                                         id="weight"
@@ -116,7 +126,7 @@ const Edit = ({ product, categories, suppliers }) => {
                                 </div>
 
                                 <div className="mb-4 w-full">
-                                    <Label htmlFor='price' required title='Price Per KG' suffix='PKR'/>
+                                    <Label htmlFor='price' required title='Price Per KG' suffix='PKR' />
                                     <TextInput
                                         type="number"
                                         id="price"
@@ -131,21 +141,20 @@ const Edit = ({ product, categories, suppliers }) => {
                         ) : (
                             <>
                                 <div className="mb-4 w-full">
-                                    <Label htmlFor='quantity' required title='Item Stock'/>
+                                    <Label htmlFor='quantity' required title='Quantity' />
                                     <TextInput
                                         type="number"
                                         id="quantity"
                                         value={data.quantity}
-                                        onChange={(e) => setData('quantity', e.target.value)}
+                                        onChange={(e) => setData('quantity', parseFloat(e.target.value))}
                                         required
                                         className={`w-full ${errors.quantity ? 'border-red-600' : ''}`}
                                     />
-                                    {errors.quantity &&
-                                        <div className="text-red-600 text-sm">{errors.quantity}</div>}
+                                    {errors.quantity && <div className="text-red-600 text-sm">{errors.quantity}</div>}
                                 </div>
 
                                 <div className="mb-4 w-full">
-                                    <Label htmlFor='price' required title='Price Per Item' suffix='PKR'/>
+                                    <Label htmlFor='price' required title='Price Per Item' suffix='PKR' />
                                     <TextInput
                                         type="number"
                                         id="price"
@@ -160,7 +169,7 @@ const Edit = ({ product, categories, suppliers }) => {
                         )}
 
                         <ImageUploader
-                            title='Select Product Image'
+                            title='Select New Product Image (Optional)'
                             id="image"
                             onChange={(e) => setData('image', e.target.files[0])}
                             error={errors.image}

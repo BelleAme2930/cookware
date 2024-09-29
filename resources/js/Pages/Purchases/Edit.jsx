@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import Button from "@/Components/Button.jsx";
@@ -10,21 +10,25 @@ import IconButton from "@/Components/IconButton.jsx";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import Label from "@/Components/Label.jsx";
 
-const Create = ({ suppliers, products, accounts }) => {
-    const { data, setData, post, processing } = useForm({
-        supplier_id: '',
-        products: [],
-        due_date: new Date().toISOString().split('T')[0],
-        payment_method: 'cash',
-        account_id: ''
+const Edit = ({ purchase, suppliers, products, accounts }) => {
+    const { data, setData, put, processing } = useForm({
+        supplier_id: purchase.supplier_id,
+        products: purchase.products.map(product => ({
+            product_id: product.id,
+            product_type: product.product_type,
+            quantity: product.pivot.quantity,
+            weight: product.pivot.weight,
+        })),
+        due_date: purchase.due_date,
+        payment_method: purchase.payment_method,
+        account_id: purchase.account_id || '',
     });
 
-    const [productFields, setProductFields] = useState([{
-        product_id: '',
-        product_type: '',
-        quantity: 0,
-        weight: '',
-    }]);
+    const [productFields, setProductFields] = useState(data.products);
+
+    useEffect(() => {
+        setData('products', productFields);
+    }, [productFields]);
 
     const supplierOptions = suppliers.map(supplier => ({
         value: supplier.id,
@@ -49,7 +53,6 @@ const Create = ({ suppliers, products, accounts }) => {
         const updatedFields = [...productFields];
         updatedFields.splice(index, 1);
         setProductFields(updatedFields);
-        setData('products', updatedFields);
     };
 
     const handleProductChange = (index, field, value) => {
@@ -58,16 +61,15 @@ const Create = ({ suppliers, products, accounts }) => {
 
         if (field === 'product_id') {
             const selectedProduct = products.find(product => product.id === value);
-            updatedFields[index]['product_type'] = selectedProduct ? selectedProduct.product_type : '';
+            updatedFields[index]['product_type'] = selectedProduct ? selectedProduct.product_type : 'item';
         }
 
         setProductFields(updatedFields);
-        setData('products', updatedFields);
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        post(route('purchases.store'));
+        put(route('purchases.update', purchase.id));
     };
 
     const accountOptions = accounts.map(acc => ({
@@ -76,8 +78,8 @@ const Create = ({ suppliers, products, accounts }) => {
     }));
 
     return (
-        <AuthenticatedLayout header={<PageHeader title='Add New Purchase' />}>
-            <Head title="Add Purchase" />
+        <AuthenticatedLayout header={<PageHeader title='Edit Purchase' />}>
+            <Head title="Edit Purchase" />
             <div className="max-w-[90%] mx-auto p-4 border border-gray-300 mt-6 bg-white">
                 <form onSubmit={handleSubmit}>
                     <InputSelect
@@ -193,7 +195,7 @@ const Create = ({ suppliers, products, accounts }) => {
                             Add Product
                         </BorderButton>
                         <Button type="submit" disabled={processing}>
-                            {processing ? "Adding..." : "Add Purchase"}
+                            {processing ? "Updating..." : "Update Purchase"}
                         </Button>
                     </div>
                 </form>
@@ -202,4 +204,4 @@ const Create = ({ suppliers, products, accounts }) => {
     );
 };
 
-export default Create;
+export default Edit;

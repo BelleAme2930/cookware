@@ -31,7 +31,7 @@ class PurchaseInvoiceController extends Controller
      */
     public function show(Purchase $purchase)
     {
-        $purchase->load('product.supplier');
+        $purchase->load(['supplier', 'products']);
 
         return Inertia::render('Purchases/Invoices/Show', [
             'purchase' => PurchaseResource::make($purchase)->resolve(),

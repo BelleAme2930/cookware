@@ -104,7 +104,7 @@ class ProductController extends Controller
         $rules = [
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'name' => 'required|string|max:255|unique:products,name,' . $product->id,
+            'name' => 'required|string|max:255',
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|max:2048',
         ];

@@ -5,12 +5,14 @@ import TextInput from "@/Components/TextInput.jsx";
 import Label from "@/Components/Label.jsx";
 import Button from "@/Components/Button.jsx";
 import { toast } from "react-toastify";
+import Textarea from "@/Components/Textarea.jsx";
 
 const Edit = ({ customer }) => {
     const { data, setData, put, errors, processing } = useForm({
         name: customer.name,
         phone: customer.phone,
         email: customer.email,
+        address: customer.address,
     });
 
     const handleSubmit = (e) => {
@@ -67,6 +69,16 @@ const Edit = ({ customer }) => {
                             className={`w-full ${errors.email ? 'border-red-600' : ''}`}
                         />
                         {errors.email && <div className="text-red-600 text-sm">{errors.email}</div>}
+                    </div>
+                    <div className="mb-4">
+                        <Label title='Address' htmlFor='address' />
+                        <Textarea
+                            id="address"
+                            value={data.address}
+                            onChange={(e) => setData('address', e.target.value)}
+                            className={`w-full ${errors.address ? 'border-red-600' : ''}`}
+                        />
+                        {errors.address && <div className="text-red-600 text-sm">{errors.address}</div>}
                     </div>
                     <Button
                         type="submit"

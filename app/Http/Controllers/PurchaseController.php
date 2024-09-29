@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Enums\ProductTypeEnum;
 use App\Helpers\WeightHelper;
+use App\Http\Resources\AccountResource;
+use App\Http\Resources\ProductResource;
 use App\Http\Resources\PurchaseResource;
+use App\Http\Resources\SupplierResource;
 use App\Models\Account;
 use App\Models\Product;
 use App\Models\Purchase;
@@ -104,12 +107,13 @@ class PurchaseController extends Controller
         $products = Product::all();
         $suppliers = Supplier::all();
         $accounts = Account::all();
+        $purchase->load(['products', 'supplier']);
 
         return Inertia::render('Purchases/Edit', [
-            'purchase' => $purchase,
-            'products' => $products,
-            'suppliers' => $suppliers,
-            'accounts' => $accounts,
+            'purchase' => PurchaseResource::make($purchase)->resolve(),
+            'products' => ProductResource::collection($products)->resolve(),
+            'suppliers' => SupplierResource::collection($suppliers)->resolve(),
+            'accounts' => AccountResource::collection($accounts)->resolve(),
         ]);
     }
 
