@@ -2,15 +2,13 @@ import React from 'react';
 import CustomDataTable from "@/Components/CustomDataTable.jsx";
 import { Head } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import { faAdd, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {faAdd, faEdit, faPrint, faTrash} from "@fortawesome/free-solid-svg-icons";
 import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 import IconButton from "@/Components/IconButton.jsx";
 import { toast } from "react-toastify";
 import { router } from '@inertiajs/core';
 
 const Index = ({ sales }) => {
-
-    console.log(sales)
 
     const editRoute = (id) => route('sales.edit', id);
     const deleteRoute = (id) => route('sales.destroy', id);
@@ -62,6 +60,7 @@ const Index = ({ sales }) => {
                 <div className="flex space-x-2">
                     <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />
                     <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />
+                    <IconButton onClick={() => router.visit(route('sales.invoices.show', row.id))} icon={faPrint} />
                 </div>
             )
         },

@@ -192,4 +192,14 @@ class SaleController extends Controller
 
         return redirect()->route('sales.index')->with('success', 'Sale deleted successfully.');
     }
+
+    public function invoice(Sale $sale)
+    {
+        $sale->load(['customer', 'products']);
+
+        return Inertia::render('Sales/Invoices/Show', [
+            'sale' => SaleResource::make($sale)->resolve(),
+        ]);
+    }
+
 }

@@ -24,7 +24,7 @@ class SaleResource extends JsonResource
         ];
 
         if ($this->relationLoaded('customer')) {
-            $data['customer'] = CustomerResource::make($this->customer);
+            $data['customer'] = CustomerResource::make($this->customer)->resolve();
         }
 
         if ($this->relationLoaded('products')) {
