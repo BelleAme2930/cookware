@@ -17,42 +17,34 @@ const Index = ({ sales }) => {
         {
             name: 'ID',
             selector: row => row.id,
-            sortable: true,
         },
         {
             name: 'Customer',
             selector: row => row.customer.name,
-            sortable: true,
         },
         {
             name: 'Products',
             selector: row => row.products.map(product => product.name).join(', '),
-            sortable: true,
         },
         {
             name: 'Weight (kg)',
             selector: row => row.products.map(product => product.product_type === 'weight' ? product.pivot.weight : '-'),
-            sortable: false,
         },
         {
             name: 'Quantity',
             selector: row => row.products.map(product => product.product_type === 'item' ? product.pivot.quantity : '-'),
-            sortable: false,
         },
         {
             name: 'Total Price',
             selector: row => row.total_price,
-            sortable: true,
         },
         {
             name: 'Created Date',
             selector: row => row.created_at,
-            sortable: true,
         },
         {
             name: 'Due Date',
             selector: row => row.due_date,
-            sortable: true,
         },
         {
             name: 'Actions',

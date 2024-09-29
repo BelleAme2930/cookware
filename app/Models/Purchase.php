@@ -10,10 +10,17 @@ class Purchase extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['product_id', 'type', 'total_price', 'quantity', 'weight', 'single_price'];
+    protected $fillable = ['due_date', 'supplier_id', 'payment_method', 'account_id', 'total_price'];
 
-    public function product(): BelongsTo
+    public function products()
     {
-        return $this->belongsTo(Product::class);
+        return $this->belongsToMany(Product::class, 'product_purchase')
+            ->withPivot('quantity', 'weight', 'total_price')
+            ->withTimestamps();
+    }
+
+    public function supplier(): BelongsTo
+    {
+        return $this->belongsTo(Supplier::class);
     }
 }

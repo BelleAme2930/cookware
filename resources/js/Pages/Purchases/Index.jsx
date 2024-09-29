@@ -9,6 +9,7 @@ import { toast } from "react-toastify";
 import { router } from '@inertiajs/core';
 
 const Index = ({ purchases }) => {
+    console.log(purchases)
 
     const editRoute = (id) => route('purchases.edit', id);
     const deleteRoute = (id) => route('purchases.destroy', id);
@@ -19,28 +20,32 @@ const Index = ({ purchases }) => {
             selector: row => row.id,
         },
         {
-            name: 'Product',
-            selector: row => row.product.name,
+            name: 'Supplier',
+            selector: row => row.supplier.name,
         },
         {
-            name: 'Quantity',
-            selector: row => row.quantity ? row.quantity : '-',
+            name: 'Products',
+            selector: row => row.products.map(product => product.name).join(', '),
         },
         {
             name: 'Weight (kg)',
-            selector: row => row.weight ? row.weight : '-',
+            selector: row => row.products.map(product => product.product_type === 'weight' ? product.pivot.weight : '-'),
         },
         {
-            name: 'Price per KG',
-            selector: row => row.single_price + ' Rs',
+            name: 'Quantity',
+            selector: row => row.products.map(product => product.product_type === 'item' ? product.pivot.quantity : '-'),
         },
         {
             name: 'Total Price',
-            selector: row => row.total_price + ' Rs',
+            selector: row => row.total_price,
         },
         {
             name: 'Created Date',
             selector: row => row.created_at,
+        },
+        {
+            name: 'Due Date',
+            selector: row => row.due_date,
         },
         {
             name: 'Actions',
