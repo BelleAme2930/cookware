@@ -2,7 +2,7 @@ import React from 'react';
 import { Head } from '@inertiajs/react';
 import CustomDataTable from "@/Components/CustomDataTable.jsx";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import { faAdd, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {faAdd, faEdit, faPrint, faTrash} from "@fortawesome/free-solid-svg-icons";
 import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 import IconButton from "@/Components/IconButton.jsx";
 import { toast } from "react-toastify";
@@ -48,6 +48,7 @@ const Index = ({ purchases }) => {
                 <div className="flex space-x-2">
                     <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />
                     <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />
+                    <IconButton onClick={() => router.visit(route('purchases.invoices.show', row.id))} icon={faPrint} />
                 </div>
             )
         },
