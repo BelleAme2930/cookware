@@ -39,9 +39,9 @@ class ProductController extends Controller
         $request->validate([
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'name' => 'required|string|max:255',
-            'quantity' => 'nullable|numeric',
-            'weight' => 'required_if:product_type,weight|numeric',
+            'name' => 'required|string|max:255|unique:products,name',
+            'quantity' => 'nullable|numeric|min:0',
+            'weight' => 'required_if:product_type,weight|numeric|min:0',
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|max:2048',
         ]);
@@ -59,7 +59,6 @@ class ProductController extends Controller
             $imageName = $randomString . '.' . $extension;
 
             $request->file('image')->move($directoryPath, $imageName);
-
             $imagePath = 'assets/images/uploads/products/' . $imageName;
         }
 
@@ -76,6 +75,7 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }
+
 
     public function show(Product $product)
     {
@@ -104,7 +104,7 @@ class ProductController extends Controller
         $rules = [
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'name' => 'required|string|max:255',
+            'name' => 'required|string|max:255|unique:products,name,' . $product->id,
             'price' => 'required|numeric|min:0',
             'image' => 'nullable|image|max:2048',
         ];
@@ -146,6 +146,7 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
+
 
     public function destroy(Product $product)
     {

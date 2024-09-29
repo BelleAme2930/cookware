@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 import { router } from '@inertiajs/core';
 
 const Index = ({ purchases }) => {
-    console.log(purchases)
 
     const editRoute = (id) => route('purchases.edit', id);
     const deleteRoute = (id) => route('purchases.destroy', id);
@@ -59,6 +58,15 @@ const Index = ({ purchases }) => {
         },
     ];
 
+    const filterCriteria = [
+        { selector: row => row.supplier.name },
+        { selector: row => row.products.map(product => product.name).join(', ') },
+        { selector: row => row.total_price },
+        { selector: row => row.created_at },
+        { selector: row => row.due_date }
+    ];
+
+
     const confirmDelete = (id) => {
         if (window.confirm("Are you sure you want to delete this purchase?")) {
             router.delete(deleteRoute(id), {
@@ -87,6 +95,7 @@ const Index = ({ purchases }) => {
                     title="Purchases"
                     data={purchases.data}
                     columns={columns}
+                    filterCriteria={filterCriteria}
                 />
             </div>
         </AuthenticatedLayout>

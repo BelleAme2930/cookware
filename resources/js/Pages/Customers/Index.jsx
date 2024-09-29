@@ -13,26 +13,9 @@ const Index = ({ customers }) => {
     const deleteRoute = (id) => route('customers.destroy', id);
 
     const columns = [
-        {
-            name: 'ID',
-            selector: row => row.id,
-            sortable: true,
-        },
-        {
-            name: 'Name',
-            selector: row => row.name,
-            sortable: true,
-        },
-        {
-            name: 'Phone',
-            selector: row => row.phone,
-            sortable: true,
-        },
-        {
-            name: 'Email',
-            selector: row => row.email,
-            sortable: true,
-        },
+        {name: 'Name', selector: row => row.name},
+        {name: 'Phone', selector: row => row.phone},
+        {name: 'Email', selector: row => row.email},
         {
             name: 'Actions',
             cell: row => (
@@ -42,6 +25,12 @@ const Index = ({ customers }) => {
                 </div>
             )
         },
+    ];
+
+    const filterCriteria = [
+        { selector: row => row.name },
+        { selector: row => row.phone },
+        { selector: row => row.email },
     ];
 
     const confirmDelete = (id) => {
@@ -72,6 +61,7 @@ const Index = ({ customers }) => {
                     title="Customers"
                     data={customers}
                     columns={columns}
+                    filterCriteria={filterCriteria}
                 />
             </div>
         </AuthenticatedLayout>

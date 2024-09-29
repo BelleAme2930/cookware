@@ -74,6 +74,14 @@ const Index = ({ products }) => {
         },
     ];
 
+    const filterCriteria = [
+        { selector: row => row.name },
+        { selector: row => row.category.name },
+        { selector: row => row.supplier.name },
+        { selector: row => row.product_type },
+    ];
+
+
     const confirmDelete = (id) => {
         if (window.confirm("Are you sure you want to delete this product?")) {
             router.delete(deleteRoute(id), {
@@ -102,6 +110,7 @@ const Index = ({ products }) => {
                     title="Products"
                     data={products.data}
                     columns={columns}
+                    filterCriteria={filterCriteria}
                 />
             </div>
         </AuthenticatedLayout>

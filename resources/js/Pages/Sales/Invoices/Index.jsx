@@ -1,13 +1,13 @@
 import React from 'react';
 import CustomDataTable from "@/Components/CustomDataTable.jsx";
-import { Head } from "@inertiajs/react";
+import {Head} from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import { faEye, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {faEye, faTrash} from "@fortawesome/free-solid-svg-icons";
 import IconButton from "@/Components/IconButton.jsx";
-import { toast } from "react-toastify";
-import { router } from '@inertiajs/core';
+import {toast} from "react-toastify";
+import {router} from '@inertiajs/core';
 
-const Index = ({ sales }) => {
+const Index = ({sales}) => {
     const viewInvoiceRoute = (id) => route('sales.invoices.show', id);
     const deleteInvoiceRoute = (id) => route('sales.invoices.destroy', id);
 
@@ -36,12 +36,18 @@ const Index = ({ sales }) => {
             name: 'Actions',
             cell: row => (
                 <div className="flex space-x-2">
-                    <IconButton onClick={() => router.visit(viewInvoiceRoute(row.id))} icon={faEye} />
-                    <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />
+                    <IconButton onClick={() => router.visit(viewInvoiceRoute(row.id))} icon={faEye}/>
+                    <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash}/>
                 </div>
             )
         },
     ];
+
+    const filterCriteria = [
+        {selector: row => `${row.id}`},
+        {selector: row => row.customer.name},
+    ];
+
 
     const confirmDelete = (id) => {
         if (window.confirm("Are you sure you want to delete this invoice?")) {
@@ -60,9 +66,14 @@ const Index = ({ sales }) => {
         <AuthenticatedLayout
             header={<h2 className="text-lg leading-tight text-gray-800">Sales Invoices</h2>}
         >
-            <Head title="Sales Invoices" />
+            <Head title="Sales Invoices"/>
             <div className="mx-auto max-w-[90%] py-6">
-                <CustomDataTable title="Sales Invoices" data={sales.data} columns={columns} />
+                <CustomDataTable
+                    title="Sales Invoices"
+                    data={sales.data}
+                    columns={columns}
+                    filterCriteria={filterCriteria}
+                />
             </div>
         </AuthenticatedLayout>
     );

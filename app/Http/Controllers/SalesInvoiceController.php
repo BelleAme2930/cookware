@@ -16,7 +16,7 @@ class SalesInvoiceController extends Controller
      */
     public function index()
     {
-        $sales = Sale::with('customer')->paginate(10);
+        $sales = Sale::with('customer')->get();
 
         return Inertia::render('Sales/Invoices/Index', [
             'sales' => $sales

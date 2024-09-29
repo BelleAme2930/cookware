@@ -13,7 +13,6 @@ const Index = ({ accounts }) => {
     const deleteRoute = (id) => route('accounts.destroy', id);
 
     const columns = [
-        { name: 'ID', selector: row => row.id, sortable: true },
         { name: 'Title', selector: row => row.title, sortable: true },
         { name: 'Account Number', selector: row => row.account_number, sortable: true },
         { name: 'Bank Name', selector: row => row.bank_name, sortable: true },
@@ -27,6 +26,12 @@ const Index = ({ accounts }) => {
                 </div>
             )
         },
+    ];
+
+    const filterCriteria = [
+        { selector: row => row.title },
+        { selector: row => row.account_number },
+        { selector: row => row.bank_name },
     ];
 
     const confirmDelete = (id) => {
@@ -57,6 +62,7 @@ const Index = ({ accounts }) => {
                     title="Accounts"
                     data={accounts.data}
                     columns={columns}
+                    filterCriteria={filterCriteria}
                 />
             </div>
         </AuthenticatedLayout>

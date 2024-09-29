@@ -26,12 +26,18 @@ class CustomerController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
+            'email' => 'nullable|email|max:255|unique:customers,email',
+            'address' => 'nullable|string',
         ]);
 
-        Customer::create($request->only('name', 'phone', 'email'));
+        Customer::create([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'address' => $request->address,
+        ]);
 
-        return redirect()->route('customers.index');
+        return redirect()->route('customers.index')->with('success', 'Customer created successfully.');
     }
 
     public function show(Customer $customer)
@@ -50,21 +56,23 @@ class CustomerController extends Controller
 
     public function update(Request $request, Customer $customer)
     {
-        $request->validate([
+        $rules = [
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
-        ]);
+            'email' => 'nullable|email|max:255|unique:customers,email,' . $customer->id,
+        ];
+
+        $request->validate($rules);
 
         $customer->update($request->only('name', 'phone', 'email'));
 
-        return redirect()->route('customers.index');
+        return redirect()->route('customers.index')->with('success', 'Customer updated successfully.');
     }
 
     public function destroy(Customer $customer)
     {
         $customer->delete();
 
-        return redirect()->route('customers.index');
+        return redirect()->route('customers.index')->with('success', 'Customer deleted successfully.');
     }
 }

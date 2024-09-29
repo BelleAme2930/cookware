@@ -25,17 +25,19 @@ class SupplierController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'nullable|string|max:20|min:11',
+            'phone' => 'nullable|string|max:20',
+            'email' => 'nullable|email|max:255|unique:suppliers,email',
             'address' => 'nullable|string|max:500',
         ]);
 
         Supplier::create([
             'name' => $request->name,
             'phone' => $request->phone,
+            'email' => $request->email,
             'address' => $request->address,
         ]);
 
-        return redirect()->route('suppliers.index');
+        return redirect()->route('suppliers.index')->with('success', 'Supplier created successfully.');
     }
 
     public function show(Supplier $supplier)
@@ -57,22 +59,24 @@ class SupplierController extends Controller
         $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20|min:11',
+            'email' => 'nullable|email|max:255|unique:suppliers,email,' . $supplier->id,
             'address' => 'nullable|string|max:500',
         ]);
 
         $supplier->update([
             'name' => $request->name,
             'phone' => $request->phone,
+            'email' => $request->email,
             'address' => $request->address,
         ]);
 
-        return redirect()->route('suppliers.index');
+        return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully.');
     }
 
     public function destroy(Supplier $supplier)
     {
         $supplier->delete();
 
-        return redirect()->route('suppliers.index');
+        return redirect()->route('suppliers.index')->with('success', 'Supplier deleted successfully.');
     }
 }

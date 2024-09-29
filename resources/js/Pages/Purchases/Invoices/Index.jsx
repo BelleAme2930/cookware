@@ -43,6 +43,11 @@ const Index = ({ purchases }) => {
         },
     ];
 
+    const filterCriteria = [
+        {selector: row => `${row.id}`},
+        {selector: row => row.supplier.name},
+    ];
+
     const confirmDelete = (id) => {
         if (window.confirm("Are you sure you want to delete this invoice?")) {
             router.delete(deleteInvoiceRoute(id), {
@@ -62,7 +67,12 @@ const Index = ({ purchases }) => {
         >
             <Head title="Purchase Invoices" />
             <div className="mx-auto max-w-[90%] py-6">
-                <CustomDataTable title="Purchase Invoices" data={purchases.data} columns={columns} />
+                <CustomDataTable
+                    title="Purchase Invoices"
+                    data={purchases}
+                    columns={columns}
+                    filterCriteria={filterCriteria}
+                />
             </div>
         </AuthenticatedLayout>
     );
