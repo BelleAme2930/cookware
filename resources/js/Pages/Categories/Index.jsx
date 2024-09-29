@@ -10,8 +10,6 @@ import { router } from '@inertiajs/core';
 
 const Index = ({ categories }) => {
 
-    console.log(categories, 'categories')
-
     const editRoute = (id) => route('categories.edit', id);
     const deleteRoute = (id) => route('categories.destroy', id);
 

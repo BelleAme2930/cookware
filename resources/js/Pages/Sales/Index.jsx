@@ -10,8 +10,6 @@ import { router } from '@inertiajs/core';
 
 const Index = ({ sales }) => {
 
-    console.log(sales, 'sales');
-
     const editRoute = (id) => route('sales.edit', id);
     const deleteRoute = (id) => route('sales.destroy', id);
 
@@ -80,16 +78,16 @@ const Index = ({ sales }) => {
         <AuthenticatedLayout
             header={
                 <div className='flex items-center justify-between'>
-                    <h2 className="text-lg leading-tight text-gray-800">Sales Transactions</h2>
+                    <h2 className="text-lg leading-tight text-gray-800">Sales</h2>
                     <PrimaryIconLink href={route('sales.create')} icon={faAdd}>Add Sale</PrimaryIconLink>
                 </div>
             }
         >
-            <Head title="Sales Transactions" />
+            <Head title="Sales" />
             <div className='mx-auto max-w-[90%] py-6'>
                 <CustomDataTable
                     searchLabel='Filter by Sale:'
-                    title="Sales Transactions"
+                    title="Sales"
                     data={sales.data}
                     columns={columns}
                 />

@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import TextArea from "@/Components/Textarea.jsx";
 
 const Edit = ({ category }) => {
-    console.log(category)
+
     const { data, setData, put, errors, processing } = useForm({
         name: category.name,
         description: category.description || '', // Initialize with existing description
