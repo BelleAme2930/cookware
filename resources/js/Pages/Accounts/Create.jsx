@@ -5,7 +5,6 @@ import TextInput from "@/Components/TextInput.jsx";
 import Label from "@/Components/Label.jsx";
 import Button from "@/Components/Button.jsx";
 import { toast } from "react-toastify";
-import TextArea from "@/Components/Textarea.jsx";
 
 const Create = () => {
     const { data, setData, post, errors, processing, reset } = useForm({

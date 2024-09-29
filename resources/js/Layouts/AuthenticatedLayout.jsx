@@ -1,12 +1,10 @@
 import Dropdown from '@/Components/Dropdown';
-import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import {usePage} from '@inertiajs/react';
 import {useState} from 'react';
 import Sidebar from "@/Components/Sidebar/Sidebar.jsx";
 import IconButton from "@/Components/IconButton.jsx";
 import {faAdd} from "@fortawesome/free-solid-svg-icons";
-import Button from "@/Components/Button.jsx";
 import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 
 export default function Authenticated({header, children}) {
