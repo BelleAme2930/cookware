@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {Head, useForm} from "@inertiajs/react";
+import React, { useState } from 'react';
+import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import Button from "@/Components/Button.jsx";
 import InputSelect from "@/Components/InputSelect.jsx";
@@ -7,12 +7,12 @@ import PageHeader from "@/Components/PageHeader.jsx";
 import BorderButton from "@/Components/BorderButton.jsx";
 import TextInput from "@/Components/TextInput.jsx";
 import IconButton from "@/Components/IconButton.jsx";
-import {faTrash} from "@fortawesome/free-solid-svg-icons";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import InputLabel from "@/Components/InputLabel.jsx";
 import Label from "@/Components/Label.jsx";
 
-const Create = ({customers, products, accounts}) => {
-    const {data, setData, post, processing} = useForm({
+const Create = ({ customers, products, accounts }) => {
+    const { data, setData, post, processing } = useForm({
         customer_id: '',
         products: [],
         due_date: new Date().toISOString().split('T')[0],
@@ -39,7 +39,7 @@ const Create = ({customers, products, accounts}) => {
     }));
 
     const handleAddProduct = () => {
-        setProductFields([...productFields, {product_id: '', product_type: '', quantity: 1, weight: ''}]);
+        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '' }]);
     };
 
     const handleRemoveProduct = (index) => {
@@ -72,9 +72,9 @@ const Create = ({customers, products, accounts}) => {
     }));
 
     return (
-        <AuthenticatedLayout header={<PageHeader title='Add New Sale'/>}>
-            <Head title="Add Sale"/>
-            <div className="max-w-[920px] mx-auto p-4">
+        <AuthenticatedLayout header={<PageHeader title='Add New Sale' />}>
+            <Head title="Add Sale" />
+            <div className="max-w-[90%] mx-auto p-4 border border-gray-300 mt-6 bg-white">
                 <form onSubmit={handleSubmit}>
                     <InputSelect
                         id="customer_id"
@@ -88,10 +88,11 @@ const Create = ({customers, products, accounts}) => {
                     />
 
                     {productFields.map((product, index) => (
-                        <div key={index} className="mb-4 relative">
+                        <div key={index} className={`mb-4 py-5 px-4 border border-gray-300 rounded-md relative bg-white ${index % 2 === 0 ? '!bg-gray-50' : 'bg-white'}`}>
+
                             <InputSelect
                                 id={`product_id_${index}`}
-                                label="Product"
+                                label={`Product ${index + 1}`}
                                 options={productOptions}
                                 value={product.product_id}
                                 onChange={(selected) => handleProductChange(index, 'product_id', selected.value)}
@@ -100,7 +101,7 @@ const Create = ({customers, products, accounts}) => {
 
                             {product.product_type === 'weight' && (
                                 <>
-                                    <Label title='Weight' htmlFor={`weight_${index}`}/>
+                                    <Label title='Weight' htmlFor={`weight_${index}`} />
                                     <TextInput
                                         id={`weight_${index}`}
                                         label="Weight"
@@ -108,12 +109,13 @@ const Create = ({customers, products, accounts}) => {
                                         value={product.weight}
                                         onChange={(e) => handleProductChange(index, 'weight', parseFloat(e.target.value))}
                                         required
-                                    /></>
+                                    />
+                                </>
                             )}
 
                             {product.product_type === 'item' && (
                                 <>
-                                    <Label title='Quantity' htmlFor={`quantity_${index}`}/>
+                                    <Label title='Quantity' htmlFor={`quantity_${index}`} />
                                     <TextInput
                                         id={`quantity_${index}`}
                                         label="Quantity"
@@ -130,15 +132,14 @@ const Create = ({customers, products, accounts}) => {
                                     icon={faTrash}
                                     type="button"
                                     onClick={() => handleRemoveProduct(index)}
-                                    className="absolute -top-2 -left-16 mt-4 mr-4"
+                                    className="absolute top-2 right-2 text-red-500"
                                 />
                             )}
                         </div>
                     ))}
 
                     <div className="mb-4">
-                        <InputLabel htmlFor="due_date" value="Due Date"/>
-
+                        <InputLabel htmlFor="due_date" value="Due Date" />
                         <TextInput
                             id="due_date"
                             type="date"
@@ -147,15 +148,14 @@ const Create = ({customers, products, accounts}) => {
                             required
                             className='w-full'
                         />
-
                     </div>
 
                     <InputSelect
                         id="payment_method"
                         label="Payment Method"
                         options={[
-                            {value: 'cash', label: 'Cash'},
-                            {value: 'account', label: 'Account'}
+                            { value: 'cash', label: 'Cash' },
+                            { value: 'account', label: 'Account' }
                         ]}
                         onChange={(option) => setData('payment_method', option.value)}
                         value={data.payment_method}
