@@ -8,7 +8,6 @@ import BorderButton from "@/Components/BorderButton.jsx";
 import TextInput from "@/Components/TextInput.jsx";
 import IconButton from "@/Components/IconButton.jsx";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
-import InputLabel from "@/Components/InputLabel.jsx";
 import Label from "@/Components/Label.jsx";
 
 const Create = ({ customers, products, accounts }) => {
@@ -16,7 +15,7 @@ const Create = ({ customers, products, accounts }) => {
         customer_id: '',
         products: [],
         due_date: new Date().toISOString().split('T')[0],
-        payment_method: '',
+        payment_method: 'cash',
         account_id: ''
     });
 
@@ -32,11 +31,16 @@ const Create = ({ customers, products, accounts }) => {
         label: customer.name,
     }));
 
-    const productOptions = products.map(product => ({
-        value: product.id,
-        label: product.name,
-        product_type: product.product_type,
-    }));
+    // Function to get product options filtered based on already selected products
+    const getProductOptions = (selectedProducts) => {
+        return products
+            .filter(product => !selectedProducts.includes(product.id))
+            .map(product => ({
+                value: product.id,
+                label: product.name,
+                product_type: product.product_type,
+            }));
+    };
 
     const handleAddProduct = () => {
         setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '' }]);
@@ -46,6 +50,7 @@ const Create = ({ customers, products, accounts }) => {
         const updatedFields = [...productFields];
         updatedFields.splice(index, 1);
         setProductFields(updatedFields);
+        setData('products', updatedFields);
     };
 
     const handleProductChange = (index, field, value) => {
@@ -87,59 +92,68 @@ const Create = ({ customers, products, accounts }) => {
                         required
                     />
 
-                    {productFields.map((product, index) => (
-                        <div key={index} className={`mb-4 py-5 px-4 border border-gray-300 rounded-md relative bg-white ${index % 2 === 0 ? '!bg-gray-50' : 'bg-white'}`}>
+                    {productFields.map((product, index) => {
+                        // Get a list of already selected products, except for the current row's product
+                        const selectedProductIds = productFields
+                            .filter((_, i) => i !== index)
+                            .map(field => field.product_id);
 
-                            <InputSelect
-                                id={`product_id_${index}`}
-                                label={`Product ${index + 1}`}
-                                options={productOptions}
-                                value={product.product_id}
-                                onChange={(selected) => handleProductChange(index, 'product_id', selected.value)}
-                                required
-                            />
+                        const filteredProductOptions = getProductOptions(selectedProductIds);
 
-                            {product.product_type === 'weight' && (
-                                <>
-                                    <Label title='Weight' htmlFor={`weight_${index}`} />
-                                    <TextInput
-                                        id={`weight_${index}`}
-                                        label="Weight"
-                                        type="number"
-                                        value={product.weight}
-                                        onChange={(e) => handleProductChange(index, 'weight', parseFloat(e.target.value))}
-                                        required
-                                    />
-                                </>
-                            )}
+                        return (
+                            <div key={index} className={`mb-4 py-5 px-4 border border-gray-300 rounded-md relative bg-white !bg-gray-50`}>
 
-                            {product.product_type === 'item' && (
-                                <>
-                                    <Label title='Quantity' htmlFor={`quantity_${index}`} />
-                                    <TextInput
-                                        id={`quantity_${index}`}
-                                        label="Quantity"
-                                        type="number"
-                                        value={product.quantity}
-                                        onChange={(e) => handleProductChange(index, 'quantity', parseInt(e.target.value))}
-                                        required
-                                    />
-                                </>
-                            )}
-
-                            {index > 0 && (
-                                <IconButton
-                                    icon={faTrash}
-                                    type="button"
-                                    onClick={() => handleRemoveProduct(index)}
-                                    className="absolute top-2 right-2 text-red-500"
+                                <InputSelect
+                                    id={`product_id_${index}`}
+                                    label={`Product ${index + 1}`}
+                                    options={filteredProductOptions}
+                                    value={product.product_id}
+                                    onChange={(selected) => handleProductChange(index, 'product_id', selected.value)}
+                                    required
                                 />
-                            )}
-                        </div>
-                    ))}
+
+                                {product.product_type === 'weight' && (
+                                    <>
+                                        <Label title='Weight' htmlFor={`weight_${index}`} />
+                                        <TextInput
+                                            id={`weight_${index}`}
+                                            label="Weight"
+                                            type="number"
+                                            value={product.weight}
+                                            onChange={(e) => handleProductChange(index, 'weight', parseFloat(e.target.value))}
+                                            required
+                                        />
+                                    </>
+                                )}
+
+                                {product.product_type === 'item' && (
+                                    <>
+                                        <Label title='Quantity' htmlFor={`quantity_${index}`} />
+                                        <TextInput
+                                            id={`quantity_${index}`}
+                                            label="Quantity"
+                                            type="number"
+                                            value={product.quantity}
+                                            onChange={(e) => handleProductChange(index, 'quantity', parseInt(e.target.value))}
+                                            required
+                                        />
+                                    </>
+                                )}
+
+                                {index > 0 && (
+                                    <IconButton
+                                        icon={faTrash}
+                                        type="button"
+                                        onClick={() => handleRemoveProduct(index)}
+                                        className="absolute top-2 right-2 text-red-500"
+                                    />
+                                )}
+                            </div>
+                        );
+                    })}
 
                     <div className="mb-4">
-                        <InputLabel htmlFor="due_date" value="Due Date" />
+                        <Label htmlFor="due_date" title="Due Date" />
                         <TextInput
                             id="due_date"
                             type="date"
