@@ -109,7 +109,7 @@ class ProductController extends Controller
             'image' => 'nullable|image|max:2048',
         ];
 
-        if ($request->product_type === 'weight') {
+        if ($request->product_type === ProductTypeEnum::WEIGHT->value) {
             $rules['weight'] = 'required|numeric|min:0';
             $rules['quantity'] = 'nullable|numeric|min:0';
         } else {
@@ -134,14 +134,13 @@ class ProductController extends Controller
             $imagePath = 'assets/images/uploads/products/' . $imageName;
         }
 
-
         $product->update([
             'category_id' => $request->category_id,
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
             'price' => $request->price,
-            'weight' => $request->product_type === 'weight' ? WeightHelper::toGrams($request->weight) : null,
-            'quantity' => $request->product_type === 'item' ? $request->item_stock : null,
+            'weight' => $request->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toGrams($request->weight) : null,
+            'quantity' => $request->product_type === ProductTypeEnum::ITEM->value ? $request->quantity : null,
             'image' => $imagePath,
         ]);
 

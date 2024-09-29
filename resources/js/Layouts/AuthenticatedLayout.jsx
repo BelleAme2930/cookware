@@ -7,6 +7,7 @@ import Sidebar from "@/Components/Sidebar/Sidebar.jsx";
 import IconButton from "@/Components/IconButton.jsx";
 import {faAdd} from "@fortawesome/free-solid-svg-icons";
 import Button from "@/Components/Button.jsx";
+import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 
 export default function Authenticated({header, children}) {
     const user = usePage().props.auth.user;
@@ -61,10 +62,10 @@ export default function Authenticated({header, children}) {
                                 </div>
                             </div>
 
-                            <div className="hidden sm:ms-6 sm:flex sm:items-center">
-                                <Button className='!rounded-lg'>
+                            <div className="hidden sm:flex sm:items-center gap-4">
+                                <PrimaryIconLink className='!rounded-lg' href={route('sales.create')}>
                                     Point of Sale
-                                </Button>
+                                </PrimaryIconLink>
                                 <div className="relative">
                                     <Dropdown>
                                         <Dropdown.Trigger>

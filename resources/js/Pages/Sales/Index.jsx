@@ -10,6 +10,8 @@ import { router } from '@inertiajs/core';
 
 const Index = ({ sales }) => {
 
+    console.log(sales)
+
     const editRoute = (id) => route('sales.edit', id);
     const deleteRoute = (id) => route('sales.destroy', id);
 
@@ -25,18 +27,18 @@ const Index = ({ sales }) => {
             sortable: true,
         },
         {
-            name: 'Product',
-            selector: row => row.product.name,
+            name: 'Products',
+            selector: row => row.products.map(product => product.name).join(', '),
             sortable: true,
         },
         {
             name: 'Weight (kg)',
-            selector: row => row.weight || '-',
+            selector: row => row.products.map(product => product.product_type === 'weight' ? product.pivot.weight : '-'),
             sortable: false,
         },
         {
             name: 'Quantity',
-            selector: row => row.quantity || '-',
+            selector: row => row.products.map(product => product.product_type === 'item' ? product.pivot.quantity : '-'),
             sortable: false,
         },
         {
@@ -50,6 +52,11 @@ const Index = ({ sales }) => {
             sortable: true,
         },
         {
+            name: 'Due Date',
+            selector: row => row.due_date,
+            sortable: true,
+        },
+        {
             name: 'Actions',
             cell: row => (
                 <div className="flex space-x-2">
@@ -59,7 +66,6 @@ const Index = ({ sales }) => {
             )
         },
     ];
-
 
     const confirmDelete = (id) => {
         if (window.confirm("Are you sure you want to delete this sale?")) {
@@ -86,7 +92,6 @@ const Index = ({ sales }) => {
             <Head title="Sales" />
             <div className='mx-auto max-w-[90%] py-6'>
                 <CustomDataTable
-                    searchLabel='Filter by Sale:'
                     title="Sales"
                     data={sales.data}
                     columns={columns}

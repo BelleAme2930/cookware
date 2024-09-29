@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
@@ -34,6 +35,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('sales', SaleController::class);
     Route::resource('accounts', AccountController::class);
     Route::resource('purchases', PurchaseController::class);
+    Route::resource('invoices', InvoiceController::class);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

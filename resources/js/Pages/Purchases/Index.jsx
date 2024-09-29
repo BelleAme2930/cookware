@@ -39,6 +39,10 @@ const Index = ({ purchases }) => {
             selector: row => row.total_price + ' Rs',
         },
         {
+            name: 'Created Date',
+            selector: row => row.created_at,
+        },
+        {
             name: 'Actions',
             cell: row => (
                 <div className="flex space-x-2">
@@ -74,7 +78,6 @@ const Index = ({ purchases }) => {
             <Head title="Purchases" />
             <div className='mx-auto max-w-[90%] py-6'>
                 <CustomDataTable
-                    searchLabel='Filter by Purchase:'
                     title="Purchases"
                     data={purchases.data}
                     columns={columns}

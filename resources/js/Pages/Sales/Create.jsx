@@ -31,7 +31,6 @@ const Create = ({ customers, products, accounts }) => {
         label: customer.name,
     }));
 
-    // Function to get product options filtered based on already selected products
     const getProductOptions = (selectedProducts) => {
         return products
             .filter(product => !selectedProducts.includes(product.id))
@@ -93,7 +92,7 @@ const Create = ({ customers, products, accounts }) => {
                     />
 
                     {productFields.map((product, index) => {
-                        // Get a list of already selected products, except for the current row's product
+
                         const selectedProductIds = productFields
                             .filter((_, i) => i !== index)
                             .map(field => field.product_id);
@@ -109,6 +108,8 @@ const Create = ({ customers, products, accounts }) => {
                                     options={filteredProductOptions}
                                     value={product.product_id}
                                     onChange={(selected) => handleProductChange(index, 'product_id', selected.value)}
+                                    link={!products.length ? route('products.create') : null}
+                                    linkText="Add product?"
                                     required
                                 />
 
@@ -173,8 +174,6 @@ const Create = ({ customers, products, accounts }) => {
                         ]}
                         onChange={(option) => setData('payment_method', option.value)}
                         value={data.payment_method}
-                        link={!accounts.length ? route('accounts.create') : null}
-                        linkText="Add account?"
                         required
                     />
 
@@ -185,6 +184,8 @@ const Create = ({ customers, products, accounts }) => {
                             options={accountOptions}
                             value={data.account_id}
                             onChange={(selected) => setData('account_id', selected.value)}
+                            link={!accounts.length ? route('accounts.create') : null}
+                            linkText="Add account?"
                             required
                         />
                     )}

@@ -75,7 +75,6 @@ const Index = ({ categories }) => {
             <Head title="Categories" />
             <div className='mx-auto max-w-[90%] py-6'>
                 <CustomDataTable
-                    searchLabel='Filter by Category:'
                     title="Categories"
                     data={categories.data}
                     columns={columns}

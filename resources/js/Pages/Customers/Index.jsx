@@ -69,7 +69,6 @@ const Index = ({ customers }) => {
             <Head title="Customers" />
             <div className='mx-auto max-w-[90%] py-6'>
                 <CustomDataTable
-                    searchLabel='Filter by Customer:'
                     title="Customers"
                     data={customers}
                     columns={columns}

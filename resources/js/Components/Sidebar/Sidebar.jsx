@@ -56,6 +56,10 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
                     <SideMenuItem label="Add Sale" href={route('sales.create')} />
                     <SideMenuItem label="Sale Listing" href={route('sales.index')} />
                 </SideMenuDropdownItem>
+                <SideMenuDropdownItem label="Purchases">
+                    <SideMenuItem label="Add Purchase" href={route('purchases.create')} />
+                    <SideMenuItem label="Purchase Listing" href={route('purchases.index')} />
+                </SideMenuDropdownItem>
                 <SideMenuDropdownItem label="Accounts">
                     <SideMenuItem label="Add Account" href={route('accounts.create')} />
                     <SideMenuItem label="Account Listing" href={route('accounts.index')} />
