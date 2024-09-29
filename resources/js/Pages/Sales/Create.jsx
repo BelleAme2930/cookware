@@ -1,22 +1,29 @@
-import React, { useState } from 'react';
-import { Head, useForm } from "@inertiajs/react";
+import React, {useState} from 'react';
+import {Head, useForm} from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import Button from "@/Components/Button.jsx";
 import InputSelect from "@/Components/InputSelect.jsx";
 import PageHeader from "@/Components/PageHeader.jsx";
 import BorderButton from "@/Components/BorderButton.jsx";
 import TextInput from "@/Components/TextInput.jsx";
+import IconButton from "@/Components/IconButton.jsx";
+import {faTrash} from "@fortawesome/free-solid-svg-icons";
+import InputLabel from "@/Components/InputLabel.jsx";
+import Label from "@/Components/Label.jsx";
 
-const Create = ({ customers, products }) => {
-    const { data, setData, post, processing } = useForm({
+const Create = ({customers, products, accounts}) => {
+    const {data, setData, post, processing} = useForm({
         customer_id: '',
-        products: []
+        products: [],
+        due_date: new Date().toISOString().split('T')[0],
+        payment_method: '',
+        account_id: ''
     });
 
     const [productFields, setProductFields] = useState([{
         product_id: '',
         product_type: '',
-        quantity: 1,
+        quantity: 0,
         weight: '',
     }]);
 
@@ -32,7 +39,7 @@ const Create = ({ customers, products }) => {
     }));
 
     const handleAddProduct = () => {
-        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '' }]);
+        setProductFields([...productFields, {product_id: '', product_type: '', quantity: 1, weight: ''}]);
     };
 
     const handleRemoveProduct = (index) => {
@@ -45,7 +52,6 @@ const Create = ({ customers, products }) => {
         const updatedFields = [...productFields];
         updatedFields[index][field] = value;
 
-        // Set product_type based on the selected product
         if (field === 'product_id') {
             const selectedProduct = products.find(product => product.id === value);
             updatedFields[index]['product_type'] = selectedProduct ? selectedProduct.product_type : '';
@@ -60,9 +66,14 @@ const Create = ({ customers, products }) => {
         post(route('sales.store'));
     };
 
+    const accountOptions = accounts.map(acc => ({
+        value: acc.id,
+        label: `${acc.title} - ${acc.bank_name}`,
+    }));
+
     return (
-        <AuthenticatedLayout header={<PageHeader title='Add New Sale' />}>
-            <Head title="Add Sale" />
+        <AuthenticatedLayout header={<PageHeader title='Add New Sale'/>}>
+            <Head title="Add Sale"/>
             <div className="max-w-[920px] mx-auto p-4">
                 <form onSubmit={handleSubmit}>
                     <InputSelect
@@ -77,7 +88,7 @@ const Create = ({ customers, products }) => {
                     />
 
                     {productFields.map((product, index) => (
-                        <div key={index} className="mb-4">
+                        <div key={index} className="mb-4 relative">
                             <InputSelect
                                 id={`product_id_${index}`}
                                 label="Product"
@@ -88,34 +99,81 @@ const Create = ({ customers, products }) => {
                             />
 
                             {product.product_type === 'weight' && (
-                                <TextInput
-                                    id={`weight_${index}`}
-                                    label="Weight"
-                                    type="number"
-                                    value={product.weight}
-                                    onChange={(e) => handleProductChange(index, 'weight', e.target.value)}
-                                    required
-                                />
+                                <>
+                                    <Label title='Weight' htmlFor={`weight_${index}`}/>
+                                    <TextInput
+                                        id={`weight_${index}`}
+                                        label="Weight"
+                                        type="number"
+                                        value={product.weight}
+                                        onChange={(e) => handleProductChange(index, 'weight', parseFloat(e.target.value))}
+                                        required
+                                    /></>
                             )}
 
                             {product.product_type === 'item' && (
-                                <TextInput
-                                    id={`quantity_${index}`}
-                                    label="Quantity"
-                                    type="number"
-                                    value={product.quantity}
-                                    onChange={(e) => handleProductChange(index, 'quantity', e.target.value)}
-                                    required
-                                />
+                                <>
+                                    <Label title='Quantity' htmlFor={`quantity_${index}`}/>
+                                    <TextInput
+                                        id={`quantity_${index}`}
+                                        label="Quantity"
+                                        type="number"
+                                        value={product.quantity}
+                                        onChange={(e) => handleProductChange(index, 'quantity', parseInt(e.target.value))}
+                                        required
+                                    />
+                                </>
                             )}
 
                             {index > 0 && (
-                                <Button type="button" onClick={() => handleRemoveProduct(index)}>
-                                    Remove Product
-                                </Button>
+                                <IconButton
+                                    icon={faTrash}
+                                    type="button"
+                                    onClick={() => handleRemoveProduct(index)}
+                                    className="absolute -top-2 -left-16 mt-4 mr-4"
+                                />
                             )}
                         </div>
                     ))}
+
+                    <div className="mb-4">
+                        <InputLabel htmlFor="due_date" value="Due Date"/>
+
+                        <TextInput
+                            id="due_date"
+                            type="date"
+                            value={data.due_date}
+                            onChange={(e) => setData('due_date', e.target.value)}
+                            required
+                            className='w-full'
+                        />
+
+                    </div>
+
+                    <InputSelect
+                        id="payment_method"
+                        label="Payment Method"
+                        options={[
+                            {value: 'cash', label: 'Cash'},
+                            {value: 'account', label: 'Account'}
+                        ]}
+                        onChange={(option) => setData('payment_method', option.value)}
+                        value={data.payment_method}
+                        link={!accounts.length ? route('accounts.create') : null}
+                        linkText="Add account?"
+                        required
+                    />
+
+                    {data.payment_method === 'account' && (
+                        <InputSelect
+                            id="account_id"
+                            label="Select Account"
+                            options={accountOptions}
+                            value={data.account_id}
+                            onChange={(selected) => setData('account_id', selected.value)}
+                            required
+                        />
+                    )}
 
                     <div className="flex justify-between items-center">
                         <BorderButton type="button" disabled={processing} onClick={handleAddProduct}>

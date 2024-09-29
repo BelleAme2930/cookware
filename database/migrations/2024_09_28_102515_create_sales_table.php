@@ -18,6 +18,9 @@ return new class extends Migration
             $table->unsignedBigInteger('weight')->nullable();
             $table->unsignedInteger('quantity')->nullable();
             $table->unsignedBigInteger('total_price');
+            $table->date('due_date')->default(now());
+            $table->string('payment_method')->nullable();
+            $table->foreignId('account_id')->nullable()->constrained()->onDelete('set null');
             $table->timestamps();
         });
     }

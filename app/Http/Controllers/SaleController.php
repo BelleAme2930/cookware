@@ -2,13 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\PaymentMethodEnum;
 use App\Enums\ProductTypeEnum;
 use App\Helpers\WeightHelper;
 use App\Http\Resources\SaleResource;
+use App\Models\Account;
 use App\Models\Sale;
 use App\Models\Product;
 use App\Models\Customer;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Enum;
 use Inertia\Inertia;
 
 class SaleController extends Controller
@@ -25,11 +28,13 @@ class SaleController extends Controller
     public function create()
     {
         $customers = Customer::all();
+        $accounts = Account::all();
         $products = Product::with('sales')->get(['id', 'name', 'product_type']);
 
         return Inertia::render('Sales/Create', [
             'customers' => $customers,
             'products' => $products,
+            'accounts' => $accounts,
         ]);
     }
 
@@ -39,8 +44,12 @@ class SaleController extends Controller
             'customer_id' => 'required|exists:customers,id',
             'products' => 'required|array',
             'products.*.product_id' => 'required|exists:products,id',
-            'products.*.quantity' => 'nullable|integer|min:1',
-            'products.*.weight' => 'nullable|integer',
+            'products.*.product_type' => 'required|string',
+            'products.*.quantity' => 'nullable|integer',
+            'products.*.weight' => 'nullable|numeric',
+            'due_date' => 'required|date',
+            'payment_method' => 'required|string',
+            'account_id' => 'nullable|exists:accounts,id',
         ]);
 
         foreach ($validated['products'] as $productData) {
@@ -55,6 +64,9 @@ class SaleController extends Controller
                 'quantity' => $quantity,
                 'weight' => $weight,
                 'total_price' => $this->calculateTotalPrice($productData, $product->product_type),
+                'due_date' => $validated['due_date'],
+                'payment_method' => $validated['payment_method'],
+                'account_id' => $validated['payment_method'] === PaymentMethodEnum::ACCOUNT->value ? $validated['account_id'] : null,
             ]);
 
             if ($product->product_type === ProductTypeEnum::ITEM->value) {
@@ -76,7 +88,7 @@ class SaleController extends Controller
     {
         $product = Product::find($productData['product_id']);
 
-        if ($productType === 'item') {
+        if ($productType === ProductTypeEnum::ITEM->value) {
             return ($product->price * $productData['quantity']);
         } elseif ($productType === ProductTypeEnum::WEIGHT->value) {
             return ($product->price * $productData['weight']);
