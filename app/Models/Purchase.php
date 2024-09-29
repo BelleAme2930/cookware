@@ -10,18 +10,7 @@ class Purchase extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'customer_id',
-        'product_id',
-        'weight',
-        'total_price',
-        'purchase_date',
-    ];
-
-    public function customer(): BelongsTo
-    {
-        return $this->belongsTo(Customer::class);
-    }
+    protected $fillable = ['product_id', 'type', 'total_price', 'quantity', 'weight', 'single_price'];
 
     public function product(): BelongsTo
     {

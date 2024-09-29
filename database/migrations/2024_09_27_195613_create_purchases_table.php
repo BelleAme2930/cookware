@@ -13,11 +13,12 @@ return new class extends Migration
     {
         Schema::create('purchases', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
-            $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->unsignedInteger('weight');
+            $table->unsignedBigInteger('product_id');
+            $table->string('type');
+            $table->unsignedInteger('single_price');
             $table->unsignedInteger('total_price');
-            $table->date('purchase_date');
+            $table->unsignedInteger('quantity')->nullable();
+            $table->unsignedInteger('weight')->nullable();
             $table->timestamps();
         });
     }

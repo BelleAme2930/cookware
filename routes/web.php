@@ -5,6 +5,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Foundation\Application;
@@ -32,6 +33,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('customers', CustomerController::class);
     Route::resource('sales', SaleController::class);
     Route::resource('accounts', AccountController::class);
+    Route::resource('purchases', PurchaseController::class);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
