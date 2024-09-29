@@ -41,7 +41,7 @@ class AccountController extends Controller
     public function edit(Account $account)
     {
         return Inertia::render('Accounts/Edit', [
-            'account' => new AccountResource($account),
+            'account' => AccountResource::make($account)->resolve(),
         ]);
     }
 

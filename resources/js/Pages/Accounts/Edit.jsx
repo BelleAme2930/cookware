@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import TextInput from "@/Components/TextInput.jsx";
@@ -7,17 +7,26 @@ import Button from "@/Components/Button.jsx";
 import { toast } from "react-toastify";
 
 const Edit = ({ account }) => {
-    const { data, setData, put, errors, processing } = useForm({
+    const { data, setData, put, errors, processing, reset } = useForm({
         title: account.title,
         account_number: account.account_number,
         bank_name: account.bank_name,
     });
+
+    useEffect(() => {
+        setData({
+            title: account.title,
+            account_number: account.account_number,
+            bank_name: account.bank_name,
+        });
+    }, [account]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         put(route('accounts.update', account.id), {
             onSuccess: () => {
                 toast.success('Account updated successfully');
+                reset();
             },
             onError: () => {
                 toast.error('Failed to update account');

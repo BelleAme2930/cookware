@@ -14,7 +14,6 @@ const Index = ({ categories }) => {
     const deleteRoute = (id) => route('categories.destroy', id);
 
     const columns = [
-        {name: 'ID', selector: row => row.id},
         {name: 'Name', selector: row => row.name},
         {name: 'Description', selector: row => row.description},
         {name: 'Category Stock', selector: row => row.products.length},
