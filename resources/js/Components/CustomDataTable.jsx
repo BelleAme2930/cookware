@@ -3,13 +3,14 @@ import DataTable from 'react-data-table-component';
 import TextInput from "@/Components/TextInput.jsx";
 import Loader from "@/Components/Loader.jsx";
 
-const CustomDataTable = ({ title, data, columns, searchLabel, isLoading }) => {
+const CustomDataTable = ({ title, data, columns, searchLabel, isLoading, filterCriteria }) => {
     const [searchText, setSearchText] = useState('');
 
     const filteredData = data.filter(item =>
-        Object.values(item).some(value =>
-            String(value).toLowerCase().includes(searchText.toLowerCase())
-        )
+        filterCriteria.some(key => {
+            const value = key.selector(item);
+            return String(value).toLowerCase().includes(searchText.toLowerCase());
+        })
     );
 
     const updatedColumns = columns.map(column => ({

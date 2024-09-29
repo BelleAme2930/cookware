@@ -14,31 +14,11 @@ const Index = ({ categories }) => {
     const deleteRoute = (id) => route('categories.destroy', id);
 
     const columns = [
-        {
-            name: 'ID',
-            selector: row => row.id,
-            sortable: true,
-        },
-        {
-            name: 'Name',
-            selector: row => row.name,
-            sortable: true,
-        },
-        {
-            name: 'Description',
-            selector: row => row.description,
-            sortable: false,
-        },
-        {
-            name: 'Category Stock',
-            selector: row => row.products.length,
-            sortable: false,
-        },
-        {
-            name: 'Created Date',
-            selector: row => row.created_at,
-            sortable: true,
-        },
+        {name: 'ID', selector: row => row.id},
+        {name: 'Name', selector: row => row.name},
+        {name: 'Description', selector: row => row.description},
+        {name: 'Category Stock', selector: row => row.products.length},
+        {name: 'Created Date', selector: row => row.created_at},
         {
             name: 'Actions',
             cell: row => (
@@ -48,6 +28,11 @@ const Index = ({ categories }) => {
                 </div>
             )
         },
+    ];
+
+    const filterCriteria = [
+        { selector: row => row.name },
+        { selector: row => row.description },
     ];
 
     const confirmDelete = (id) => {
@@ -78,6 +63,7 @@ const Index = ({ categories }) => {
                     title="Categories"
                     data={categories.data}
                     columns={columns}
+                    filterCriteria={filterCriteria}
                 />
             </div>
         </AuthenticatedLayout>

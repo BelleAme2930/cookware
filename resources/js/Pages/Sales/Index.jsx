@@ -58,6 +58,12 @@ const Index = ({ sales }) => {
         },
     ];
 
+    const filterCriteria = [
+        { selector: row => row.customer.name },
+        { selector: row => row.total_price },
+        { selector: row => row.products.map(product => product.name).join(', ') }
+    ];
+
     const confirmDelete = (id) => {
         if (window.confirm("Are you sure you want to delete this sale?")) {
             router.delete(deleteRoute(id), {
@@ -86,6 +92,7 @@ const Index = ({ sales }) => {
                     title="Sales"
                     data={sales.data}
                     columns={columns}
+                    filterCriteria={filterCriteria}
                 />
             </div>
         </AuthenticatedLayout>
