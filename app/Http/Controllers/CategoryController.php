@@ -38,6 +38,14 @@ class CategoryController extends Controller
         return redirect()->route('categories.index');
     }
 
+    public function show(Category $category)
+    {
+        $category->load('products');
+        return Inertia::render('Categories/Show', [
+            'category' => CategoryResource::make($category)->resolve(),
+        ]);
+    }
+
     public function edit(Category $category)
     {
         return Inertia::render('Categories/Edit', [

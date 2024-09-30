@@ -1,29 +1,116 @@
-import React from 'react';
+import React, {useState} from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.jsx';
-import { Head } from '@inertiajs/react';
-import DailySalesWidget from "@/Pages/Dashboard/DailySalesWidget.jsx";
-import WeeklySalesWidget from "@/Pages/Dashboard/WeeklySalesWidget.jsx";
-import MonthlySalesWidget from "@/Pages/Dashboard/MonthlySalesWidget.jsx";
-import YearlySalesWidget from "@/Pages/Dashboard/YearlySalesWidget.jsx";
+import {Head} from '@inertiajs/react';
+import SalesWidget from "@/Pages/Dashboard/Sales/SalesWidget.jsx";
+import ShadowBoxWithTitle from "@/Components/ShadowBoxWithTitle.jsx";
+import ShadowBox from "@/Components/ShadowBox.jsx";
+import SelectPeriod from "@/Pages/Dashboard/Partials/SelectPeriod.jsx";
+import PurchasesWidget from "@/Pages/Dashboard/Purchases/PurchasesWidget.jsx";
+import Stocks from "@/Pages/Dashboard/Stocks/Stocks.jsx";
 
 export default function Dashboard({
+                                      categories,
                                       dailySales,
                                       dailyCashSales,
                                       dailyAccountSales,
-                                      dailyCredits,
+                                      dailyCreditSales,
                                       weeklySales,
                                       weeklyCashSales,
                                       weeklyAccountSales,
-                                      weeklyCredits,
+                                      weeklyCreditSales,
                                       monthlySales,
                                       monthlyCashSales,
                                       monthlyAccountSales,
-                                      monthlyCredits,
+                                      monthlyCreditSales,
                                       yearlySales,
                                       yearlyCashSales,
                                       yearlyAccountSales,
-                                      yearlyCredits,
+                                      yearlyCreditSales,
+                                      dailyPurchases,
+                                      dailyCashPurchases,
+                                      dailyAccountPurchases,
+                                      dailyCreditPurchases,
+                                      weeklyPurchases,
+                                      weeklyCashPurchases,
+                                      weeklyAccountPurchases,
+                                      weeklyCreditPurchases,
+                                      monthlyPurchases,
+                                      monthlyCashPurchases,
+                                      monthlyAccountPurchases,
+                                      monthlyCreditPurchases,
+                                      yearlyPurchases,
+                                      yearlyCashPurchases,
+                                      yearlyAccountPurchases,
+                                      yearlyCreditPurchases,
                                   }) {
+    console.log(categories)
+    const [selectedSalesPeriod, setSelectedSalesPeriod] = useState('daily');
+    const [selectedPurchasesPeriod, setSelectedPurchasesPeriod] = useState('daily');
+
+    const handleSalesPeriodChange = (event) => {
+        setSelectedSalesPeriod(event.target.value);
+    };
+
+    const handlePurchasesPeriodChange = (event) => {
+        setSelectedPurchasesPeriod(event.target.value);
+    };
+
+
+    const salesData = {
+        daily: {
+            totalSales: dailySales,
+            cashSales: dailyCashSales,
+            accountSales: dailyAccountSales,
+            creditSales: dailyCreditSales,
+        },
+        weekly: {
+            totalSales: weeklySales,
+            cashSales: weeklyCashSales,
+            accountSales: weeklyAccountSales,
+            creditSales: weeklyCreditSales,
+        },
+        monthly: {
+            totalSales: monthlySales,
+            cashSales: monthlyCashSales,
+            accountSales: monthlyAccountSales,
+            creditSales: monthlyCreditSales,
+        },
+        yearly: {
+            totalSales: yearlySales,
+            cashSales: yearlyCashSales,
+            accountSales: yearlyAccountSales,
+            creditSales: yearlyCreditSales,
+        },
+    };
+
+    // Purchases data structure
+    const purchasesData = {
+        daily: {
+            totalPurchases: dailyPurchases,
+            cashPurchases: dailyCashPurchases,
+            accountPurchases: dailyAccountPurchases,
+            creditPurchases: dailyCreditPurchases,
+        },
+        weekly: {
+            totalPurchases: weeklyPurchases,
+            cashPurchases: weeklyCashPurchases,
+            accountPurchases: weeklyAccountPurchases,
+            creditPurchases: weeklyCreditPurchases,
+        },
+        monthly: {
+            totalPurchases: monthlyPurchases,
+            cashPurchases: monthlyCashPurchases,
+            accountPurchases: monthlyAccountPurchases,
+            creditPurchases: monthlyCreditPurchases,
+        },
+        yearly: {
+            totalPurchases: yearlyPurchases,
+            cashPurchases: yearlyCashPurchases,
+            accountPurchases: yearlyAccountPurchases,
+            creditPurchases: yearlyCreditPurchases,
+        },
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -32,41 +119,39 @@ export default function Dashboard({
                 </h2>
             }
         >
-            <Head title="Dashboard" />
+            <Head title="Dashboard"/>
 
-            <div className="py-12">
-                <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="overflow-hidden bg-white shadow-sm sm:rounded-lg">
-                        <div className="p-6 text-gray-900">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                                <DailySalesWidget
-                                    totalSales={dailySales}
-                                    cashSales={dailyCashSales}
-                                    accountSales={dailyAccountSales}
-                                    creditSales={dailyCredits}
-                                />
-                                <WeeklySalesWidget
-                                    totalSales={weeklySales}
-                                    cashSales={weeklyCashSales}
-                                    accountSales={weeklyAccountSales}
-                                    creditSales={weeklyCredits}
-                                />
-                                <MonthlySalesWidget
-                                    totalSales={monthlySales}
-                                    cashSales={monthlyCashSales}
-                                    accountSales={monthlyAccountSales}
-                                    creditSales={monthlyCredits}
-                                />
-                                <YearlySalesWidget
-                                    totalSales={yearlySales}
-                                    cashSales={yearlyCashSales}
-                                    accountSales={yearlyAccountSales}
-                                    creditSales={yearlyCredits}
+            <div className="mx-auto max-w-[90%] p-3">
+                <div className='flex items-center justify-between gap-2'>
+                    <div className='w-1/2'>
+                        <ShadowBox>
+                            <div className='flex justify-between items-center mb-6'>
+                                <h3 className='font-normal text-gray-700 text-2xl'>Sales</h3>
+                                <SelectPeriod
+                                    selectedPeriod={selectedSalesPeriod}
+                                    onChange={handleSalesPeriodChange}
                                 />
                             </div>
-                        </div>
+                            <SalesWidget salesData={salesData} selectedPeriod={selectedSalesPeriod}/>
+                        </ShadowBox>
+                    </div>
+                    <div className='w-1/2'>
+                        <ShadowBox>
+                            <div className='flex justify-between items-center mb-6'>
+                                <h3 className='font-normal text-gray-700 text-2xl'>Purchases</h3>
+                                <SelectPeriod
+                                    selectedPeriod={selectedPurchasesPeriod}
+                                    onChange={handlePurchasesPeriodChange}
+                                />
+                            </div>
+                            <PurchasesWidget purchasesData={purchasesData} selectedPeriod={selectedPurchasesPeriod}/>
+                        </ShadowBox>
                     </div>
                 </div>
+            </div>
+
+            <div className='mx-auto max-w-[90%] p-3'>
+            <Stocks categories={categories}/>
             </div>
         </AuthenticatedLayout>
     );

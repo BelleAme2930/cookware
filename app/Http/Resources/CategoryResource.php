@@ -23,7 +23,7 @@ class CategoryResource extends JsonResource
         ];
 
         if ($this->relationLoaded('products')) {
-            $data['products'] = ProductResource::collection($this->products);
+            $data['products'] = ProductResource::collection($this->products)->resolve();
         }
 
         return $data;

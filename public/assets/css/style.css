@@ -17,3 +17,6 @@ select:focus {
 .add-items-menu .absolute{
     left: 0;
 }
+select:focus{
+    border-color: #e4023b !important;
+}
