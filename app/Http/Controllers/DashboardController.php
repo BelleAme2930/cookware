@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CategoryResource;
 use App\Models\Category;
 use App\Models\Purchase;
 use App\Models\Sale;
@@ -59,6 +60,11 @@ class DashboardController extends Controller
         $yearlyAccountPurchases = Purchase::whereBetween('created_at', [$dateStartOfYear, $tomorrow])->where('payment_method', 'account')->sum('total_price');
         $yearlyCreditPurchases = Purchase::whereBetween('created_at', [$dateStartOfYear, $tomorrow])->where('payment_method', 'credit')->sum('total_price');
 
+        $dailyProfit = $dailySales - $dailyPurchases;
+        $weeklyProfit = $weeklySales - $weeklyPurchases;
+        $monthlyProfit = $monthlySales - $monthlyPurchases;
+        $yearlyProfit = $yearlySales - $yearlyPurchases;
+
         return Inertia::render('Dashboard/Dashboard', [
             'dailySales' => $dailySales,
             'dailyCashSales' => $dailyCashSales,
@@ -104,7 +110,12 @@ class DashboardController extends Controller
             'yearlyAccountPurchases' => $yearlyAccountPurchases,
             'yearlyCreditPurchases' => $yearlyCreditPurchases,
 
-            'categories' => $categories,
+            'dailyProfit' => $dailyProfit,
+            'weeklyProfit' => $weeklyProfit,
+            'monthlyProfit' => $monthlyProfit,
+            'yearlyProfit' => $yearlyProfit,
+
+            'categories' => CategoryResource::collection($categories)->resolve(),
         ]);
     }
 }

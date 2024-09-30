@@ -6,6 +6,7 @@ import ShadowBox from "@/Components/ShadowBox.jsx";
 import SelectPeriod from "@/Pages/Dashboard/Partials/SelectPeriod.jsx";
 import PurchasesWidget from "@/Pages/Dashboard/Purchases/PurchasesWidget.jsx";
 import Stocks from "@/Pages/Dashboard/Stocks/Stocks.jsx";
+import ProfitWidget from "@/Pages/Dashboard/Profit/ProfitWidget.jsx";
 
 export default function Dashboard({
                                       categories,
@@ -41,10 +42,15 @@ export default function Dashboard({
                                       yearlyCashPurchases,
                                       yearlyAccountPurchases,
                                       yearlyCreditPurchases,
+                                      dailyProfit,
+                                      weeklyProfit,
+                                      monthlyProfit,
+                                      yearlyProfit,
                                   }) {
-    console.log(categories)
+
     const [selectedSalesPeriod, setSelectedSalesPeriod] = useState('daily');
     const [selectedPurchasesPeriod, setSelectedPurchasesPeriod] = useState('daily');
+    const [selectedPeriod, setSelectedPeriod] = useState('daily');
 
     const handleSalesPeriodChange = (event) => {
         setSelectedSalesPeriod(event.target.value);
@@ -110,6 +116,13 @@ export default function Dashboard({
         },
     };
 
+    const profitData = {
+        daily: dailyProfit,
+        weekly: weeklyProfit,
+        monthly: monthlyProfit,
+        yearly: yearlyProfit,
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -120,9 +133,9 @@ export default function Dashboard({
         >
             <Head title="Dashboard"/>
 
-            <div className="mx-auto max-w-[90%] p-3">
-                <div className='flex items-center justify-between gap-2'>
-                    <div className='w-1/2'>
+            <div className="mx-auto max-w-[98%] p-3">
+                <div className='flex justify-between gap-2'>
+                    <div className='w-1/3'>
                         <ShadowBox>
                             <div className='flex justify-between items-center mb-6'>
                                 <h3 className='font-normal text-gray-700 text-2xl'>Sales</h3>
@@ -134,7 +147,7 @@ export default function Dashboard({
                             <SalesWidget salesData={salesData} selectedPeriod={selectedSalesPeriod}/>
                         </ShadowBox>
                     </div>
-                    <div className='w-1/2'>
+                    <div className='w-1/3'>
                         <ShadowBox>
                             <div className='flex justify-between items-center mb-6'>
                                 <h3 className='font-normal text-gray-700 text-2xl'>Purchases</h3>
@@ -146,11 +159,21 @@ export default function Dashboard({
                             <PurchasesWidget purchasesData={purchasesData} selectedPeriod={selectedPurchasesPeriod}/>
                         </ShadowBox>
                     </div>
+                    <div className='w-1/3'>
+                        <ShadowBox>
+                            <div className="flex justify-between items-center mb-6">
+                                <h3 className="font-normal text-gray-700 text-2xl">Profit</h3>
+                                <SelectPeriod selectedPeriod={selectedPeriod}
+                                              onChange={(e) => setSelectedPeriod(e.target.value)}/>
+                            </div>
+                            <ProfitWidget profitData={profitData} selectedPeriod={selectedPeriod}/>
+                        </ShadowBox>
+                    </div>
                 </div>
             </div>
 
-            <div className='mx-auto max-w-[90%] p-3'>
-            <Stocks categories={categories}/>
+            <div className='mx-auto max-w-[98%] p-3'>
+                <Stocks categories={categories}/>
             </div>
         </AuthenticatedLayout>
     );
