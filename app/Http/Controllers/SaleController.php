@@ -44,7 +44,7 @@ class SaleController extends Controller
             'products' => 'required|array',
             'products.*.product_id' => 'required|exists:products,id',
             'products.*.product_type' => 'required|string|',
-            'products.*.quantity' => 'nullable|integer|min:1',
+            'products.*.quantity' => 'nullable|integer',
             'products.*.weight' => 'nullable|numeric|min:0',
             'due_date' => 'required|date',
             'payment_method' => 'required|string',
