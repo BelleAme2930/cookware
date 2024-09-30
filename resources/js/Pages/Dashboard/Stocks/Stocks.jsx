@@ -1,6 +1,4 @@
 import React from 'react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import {Head} from '@inertiajs/react';
 import CustomDataTable from '@/Components/CustomDataTable';
 import IconButton from '@/Components/IconButton';
 import {faEye} from "@fortawesome/free-solid-svg-icons";

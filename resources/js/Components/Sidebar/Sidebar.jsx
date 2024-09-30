@@ -4,7 +4,7 @@ import SideMenuDropdownItem from './SideMenuDropdownItem';
 import { Link } from "@inertiajs/react";
 import Image from "@/Components/Image.jsx";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTachometerAlt, faTags, faBox, faUserFriends, faShoppingCart, faFileInvoiceDollar, faDollarSign, faFileInvoice } from '@fortawesome/free-solid-svg-icons';
+import { faTachometerAlt, faTags, faBox, faUserFriends, faShoppingCart, faFileInvoiceDollar, faDollarSign } from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
     return (

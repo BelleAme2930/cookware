@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.jsx';
 import {Head} from '@inertiajs/react';
 import SalesWidget from "@/Pages/Dashboard/Sales/SalesWidget.jsx";
-import ShadowBoxWithTitle from "@/Components/ShadowBoxWithTitle.jsx";
 import ShadowBox from "@/Components/ShadowBox.jsx";
 import SelectPeriod from "@/Pages/Dashboard/Partials/SelectPeriod.jsx";
 import PurchasesWidget from "@/Pages/Dashboard/Purchases/PurchasesWidget.jsx";
