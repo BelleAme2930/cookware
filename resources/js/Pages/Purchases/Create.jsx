@@ -168,7 +168,8 @@ const Create = ({ suppliers, products, accounts }) => {
                         label="Payment Method"
                         options={[
                             { value: 'cash', label: 'Cash' },
-                            { value: 'account', label: 'Account' }
+                            { value: 'account', label: 'Account' },
+                            { value: 'credit', label: 'Credit' }
                         ]}
                         onChange={(option) => setData('payment_method', option.value)}
                         value={data.payment_method}
