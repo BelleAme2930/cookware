@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('quantity')->nullable();
             $table->unsignedBigInteger('weight')->nullable();
-            $table->unsignedBigInteger('total_price');
+            $table->unsignedBigInteger('sale_price');
             $table->timestamps();
         });
     }
