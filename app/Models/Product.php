@@ -17,7 +17,7 @@ class Product extends Model
         'product_type',
         'weight',
         'quantity',
-        'price',
+        'sale_price',
         'image',
     ];
 

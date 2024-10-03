@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('purchases', function (Blueprint $table) {
             $table->id();
-            $table->date('due_date')->nullable();
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('total_price');
             $table->string('payment_method')->nullable();
             $table->foreignId('account_id')->nullable()->constrained()->onDelete('set null');
+            $table->date('due_date')->nullable();
             $table->timestamps();
         });
     }
