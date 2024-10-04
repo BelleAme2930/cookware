@@ -10,18 +10,21 @@ import IconButton from "@/Components/IconButton.jsx";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import Label from "@/Components/Label.jsx";
 
-const Edit = ({ purchase, suppliers, products, accounts }) => {
+const Edit = ({ suppliers, products, accounts, purchase }) => {
+    console.log(purchase)
+
     const { data, setData, put, processing } = useForm({
         supplier_id: purchase.supplier_id,
         products: purchase.products.map(product => ({
             product_id: product.id,
             product_type: product.product_type,
-            quantity: product.pivot.quantity,
-            weight: product.pivot.weight,
+            quantity: product.pivot.quantity || 0,
+            weight: product.pivot.weight || '',
+            price: product.pivot.purchase_price || '',
         })),
-        due_date: purchase.due_date,
+        due_date: purchase.due_date.split('T')[0],
         payment_method: purchase.payment_method,
-        account_id: purchase.account_id || '',
+        account_id: purchase.account_id || ''
     });
 
     const [productFields, setProductFields] = useState(data.products);
@@ -46,7 +49,7 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
     };
 
     const handleAddProduct = () => {
-        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '' }]);
+        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '', price: '' }]);
     };
 
     const handleRemoveProduct = (index) => {
@@ -61,7 +64,7 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
 
         if (field === 'product_id') {
             const selectedProduct = products.find(product => product.id === value);
-            updatedFields[index]['product_type'] = selectedProduct ? selectedProduct.product_type : 'item';
+            updatedFields[index]['product_type'] = selectedProduct ? selectedProduct.product_type : '';
         }
 
         setProductFields(updatedFields);
@@ -141,6 +144,18 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
                                     </>
                                 )}
 
+                                <div className='mt-4'>
+                                    <Label title='Price' htmlFor={`price_${index}`} />
+                                    <TextInput
+                                        id={`price_${index}`}
+                                        label="Price"
+                                        type="number"
+                                        value={product.price}
+                                        onChange={(e) => handleProductChange(index, 'price', parseFloat(e.target.value))}
+                                        required
+                                    />
+                                </div>
+
                                 {index > 0 && (
                                     <IconButton
                                         icon={faTrash}
@@ -170,7 +185,8 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
                         label="Payment Method"
                         options={[
                             { value: 'cash', label: 'Cash' },
-                            { value: 'account', label: 'Account' }
+                            { value: 'account', label: 'Account' },
+                            { value: 'credit', label: 'Credit' }
                         ]}
                         onChange={(option) => setData('payment_method', option.value)}
                         value={data.payment_method}

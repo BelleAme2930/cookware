@@ -38,7 +38,7 @@ const Index = ({ products }) => {
             selector: row => row.quantity > 0 ? row.quantity : '-',
         },
         {
-            name: 'Price per KG',
+            name: 'Sale Price per KG',
             selector: row => row.price + ' Rs',
         },
         {
@@ -59,7 +59,7 @@ const Index = ({ products }) => {
                         className="h-20 w-20"
                     />
                 ) : (
-                    'No Image'
+                    '-'
                 )
             ),
         },

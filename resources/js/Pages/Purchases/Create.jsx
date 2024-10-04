@@ -24,6 +24,7 @@ const Create = ({ suppliers, products, accounts }) => {
         product_type: '',
         quantity: 0,
         weight: '',
+        price: '',
     }]);
 
     const supplierOptions = suppliers.map(supplier => ({
@@ -42,7 +43,7 @@ const Create = ({ suppliers, products, accounts }) => {
     };
 
     const handleAddProduct = () => {
-        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '' }]);
+        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '', price: '' }]);
     };
 
     const handleRemoveProduct = (index) => {
@@ -138,6 +139,18 @@ const Create = ({ suppliers, products, accounts }) => {
                                         />
                                     </>
                                 )}
+
+                                <div className='mt-4'>
+                                    <Label title='Price' htmlFor={`price_${index}`} />
+                                    <TextInput
+                                        id={`price_${index}`}
+                                        label="Price"
+                                        type="number"
+                                        value={product.price}
+                                        onChange={(e) => handleProductChange(index, 'price', parseFloat(e.target.value))}
+                                        required
+                                    />
+                                </div>
 
                                 {index > 0 && (
                                     <IconButton

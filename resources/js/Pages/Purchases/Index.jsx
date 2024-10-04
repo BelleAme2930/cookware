@@ -10,6 +10,8 @@ import { router } from '@inertiajs/core';
 
 const Index = ({ purchases }) => {
 
+    console.log(purchases)
+
     const editRoute = (id) => route('purchases.edit', id);
     const deleteRoute = (id) => route('purchases.destroy', id);
 
@@ -28,11 +30,17 @@ const Index = ({ purchases }) => {
         },
         {
             name: 'Weight (kg)',
-            selector: row => row.products.map(product => product.product_type === 'weight' ? product.pivot.weight : '-'),
+            selector: row => row.total_weight,
         },
         {
             name: 'Quantity',
-            selector: row => row.products.map(product => product.product_type === 'item' ? product.pivot.quantity : '-'),
+            selector: row => {
+                const quantities = row.products
+                    .filter(product => product.product_type === 'item')
+                    .map(product => product.pivot.quantity);
+
+                return quantities.every(q => q === 0) ? '-' : quantities.join(', ') || '-';
+            },
         },
         {
             name: 'Total Price',

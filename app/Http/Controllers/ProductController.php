@@ -66,7 +66,7 @@ class ProductController extends Controller
             'category_id' => $request->category_id,
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
-            'price' => $request->price,
+            'sale_price' => $request->price,
             'weight' => $request->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toGrams($request->weight) : null,
             'quantity' => $request->product_type === ProductTypeEnum::ITEM->value ? $request->quantity : null,
             'product_type' => $request->product_type,

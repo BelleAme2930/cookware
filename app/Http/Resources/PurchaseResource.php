@@ -27,6 +27,7 @@ class PurchaseResource extends JsonResource
             'due_date' => $this->due_date,
             'quantity' => $this->quantity ?? null,
             'weight' => $this->weight ? WeightHelper::toKilos($this->weight) : null,
+            'total_weight' => $this->calculateTotalWeight(),
             'created_at' => $this->created_at->format('Y-m-d'),
             'updated_at' => $this->updated_at->format('Y-m-d'),
         ];
@@ -44,12 +45,26 @@ class PurchaseResource extends JsonResource
                     'pivot' => [
                         'quantity' => $product->product_type === ProductTypeEnum::ITEM->value ? $product->pivot->quantity : null,
                         'weight' => $product->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toKilos($product->pivot->weight) : null,
-                        'total_price' => $product->pivot->total_price,
+                        'purchase_price' => $product->pivot->purchase_price,
                     ],
                 ];
             });
         }
 
         return $data;
+    }
+
+    protected function calculateTotalWeight(): ?float
+    {
+        if ($this->relationLoaded('products')) {
+            return $this->products->reduce(function ($carry, $product) {
+                if ($product->product_type === ProductTypeEnum::WEIGHT->value) {
+                    $carry += WeightHelper::toKilos($product->pivot->weight);
+                }
+                return $carry;
+            }, 0);
+        }
+
+        return null;
     }
 }

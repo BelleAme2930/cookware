@@ -15,7 +15,7 @@ class Purchase extends Model
     public function products()
     {
         return $this->belongsToMany(Product::class, 'product_purchase')
-            ->withPivot('quantity', 'weight', 'total_price')
+            ->withPivot('quantity', 'weight', 'purchase_price')
             ->withTimestamps();
     }
 

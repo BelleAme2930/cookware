@@ -48,6 +48,7 @@ class PurchaseController extends Controller
             'products.*.product_type' => 'required|string|in:item,weight',
             'products.*.quantity' => 'nullable|integer',
             'products.*.weight' => 'nullable|numeric',
+            'products.*.price' => 'nullable|numeric',
             'due_date' => 'required|date',
             'payment_method' => 'required|string',
             'account_id' => 'nullable|exists:accounts,id',
@@ -72,10 +73,10 @@ class PurchaseController extends Controller
             $purchase->products()->attach($product->id, [
                 'quantity' => $quantity,
                 'weight' => $weight,
-                'total_price' => $this->calculateTotalPrice($productData, $product->product_type),
+                'purchase_price' => $this->calculatePurchasePrice($productData, $product->product_type),
             ]);
 
-            $totalPrice += $this->calculateTotalPrice($productData, $product->product_type);
+            $totalPrice += $this->calculatePurchasePrice($productData, $product->product_type);
 
             if ($product->product_type === ProductTypeEnum::ITEM->value) {
                 $product->increment('quantity', $quantity);
@@ -87,19 +88,6 @@ class PurchaseController extends Controller
         $purchase->update(['total_price' => $totalPrice]);
 
         return redirect()->route('purchases.index')->with('success', 'Purchase created successfully.');
-    }
-
-    private function calculateTotalPrice($productData, $productType)
-    {
-        $product = Product::find($productData['product_id']);
-
-        if ($productType === ProductTypeEnum::ITEM->value) {
-            return ($product->price * $productData['quantity']);
-        } elseif ($productType === ProductTypeEnum::WEIGHT->value) {
-            return ($product->price * WeightHelper::toGrams($productData['weight']));
-        }
-
-        return 0;
     }
 
     public function edit(Purchase $purchase)
@@ -124,34 +112,24 @@ class PurchaseController extends Controller
             'products' => 'required|array',
             'products.*.product_id' => 'required|exists:products,id',
             'products.*.product_type' => 'required|string|in:item,weight',
-            'products.*.quantity' => 'nullable|integer|min:1',
-            'products.*.weight' => 'nullable|numeric|min:0',
+            'products.*.quantity' => 'nullable|integer',
+            'products.*.weight' => 'nullable|numeric',
+            'products.*.price' => 'nullable|numeric',
             'due_date' => 'required|date',
             'payment_method' => 'required|string',
             'account_id' => 'nullable|exists:accounts,id',
         ]);
 
-        foreach ($purchase->products as $existingProduct) {
-            if ($existingProduct->pivot->quantity) {
-                $existingProduct->increment('quantity', $existingProduct->pivot->quantity);
-            }
-            if ($existingProduct->pivot->weight) {
-                $existingProduct->increment('weight', $existingProduct->pivot->weight);
-            }
-        }
-
-        $purchase->products()->detach();
-
         $purchase->update([
             'supplier_id' => $validated['supplier_id'],
-            'total_price' => 0,
             'due_date' => $validated['due_date'],
             'payment_method' => $validated['payment_method'],
             'account_id' => $validated['payment_method'] === 'account' ? $validated['account_id'] : null,
         ]);
 
-        $totalPrice = 0;
+        $purchase->products()->detach();
 
+        $totalPrice = 0;
 
         foreach ($validated['products'] as $productData) {
             $product = Product::find($productData['product_id']);
@@ -162,10 +140,10 @@ class PurchaseController extends Controller
             $purchase->products()->attach($product->id, [
                 'quantity' => $quantity,
                 'weight' => $weight,
-                'total_price' => $this->calculateTotalPrice($productData, $product->product_type),
+                'purchase_price' => $this->calculatePurchasePrice($productData, $product->product_type),
             ]);
 
-            $totalPrice += $this->calculateTotalPrice($productData, $product->product_type);
+            $totalPrice += $this->calculatePurchasePrice($productData, $product->product_type);
 
             if ($product->product_type === ProductTypeEnum::ITEM->value) {
                 $product->increment('quantity', $quantity);
@@ -193,5 +171,16 @@ class PurchaseController extends Controller
         $purchase->delete();
 
         return redirect()->route('purchases.index')->with('success', 'Purchase deleted successfully.');
+    }
+
+    private function calculatePurchasePrice($productData, $productType)
+    {
+        if ($productType === ProductTypeEnum::ITEM->value) {
+            return ($productData['price'] * $productData['quantity']);
+        } elseif ($productType === ProductTypeEnum::WEIGHT->value) {
+            return ($productData['price'] * $productData['weight']);
+        }
+
+        return 0;
     }
 }
