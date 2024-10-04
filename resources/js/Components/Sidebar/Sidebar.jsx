@@ -12,7 +12,7 @@ import {
     faShoppingCart,
     faFileInvoiceDollar,
     faDollarSign,
-    faCross, faTimes, faBars
+    faTimes, faBars
 } from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {

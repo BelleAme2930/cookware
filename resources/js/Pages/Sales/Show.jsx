@@ -4,7 +4,6 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import {faArrowLeft, faPrint} from "@fortawesome/free-solid-svg-icons";
 import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 import {router} from "@inertiajs/core";
-import IconButton from "@/Components/IconButton.jsx";
 import BorderButton from "@/Components/BorderButton.jsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 

@@ -46,16 +46,6 @@ const Edit = ({ suppliers, products, accounts, purchase }) => {
             }));
     };
 
-    const handleAddProduct = () => {
-        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '', price: '' }]);
-    };
-
-    const handleRemoveProduct = (index) => {
-        const updatedFields = [...productFields];
-        updatedFields.splice(index, 1);
-        setProductFields(updatedFields);
-    };
-
     const handleProductChange = (index, field, value) => {
         const updatedFields = [...productFields];
         updatedFields[index][field] = value;

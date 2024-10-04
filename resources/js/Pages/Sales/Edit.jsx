@@ -41,17 +41,6 @@ const Edit = ({ sale, customers, products, accounts }) => {
             }));
     };
 
-    const handleAddProduct = () => {
-        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '', sale_price: 0 }]);
-    };
-
-    const handleRemoveProduct = (index) => {
-        const updatedFields = [...productFields];
-        updatedFields.splice(index, 1);
-        setProductFields(updatedFields);
-        setData('products', updatedFields);
-    };
-
     const handleProductChange = (index, field, value) => {
         const updatedFields = [...productFields];
         updatedFields[index][field] = value;
@@ -144,15 +133,6 @@ const Edit = ({ sale, customers, products, accounts }) => {
                                     onChange={(e) => handleProductChange(index, 'sale_price', parseFloat(e.target.value))}
                                     required
                                 />
-
-                                {index > 0 && (
-                                    <IconButton
-                                        icon={faTrash}
-                                        type="button"
-                                        onClick={() => handleRemoveProduct(index)}
-                                        className="absolute top-2 right-2 text-red-500"
-                                    />
-                                )}
                             </div>
                         );
                     })}
