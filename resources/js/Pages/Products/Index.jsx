@@ -9,14 +9,11 @@ import { toast } from "react-toastify";
 import { router } from '@inertiajs/core';
 
 const Index = ({ products }) => {
+
     const editRoute = (id) => route('products.edit', id);
     const deleteRoute = (id) => route('products.destroy', id);
 
     const columns = [
-        {
-            name: 'ID',
-            selector: row => row.id,
-        },
         {
             name: 'Name',
             selector: row => row.name,
@@ -31,37 +28,27 @@ const Index = ({ products }) => {
         },
         {
             name: 'Weight (kg)',
-            selector: row => row.weight > 0 ? row.weight : '-',
+            selector: row => row.product_type === 'weight' ? row.weight : '-',
         },
         {
             name: 'Quantity',
-            selector: row => row.quantity > 0 ? row.quantity : '-',
+            selector: row => row.product_type === 'item' ? row.quantity : '-'
         },
         {
-            name: 'Sale Price per KG',
-            selector: row => row.price + ' Rs',
+            name: 'Sale Price',
+            selector: row => row.sale_price + ' Rs',
         },
         {
             name: 'Type',
             selector: row => (
                 <div className="capitalize">
-                    {row.product_type}
+                    {row.product_type === 'weight' ? 'Per KG' : 'Per Item'}
                 </div>
             ),
         },
         {
-            name: 'Image',
-            cell: row => (
-                row.image ? (
-                    <img
-                        src={`/${row.image}`}
-                        alt={row.name}
-                        className="h-20 w-20"
-                    />
-                ) : (
-                    '-'
-                )
-            ),
+            name: 'Total Stock Price',
+            selector: row => row.total_stock_price,
         },
         {
             name: 'Actions',
@@ -99,16 +86,16 @@ const Index = ({ products }) => {
         <AuthenticatedLayout
             header={
                 <div className='flex items-center justify-between'>
-                    <h2 className="text-lg leading-tight text-gray-800">Products</h2>
+                    <h2 className="text-lg text-gray-800 font-medium">Products Listing</h2>
                     <PrimaryIconLink href={route('products.create')} icon={faAdd}>Add Product</PrimaryIconLink>
                 </div>
             }
         >
             <Head title="Products" />
-            <div className='mx-auto max-w-[90%] py-6'>
+            <div className='mx-auto w-full max-w-[96%] py-6'>
                 <CustomDataTable
                     title="Products"
-                    data={products.data}
+                    data={products}
                     columns={columns}
                     filterCriteria={filterCriteria}
                 />

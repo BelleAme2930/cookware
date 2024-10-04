@@ -5,6 +5,7 @@ import {faEye} from "@fortawesome/free-solid-svg-icons";
 import {router} from '@inertiajs/core';
 
 const Stocks = ({categories}) => {
+    console.log(categories)
 
     const showProductsRoute = (id) => route('categories.show', id);
 
@@ -14,23 +15,11 @@ const Stocks = ({categories}) => {
         {name: 'Category Stock', selector: row => row.products.length},
         {
             name: 'Total Weight',
-            selector: row => {
-                const totalWeight = row.products
-                    .filter(product => product.product_type === 'weight')
-                    .map(product => product.weight)
-                    .reduce((acc, weight) => acc + weight, 0);
-                return totalWeight > 0 ? `${totalWeight} KG` : '-';
-            }
+            selector: row => row.total_weight ? row.total_weight : '-'
         },
         {
             name: 'Total Quantity',
-            selector: row => {
-                const totalQuantity = row.products
-                    .filter(product => product.product_type === 'item')
-                    .map(product => product.quantity)
-                    .reduce((acc, quantity) => acc + quantity || 0, 0);
-                return totalQuantity > 0 ? totalQuantity : '-';
-            }
+            selector: row => row.total_quantity ? row.total_quantity : '-'
         },
         {
             name: 'Actions',

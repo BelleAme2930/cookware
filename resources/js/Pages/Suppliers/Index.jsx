@@ -15,7 +15,9 @@ const Index = ({ suppliers }) => {
     const columns = [
         {name: 'Name', selector: row => row.name},
         {name: 'Phone', selector: row => row.phone},
+        {name: 'Email', selector: row => row.email},
         {name: 'Address', selector: row => row.address},
+        {name: 'Created Date', selector: row => row.created_at},
         {
             name: 'Actions',
             cell: row => (

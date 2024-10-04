@@ -4,14 +4,10 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import Button from "@/Components/Button.jsx";
 import InputSelect from "@/Components/InputSelect.jsx";
 import PageHeader from "@/Components/PageHeader.jsx";
-import BorderButton from "@/Components/BorderButton.jsx";
 import TextInput from "@/Components/TextInput.jsx";
-import IconButton from "@/Components/IconButton.jsx";
-import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import Label from "@/Components/Label.jsx";
 
 const Edit = ({ suppliers, products, accounts, purchase }) => {
-    console.log(purchase)
 
     const { data, setData, put, processing } = useForm({
         supplier_id: purchase.supplier_id,
@@ -28,6 +24,8 @@ const Edit = ({ suppliers, products, accounts, purchase }) => {
     });
 
     const [productFields, setProductFields] = useState(data.products);
+
+    console.log(purchase.products)
 
     useEffect(() => {
         setData('products', productFields);
@@ -155,15 +153,6 @@ const Edit = ({ suppliers, products, accounts, purchase }) => {
                                         required
                                     />
                                 </div>
-
-                                {index > 0 && (
-                                    <IconButton
-                                        icon={faTrash}
-                                        type="button"
-                                        onClick={() => handleRemoveProduct(index)}
-                                        className="absolute top-2 right-2 text-red-500"
-                                    />
-                                )}
                             </div>
                         );
                     })}
@@ -206,10 +195,7 @@ const Edit = ({ suppliers, products, accounts, purchase }) => {
                         />
                     )}
 
-                    <div className="flex justify-between items-center">
-                        <BorderButton type="button" disabled={processing} onClick={handleAddProduct}>
-                            Add Product
-                        </BorderButton>
+                    <div className="flex justify-end items-center">
                         <Button type="submit" disabled={processing}>
                             {processing ? "Updating..." : "Update Purchase"}
                         </Button>

@@ -20,7 +20,6 @@ return new class extends Migration
             $table->unsignedBigInteger('weight')->nullable();
             $table->unsignedBigInteger('quantity')->nullable();
             $table->unsignedBigInteger('sale_price');
-            $table->string('image')->nullable();
             $table->timestamps();
         });
     }

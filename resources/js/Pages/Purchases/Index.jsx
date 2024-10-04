@@ -2,7 +2,7 @@ import React from 'react';
 import { Head } from '@inertiajs/react';
 import CustomDataTable from "@/Components/CustomDataTable.jsx";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import {faAdd, faEdit, faPrint, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faAdd, faEdit, faEye, faPrint, faTrash} from "@fortawesome/free-solid-svg-icons";
 import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 import IconButton from "@/Components/IconButton.jsx";
 import { toast } from "react-toastify";
@@ -13,20 +13,17 @@ const Index = ({ purchases }) => {
     console.log(purchases)
 
     const editRoute = (id) => route('purchases.edit', id);
+    const viewRoute = (id) => route('purchases.show', id);
     const deleteRoute = (id) => route('purchases.destroy', id);
 
     const columns = [
-        {
-            name: 'ID',
-            selector: row => row.id,
-        },
         {
             name: 'Supplier',
             selector: row => row.supplier.name,
         },
         {
             name: 'Products',
-            selector: row => row.products.map(product => product.name).join(', '),
+            selector: row => row.products.length,
         },
         {
             name: 'Weight (kg)',
@@ -47,8 +44,8 @@ const Index = ({ purchases }) => {
             selector: row => row.total_price,
         },
         {
-            name: 'Created Date',
-            selector: row => row.created_at,
+            name: 'Purchase Date',
+            selector: row => row.purchase_date,
         },
         {
             name: 'Due Date',
@@ -58,6 +55,7 @@ const Index = ({ purchases }) => {
             name: 'Actions',
             cell: row => (
                 <div className="flex space-x-2">
+                    <IconButton onClick={() => router.visit(viewRoute(row.id))} icon={faEye} />
                     <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />
                     <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />
                     <IconButton onClick={() => router.visit(route('purchases.invoices.show', row.id))} icon={faPrint} />

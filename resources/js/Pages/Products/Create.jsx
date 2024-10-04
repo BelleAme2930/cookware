@@ -16,7 +16,7 @@ const Create = ({categories, suppliers}) => {
         supplier_id: '',
         weight: 0,
         quantity: 0,
-        price: 0,
+        sale_price: 0,
         image: null,
         product_type: 'weight',
     });
@@ -120,16 +120,16 @@ const Create = ({categories, suppliers}) => {
                                     </div>
 
                                     <div className="mb-4 w-full">
-                                        <Label htmlFor='price' required title='Price Per KG' suffix='PKR'/>
+                                        <Label htmlFor='price' required title='Sale Price Per KG' suffix='PKR'/>
                                         <TextInput
                                             type="number"
                                             id="price"
-                                            value={data.price}
-                                            onChange={(e) => setData('price', e.target.value)}
+                                            value={data.sale_price}
+                                            onChange={(e) => setData('sale_price', parseInt(e.target.value))}
                                             required
-                                            className={`w-full ${errors.price ? 'border-red-600' : ''}`}
+                                            className={`w-full ${errors.sale_price ? 'border-red-600' : ''}`}
                                         />
-                                        {errors.price && <div className="text-red-600 text-sm">{errors.price}</div>}
+                                        {errors.sale_price && <div className="text-red-600 text-sm">{errors.sale_price}</div>}
                                     </div>
                                 </>
                             ) : (
@@ -149,16 +149,16 @@ const Create = ({categories, suppliers}) => {
                                     </div>
 
                                     <div className="mb-4 w-full">
-                                        <Label htmlFor='price' required title='Price Per Item' suffix='PKR'/>
+                                        <Label htmlFor='sale_price' required title='Sale Price Per Item' suffix='PKR'/>
                                         <TextInput
                                             type="number"
-                                            id="price"
-                                            value={data.price}
-                                            onChange={(e) => setData('price', e.target.value)}
+                                            id="sale_price"
+                                            value={data.sale_price}
+                                            onChange={(e) => setData('sale_price', e.target.value)}
                                             required
-                                            className={`w-full ${errors.price ? 'border-red-600' : ''}`}
+                                            className={`w-full ${errors.sale_price ? 'border-red-600' : ''}`}
                                         />
-                                        {errors.price && <div className="text-red-600 text-sm">{errors.price}</div>}
+                                        {errors.sale_price && <div className="text-red-600 text-sm">{errors.sale_price}</div>}
                                     </div>
                                 </>
                             )}

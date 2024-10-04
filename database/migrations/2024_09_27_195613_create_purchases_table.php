@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('payment_method')->nullable();
             $table->foreignId('account_id')->nullable()->constrained()->onDelete('set null');
             $table->date('due_date')->nullable();
+            $table->date('purchase_date')->nullable();
             $table->timestamps();
         });
     }

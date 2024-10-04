@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('total_price');
+            $table->date('sale_date')->nullable();
             $table->date('due_date')->nullable();
             $table->string('payment_method')->nullable();
             $table->foreignId('account_id')->nullable()->constrained()->onDelete('set null');

@@ -2,7 +2,7 @@ import React from 'react';
 import CustomDataTable from "@/Components/CustomDataTable.jsx";
 import { Head } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import {faAdd, faEdit, faPrint, faTrash} from "@fortawesome/free-solid-svg-icons";
+import {faAdd, faEdit, faEye, faPrint, faTrash} from "@fortawesome/free-solid-svg-icons";
 import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 import IconButton from "@/Components/IconButton.jsx";
 import { toast } from "react-toastify";
@@ -12,19 +12,16 @@ const Index = ({ sales }) => {
 
     const editRoute = (id) => route('sales.edit', id);
     const deleteRoute = (id) => route('sales.destroy', id);
+    const viewRoute = (id) => route('sales.show', id);
 
     const columns = [
-        {
-            name: 'ID',
-            selector: row => row.id,
-        },
         {
             name: 'Customer',
             selector: row => row.customer.name,
         },
         {
             name: 'Products',
-            selector: row => row.products.map(product => product.name).join(', '),
+            selector: row => row.products.length,
         },
         {
             name: 'Weight (kg)',
@@ -39,8 +36,8 @@ const Index = ({ sales }) => {
             selector: row => row.total_price,
         },
         {
-            name: 'Created Date',
-            selector: row => row.created_at,
+            name: 'Sale Date',
+            selector: row => row.sale_date,
         },
         {
             name: 'Due Date',
@@ -50,6 +47,7 @@ const Index = ({ sales }) => {
             name: 'Actions',
             cell: row => (
                 <div className="flex space-x-2">
+                    <IconButton onClick={() => router.visit(viewRoute(row.id))} icon={faEye} />
                     <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />
                     <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />
                     <IconButton onClick={() => router.visit(route('sales.invoices.show', row.id))} icon={faPrint} />

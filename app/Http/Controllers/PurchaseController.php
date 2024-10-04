@@ -7,11 +7,14 @@ use App\Helpers\WeightHelper;
 use App\Http\Resources\AccountResource;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\PurchaseResource;
+use App\Http\Resources\SaleResource;
 use App\Http\Resources\SupplierResource;
 use App\Models\Account;
 use App\Models\Product;
 use App\Models\Purchase;
+use App\Models\Sale;
 use App\Models\Supplier;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -33,9 +36,18 @@ class PurchaseController extends Controller
         $accounts = Account::all();
 
         return Inertia::render('Purchases/Create', [
-            'products' => $products,
-            'suppliers' => $suppliers,
-            'accounts' => $accounts,
+            'products' => ProductResource::collection($products)->resolve(),
+            'suppliers' => SupplierResource::collection($suppliers)->resolve(),
+            'accounts' => AccountResource::collection($accounts)->resolve(),
+        ]);
+    }
+
+    public function show(Purchase $purchase)
+    {
+        $purchase->load(['supplier', 'products']);
+
+        return Inertia::render('Purchases/Show', [
+            'purchase' => PurchaseResource::make($purchase)->resolve(),
         ]);
     }
 
@@ -58,6 +70,7 @@ class PurchaseController extends Controller
             'supplier_id' => $validated['supplier_id'],
             'total_price' => 0,
             'due_date' => $validated['due_date'],
+            'purchase_date' => Carbon::today(),
             'payment_method' => $validated['payment_method'],
             'account_id' => $validated['payment_method'] === 'account' ? $validated['account_id'] : null,
         ]);
@@ -73,7 +86,7 @@ class PurchaseController extends Controller
             $purchase->products()->attach($product->id, [
                 'quantity' => $quantity,
                 'weight' => $weight,
-                'purchase_price' => $this->calculatePurchasePrice($productData, $product->product_type),
+                'purchase_price' => $productData['price'],
             ]);
 
             $totalPrice += $this->calculatePurchasePrice($productData, $product->product_type);

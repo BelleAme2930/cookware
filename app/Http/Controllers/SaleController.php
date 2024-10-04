@@ -5,11 +5,13 @@ namespace App\Http\Controllers;
 use App\Enums\PaymentMethodEnum;
 use App\Enums\ProductTypeEnum;
 use App\Helpers\WeightHelper;
+use App\Http\Resources\ProductResource;
 use App\Http\Resources\SaleResource;
 use App\Models\Account;
 use App\Models\Sale;
 use App\Models\Product;
 use App\Models\Customer;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -32,7 +34,7 @@ class SaleController extends Controller
 
         return Inertia::render('Sales/Create', [
             'customers' => $customers,
-            'products' => $products,
+            'products' => ProductResource::collection($products)->resolve(),
             'accounts' => $accounts,
         ]);
     }
@@ -43,20 +45,21 @@ class SaleController extends Controller
             'customer_id' => 'required|exists:customers,id',
             'products' => 'required|array',
             'products.*.product_id' => 'required|exists:products,id',
-            'products.*.product_type' => 'required|string|',
-            'products.*.quantity' => 'nullable|integer',
+            'products.*.product_type' => 'required|string',
+            'products.*.quantity' => 'nullable|integer|min:0',
             'products.*.weight' => 'nullable|numeric|min:0',
+            'products.*.sale_price' => 'required|numeric|min:0',
             'due_date' => 'required|date',
             'payment_method' => 'required|string',
             'account_id' => 'nullable|exists:accounts,id',
         ]);
-
 
         DB::transaction(function () use ($validated) {
             $sale = Sale::create([
                 'customer_id' => $validated['customer_id'],
                 'total_price' => 0,
                 'due_date' => $validated['due_date'],
+                'sale_date' => Carbon::today(),
                 'payment_method' => $validated['payment_method'],
                 'account_id' => $validated['payment_method'] === PaymentMethodEnum::ACCOUNT->value ? $validated['account_id'] : null,
             ]);
@@ -69,15 +72,17 @@ class SaleController extends Controller
                 $quantity = $product->product_type === ProductTypeEnum::ITEM->value ? $productData['quantity'] : null;
                 $weight = $product->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toGrams($productData['weight']) : null;
 
-
                 $sale->products()->attach($product->id, [
                     'quantity' => $quantity,
                     'weight' => $weight,
-                    'total_price' => $this->calculateTotalPrice($productData, $product->product_type),
+                    'sale_price' => $productData['sale_price'],
                 ]);
 
-                $totalPrice += $this->calculateTotalPrice($productData, $product->product_type);
-
+                if ($product->product_type === ProductTypeEnum::ITEM->value) {
+                    $totalPrice += ($productData['sale_price'] * $quantity);
+                } elseif ($product->product_type === ProductTypeEnum::WEIGHT->value) {
+                    $totalPrice += ($productData['sale_price'] * $productData['weight']);
+                }
 
                 if ($product->product_type === ProductTypeEnum::ITEM->value && $quantity) {
                     $product->decrement('quantity', $quantity);
@@ -86,24 +91,10 @@ class SaleController extends Controller
                 }
             }
 
-
             $sale->update(['total_price' => $totalPrice]);
         });
 
         return redirect()->route('sales.index')->with('success', 'Sale added successfully');
-    }
-
-    private function calculateTotalPrice($productData, $productType)
-    {
-        $product = Product::find($productData['product_id']);
-
-        if ($productType === ProductTypeEnum::ITEM->value) {
-            return ($product->price * $productData['quantity']);
-        } elseif ($productType === ProductTypeEnum::WEIGHT->value) {
-            return ($product->price * $productData['weight']);
-        }
-
-        return 0;
     }
 
     public function edit(Sale $sale)
@@ -128,7 +119,7 @@ class SaleController extends Controller
             'products' => 'required|array',
             'products.*.product_id' => 'required|exists:products,id',
             'products.*.product_type' => 'required|string',
-            'products.*.quantity' => 'nullable|integer|min:1',
+            'products.*.quantity' => 'nullable|integer|min:0',
             'products.*.weight' => 'nullable|numeric|min:0',
             'due_date' => 'required|date',
             'payment_method' => 'required|string',
@@ -145,6 +136,8 @@ class SaleController extends Controller
                 'account_id' => $validated['payment_method'] === PaymentMethodEnum::ACCOUNT->value ? $validated['account_id'] : null,
             ]);
 
+            $totalPrice = 0;
+
             foreach ($validated['products'] as $productData) {
                 $product = Product::find($productData['product_id']);
 
@@ -154,8 +147,14 @@ class SaleController extends Controller
                 $sale->products()->attach($product->id, [
                     'quantity' => $quantity,
                     'weight' => $weight,
-                    'total_price' => $this->calculateTotalPrice($productData, $product->product_type),
+                    'sale_price' => $productData['sale_price'],
                 ]);
+
+                if ($product->product_type === ProductTypeEnum::ITEM->value) {
+                    $totalPrice += ($productData['sale_price'] * $quantity);
+                } elseif ($product->product_type === ProductTypeEnum::WEIGHT->value) {
+                    $totalPrice += ($productData['sale_price'] * $weight);
+                }
 
                 if ($product->product_type === ProductTypeEnum::ITEM->value && $quantity) {
                     $product->decrement('quantity', $quantity);
@@ -163,9 +162,20 @@ class SaleController extends Controller
                     $product->decrement('weight', $weight);
                 }
             }
+
+            $sale->update(['total_price' => $totalPrice]);
         });
 
         return redirect()->route('sales.index')->with('success', 'Sale updated successfully.');
+    }
+
+    public function show(Sale $sale)
+    {
+        $sale->load(['customer', 'products']);
+
+        return Inertia::render('Sales/Show', [
+            'sale' => SaleResource::make($sale)->resolve(),
+        ]);
     }
 
     public function destroy(Sale $sale)

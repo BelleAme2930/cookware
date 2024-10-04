@@ -20,7 +20,7 @@ export default function Authenticated({header, children}) {
         <div className="min-h-screen bg-gray-100 flex">
             <Sidebar isCollapsed={isCollapsed} toggleSidebar={toggleSidebar}/>
 
-            <div className={`flex-1 ${isCollapsed ? 'ml-16' : 'ml-64'} transition-all duration-300 ease-in-out`}>
+            <div className={`flex-1 ${isCollapsed ? 'ml-16' : 'ml-56'} transition-all duration-300 ease-in-out`}>
                 <nav className="border-b border-gray-100 bg-white">
                     <div className="mx-auto px-8">
                         <div className="flex h-16 justify-between">
@@ -141,7 +141,7 @@ export default function Authenticated({header, children}) {
 
                 {header && (
                     <header className="bg-white shadow">
-                        <div className="mx-auto max-w-[90%] py-4">
+                        <div className="mx-auto max-w-[96%] py-4">
                             {header}
                         </div>
                     </header>

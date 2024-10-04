@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SupplierResource;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,7 +13,7 @@ class SupplierController extends Controller
     {
         $suppliers = Supplier::all();
         return Inertia::render('Suppliers/Index', [
-            'suppliers' => $suppliers,
+            'suppliers' => SupplierResource::collection($suppliers)->resolve(),
         ]);
     }
 
@@ -43,14 +44,14 @@ class SupplierController extends Controller
     public function show(Supplier $supplier)
     {
         return Inertia::render('Suppliers/Show', [
-            'supplier' => $supplier,
+            'supplier' => SupplierResource::make($supplier)->resolve(),
         ]);
     }
 
     public function edit(Supplier $supplier)
     {
         return Inertia::render('Suppliers/Edit', [
-            'supplier' => $supplier,
+            'supplier' => SupplierResource::make($supplier)->resolve(),
         ]);
     }
 

@@ -99,8 +99,10 @@ const Create = ({ suppliers, products, accounts }) => {
 
                         const filteredProductOptions = getProductOptions(selectedProductIds);
 
+                        const selectedProduct = products.find(p => p.id === product.product_id);
+
                         return (
-                            <div key={index} className={`mb-4 py-5 px-4 border border-gray-300 rounded-md relative bg-white !bg-gray-50`}>
+                            <div key={index} className={`mb-4 py-5 px-4 border border-gray-300 rounded-md relative !bg-gray-50`}>
                                 <InputSelect
                                     id={`product_id_${index}`}
                                     label={`Product ${index + 1}`}
@@ -114,7 +116,7 @@ const Create = ({ suppliers, products, accounts }) => {
 
                                 {product.product_type === 'weight' && (
                                     <>
-                                        <Label title='Weight' htmlFor={`weight_${index}`} />
+                                        <Label title='Weight' htmlFor={`weight_${index}`} suffix={'Inventory: ' + selectedProduct?.weight + ' KG'}/>
                                         <TextInput
                                             id={`weight_${index}`}
                                             label="Weight"
@@ -123,12 +125,24 @@ const Create = ({ suppliers, products, accounts }) => {
                                             onChange={(e) => handleProductChange(index, 'weight', parseFloat(e.target.value))}
                                             required
                                         />
+
+                                        <div className='mt-4'>
+                                            <Label title='Purchase Price per KG' htmlFor={`price_${index}`}/>
+                                            <TextInput
+                                                id={`price_${index}`}
+                                                label="Price"
+                                                type="number"
+                                                value={product.price}
+                                                onChange={(e) => handleProductChange(index, 'price', parseFloat(e.target.value))}
+                                                required
+                                            />
+                                        </div>
                                     </>
                                 )}
 
                                 {product.product_type === 'item' && (
                                     <>
-                                        <Label title='Quantity' htmlFor={`quantity_${index}`} />
+                                        <Label title='Quantity' htmlFor={`quantity_${index}`} suffix={'Inventory: ' + selectedProduct.quantity + ' pcs'}/>
                                         <TextInput
                                             id={`quantity_${index}`}
                                             label="Quantity"
@@ -137,20 +151,20 @@ const Create = ({ suppliers, products, accounts }) => {
                                             onChange={(e) => handleProductChange(index, 'quantity', parseInt(e.target.value))}
                                             required
                                         />
+
+                                        <div className='mt-4'>
+                                            <Label title='Purchase Price per Item' htmlFor={`price_${index}`}/>
+                                            <TextInput
+                                                id={`price_${index}`}
+                                                label="Price"
+                                                type="number"
+                                                value={product.price}
+                                                onChange={(e) => handleProductChange(index, 'price', parseFloat(e.target.value))}
+                                                required
+                                            />
+                                        </div>
                                     </>
                                 )}
-
-                                <div className='mt-4'>
-                                    <Label title='Price' htmlFor={`price_${index}`} />
-                                    <TextInput
-                                        id={`price_${index}`}
-                                        label="Price"
-                                        type="number"
-                                        value={product.price}
-                                        onChange={(e) => handleProductChange(index, 'price', parseFloat(e.target.value))}
-                                        required
-                                    />
-                                </div>
 
                                 {index > 0 && (
                                     <IconButton

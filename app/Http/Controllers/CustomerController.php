@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\CustomerResource;
 use App\Models\Customer;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -12,7 +13,7 @@ class CustomerController extends Controller
     {
         $customers = Customer::all();
         return Inertia::render('Customers/Index', [
-            'customers' => $customers,
+            'customers' => CustomerResource::collection($customers)->resolve(),
         ]);
     }
 
@@ -43,14 +44,14 @@ class CustomerController extends Controller
     public function show(Customer $customer)
     {
         return Inertia::render('Customers/Show', [
-            'customer' => $customer,
+            'customer' => CustomerResource::make($customer)->resolve(),
         ]);
     }
 
     public function edit(Customer $customer)
     {
         return Inertia::render('Customers/Edit', [
-            'customer' => $customer,
+            'customer' => CustomerResource::make($customer)->resolve(),
         ]);
     }
 

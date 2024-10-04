@@ -24,6 +24,7 @@ const Create = ({ customers, products, accounts }) => {
         product_type: '',
         quantity: 0,
         weight: '',
+        sale_price: 0,
     }]);
 
     const customerOptions = customers.map(customer => ({
@@ -42,7 +43,7 @@ const Create = ({ customers, products, accounts }) => {
     };
 
     const handleAddProduct = () => {
-        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '' }]);
+        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '', sale_price: 0 }]);
     };
 
     const handleRemoveProduct = (index) => {
@@ -97,7 +98,11 @@ const Create = ({ customers, products, accounts }) => {
                             .filter((_, i) => i !== index)
                             .map(field => field.product_id);
 
+                        const selectedProduct = products.find(p => p.id === product.product_id);
+
                         const filteredProductOptions = getProductOptions(selectedProductIds);
+                        const availableWeight = selectedProduct?.weight - (product.weight || 0);
+                        const availableQuantity = selectedProduct?.quantity - (product.quantity || 0);
 
                         return (
                             <div key={index} className={`mb-4 py-5 px-4 border border-gray-300 rounded-md relative bg-white !bg-gray-50`}>
@@ -115,7 +120,12 @@ const Create = ({ customers, products, accounts }) => {
 
                                 {product.product_type === 'weight' && (
                                     <>
-                                        <Label title='Weight' htmlFor={`weight_${index}`} />
+                                        <Label
+                                            title='Weight'
+                                            htmlFor={`weight_${index}`}
+                                            suffix={`Available Weight: ${availableWeight} KG`}
+                                            suffixStyle={availableWeight < 0 ? 'text-red-600' : 'text-gray-700'}
+                                        />
                                         <TextInput
                                             id={`weight_${index}`}
                                             label="Weight"
@@ -123,13 +133,34 @@ const Create = ({ customers, products, accounts }) => {
                                             value={product.weight}
                                             onChange={(e) => handleProductChange(index, 'weight', parseFloat(e.target.value))}
                                             required
+                                            max={selectedProduct.weight + Math.abs(availableWeight)}
                                         />
+                                        <div className='mt-4'>
+                                            <Label
+                                                title='Sale Price'
+                                                htmlFor={`sale_price_${index}`}
+                                                suffix={`Default Sale Price: ${selectedProduct.sale_price} Rs`}
+                                            />
+                                            <TextInput
+                                                id={`sale_price_${index}`}
+                                                label="Sale Price"
+                                                type="number"
+                                                value={product.sale_price}
+                                                onChange={(e) => handleProductChange(index, 'sale_price', parseFloat(e.target.value))}
+                                                required
+                                            />
+                                        </div>
                                     </>
                                 )}
 
                                 {product.product_type === 'item' && (
                                     <>
-                                        <Label title='Quantity' htmlFor={`quantity_${index}`} />
+                                        <Label
+                                            title='Quantity'
+                                            htmlFor={`quantity_${index}`}
+                                            suffix={`Available Stock: ${availableQuantity} pcs`}
+                                            suffixStyle={availableQuantity < 0 ? 'text-red-600' : 'text-gray-500'} // Change color based on value
+                                        />
                                         <TextInput
                                             id={`quantity_${index}`}
                                             label="Quantity"
@@ -138,8 +169,24 @@ const Create = ({ customers, products, accounts }) => {
                                             onChange={(e) => handleProductChange(index, 'quantity', parseInt(e.target.value))}
                                             required
                                         />
+                                        <div className='mt-4'>
+                                            <Label
+                                                title='Sale Price'
+                                                htmlFor={`sale_price_${index}`}
+                                                suffix={`Default Sale Price: ${selectedProduct.sale_price} Rs`}
+                                            />
+                                            <TextInput
+                                                id={`sale_price_${index}`}
+                                                label="Sale Price"
+                                                type="number"
+                                                value={product.sale_price}
+                                                onChange={(e) => handleProductChange(index, 'sale_price', parseFloat(e.target.value))}
+                                                required
+                                            />
+                                        </div>
                                     </>
                                 )}
+
 
                                 {index > 0 && (
                                     <IconButton

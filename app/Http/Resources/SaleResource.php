@@ -19,6 +19,7 @@ class SaleResource extends JsonResource
             'total_price' => $this->total_price,
             'due_date' => $this->due_date,
             'payment_method' => $this->payment_method,
+            'sale_date' => $this->sale_date,
             'created_at' => $this->created_at->format('Y-m-d'),
             'updated_at' => $this->updated_at->format('Y-m-d'),
         ];
@@ -36,7 +37,7 @@ class SaleResource extends JsonResource
                     'pivot' => [
                         'quantity' => $product->product_type === ProductTypeEnum::ITEM->value ? $product->pivot->quantity : null,
                         'weight' => $product->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toKilos($product->pivot->weight) : null,
-                        'total_price' => $product->pivot->total_price,
+                        'sale_price' => $product->pivot->sale_price,
                     ],
                 ];
             });

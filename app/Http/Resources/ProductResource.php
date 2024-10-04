@@ -23,8 +23,8 @@ class ProductResource extends JsonResource
             'weight' => WeightHelper::toKilos($this->weight ?? 0) ?? 0,
             'quantity' => $this->quantity ?? 0,
             'product_type' => $this->product_type,
-            'image' => $this->image,
-            'price' => $this->sale_price,
+            'sale_price' => $this->sale_price,
+            'total_stock_price' => $this->product_type === 'weight' ? WeightHelper::toKilos($this->weight) * $this->sale_price : $this->quantity * $this->sale_price,
             'created_at' => $this->created_at->format('Y-m-d'),
             'updated_at' => $this->updated_at->format('Y-m-d'),
         ];

@@ -16,6 +16,8 @@ const Index = ({ customers }) => {
         {name: 'Name', selector: row => row.name},
         {name: 'Phone', selector: row => row.phone},
         {name: 'Email', selector: row => row.email},
+        {name: 'Address', selector: row => row.address},
+        {name: 'Created Date', selector: row => row.created_at},
         {
             name: 'Actions',
             cell: row => (
@@ -56,7 +58,7 @@ const Index = ({ customers }) => {
             }
         >
             <Head title="Customers" />
-            <div className='mx-auto max-w-[90%] py-6'>
+            <div className='mx-auto max-w-[96%] py-6'>
                 <CustomDataTable
                     title="Customers"
                     data={customers}

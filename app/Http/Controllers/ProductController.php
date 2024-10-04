@@ -10,7 +10,6 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Supplier;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Inertia\Inertia;
 use App\Helpers\WeightHelper;
 
@@ -20,7 +19,7 @@ class ProductController extends Controller
     {
         $products = Product::with(['category', 'supplier'])->get();
         return Inertia::render('Products/Index', [
-            'products' => ProductResource::collection($products),
+            'products' => ProductResource::collection($products)->resolve(),
         ]);
     }
 
@@ -42,35 +41,17 @@ class ProductController extends Controller
             'name' => 'required|string|max:255|unique:products,name',
             'quantity' => 'nullable|numeric|min:0',
             'weight' => 'required_if:product_type,weight|numeric|min:0',
-            'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|max:2048',
+            'sale_price' => 'required|numeric|min:0',
         ]);
-
-        $imagePath = null;
-        if ($request->hasFile('image')) {
-            $directoryPath = 'assets/images/uploads/products';
-
-            if (!file_exists($directoryPath)) {
-                mkdir($directoryPath, 0755, true);
-            }
-
-            $randomString = Str::random(10);
-            $extension = $request->file('image')->getClientOriginalExtension();
-            $imageName = $randomString . '.' . $extension;
-
-            $request->file('image')->move($directoryPath, $imageName);
-            $imagePath = 'assets/images/uploads/products/' . $imageName;
-        }
 
         Product::create([
             'category_id' => $request->category_id,
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
-            'sale_price' => $request->price,
+            'sale_price' => $request->sale_price,
             'weight' => $request->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toGrams($request->weight) : null,
             'quantity' => $request->product_type === ProductTypeEnum::ITEM->value ? $request->quantity : null,
             'product_type' => $request->product_type,
-            'image' => $imagePath,
         ]);
 
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
@@ -99,53 +80,32 @@ class ProductController extends Controller
         ]);
     }
 
-    public function update(Request $request, Product $product)
+    public function update(Request $request, $id)
     {
-        $rules = [
+        $product = Product::findOrFail($id);
+
+        $request->validate([
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'name' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0',
-            'image' => 'nullable|image|max:2048',
-        ];
-
-        if ($request->product_type === ProductTypeEnum::WEIGHT->value) {
-            $rules['weight'] = 'required|numeric|min:0';
-            $rules['quantity'] = 'nullable|numeric|min:0';
-        } else {
-            $rules['quantity'] = 'required|numeric|min:0';
-            $rules['weight'] = 'nullable|numeric|min:0';
-        }
-
-        $request->validate($rules);
-
-        $imagePath = $product->image;
-        if ($request->hasFile('image')) {
-            $randomString = Str::random(10);
-            $extension = $request->file('image')->getClientOriginalExtension();
-            $imageName = $randomString . '.' . $extension;
-            $directoryPath = 'assets/images/uploads/products';
-
-            if (!file_exists($directoryPath)) {
-                mkdir($directoryPath, 0755, true);
-            }
-
-            $request->file('image')->move($directoryPath, $imageName);
-            $imagePath = 'assets/images/uploads/products/' . $imageName;
-        }
+            'name' => 'required|string|max:255|unique:products,name,' . $product->id,
+            'quantity' => 'nullable|numeric|min:0',
+            'weight' => 'required_if:product_type,weight|numeric|min:0',
+            'sale_price' => 'required|numeric|min:0',
+        ]);
 
         $product->update([
             'category_id' => $request->category_id,
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
-            'price' => $request->price,
+            'sale_price' => $request->sale_price,
             'weight' => $request->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toGrams($request->weight) : null,
             'quantity' => $request->product_type === ProductTypeEnum::ITEM->value ? $request->quantity : null,
-            'image' => $imagePath,
+            'product_type' => $request->product_type,
         ]);
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
+
 
 
     public function destroy(Product $product)

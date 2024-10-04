@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Helpers\WeightHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -18,6 +19,8 @@ class CategoryResource extends JsonResource
             'id' => $this->id,
             'name' => $this->name,
             'description' => $this->description,
+            'total_weight' => WeightHelper::toKilos($this->products->sum('weight')),
+            'total_quantity' => $this->products->sum('quantity'),
             'created_at' => $this->created_at->format('Y-m-d'),
             'updated_at' => $this->updated_at->format('Y-m-d'),
         ];

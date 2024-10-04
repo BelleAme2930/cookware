@@ -4,21 +4,20 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import Button from "@/Components/Button.jsx";
 import InputSelect from "@/Components/InputSelect.jsx";
 import PageHeader from "@/Components/PageHeader.jsx";
-import BorderButton from "@/Components/BorderButton.jsx";
 import TextInput from "@/Components/TextInput.jsx";
 import IconButton from "@/Components/IconButton.jsx";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import Label from "@/Components/Label.jsx";
 
 const Edit = ({ sale, customers, products, accounts }) => {
-    console.log(sale)
     const { data, setData, put, processing } = useForm({
         customer_id: sale.customer_id,
         products: sale.products.map(product => ({
-            product_id: product.product_id,
-            product_type: product.product_type,
-            quantity: product.quantity || 0,
-            weight: product.weight || '',
+            product_id: product.id,
+            product_type: product.pivot.product_type,
+            quantity: product.pivot.quantity || 0,
+            weight: product.pivot.weight || '',
+            sale_price: product.pivot.sale_price,
         })),
         due_date: sale.due_date,
         payment_method: sale.payment_method,
@@ -43,7 +42,7 @@ const Edit = ({ sale, customers, products, accounts }) => {
     };
 
     const handleAddProduct = () => {
-        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '' }]);
+        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '', sale_price: 0 }]);
     };
 
     const handleRemoveProduct = (index) => {
@@ -101,7 +100,7 @@ const Edit = ({ sale, customers, products, accounts }) => {
                         const filteredProductOptions = getProductOptions(selectedProductIds);
 
                         return (
-                            <div key={index} className={`mb-4 py-5 px-4 border border-gray-300 rounded-md relative bg-white !bg-gray-50`}>
+                            <div key={index} className="mb-4 py-5 px-4 border border-gray-300 rounded-md relative bg-white !bg-gray-50">
                                 <InputSelect
                                     id={`product_id_${index}`}
                                     label={`Product ${index + 1}`}
@@ -137,6 +136,15 @@ const Edit = ({ sale, customers, products, accounts }) => {
                                     </>
                                 )}
 
+                                <Label title='Sale Price' htmlFor={`sale_price_${index}`} />
+                                <TextInput
+                                    id={`sale_price_${index}`}
+                                    type="number"
+                                    value={product.sale_price}
+                                    onChange={(e) => handleProductChange(index, 'sale_price', parseFloat(e.target.value))}
+                                    required
+                                />
+
                                 {index > 0 && (
                                     <IconButton
                                         icon={faTrash}
@@ -157,7 +165,7 @@ const Edit = ({ sale, customers, products, accounts }) => {
                             value={data.due_date}
                             onChange={(e) => setData('due_date', e.target.value)}
                             required
-                            className='w-full'
+                            className="w-full"
                         />
                     </div>
 
@@ -176,22 +184,14 @@ const Edit = ({ sale, customers, products, accounts }) => {
                     {data.payment_method === 'account' && (
                         <InputSelect
                             id="account_id"
-                            label="Select Account"
+                            label="Account"
                             options={accountOptions}
+                            onChange={(option) => setData('account_id', option.value)}
                             value={data.account_id}
-                            onChange={(selected) => setData('account_id', selected.value)}
-                            required
                         />
                     )}
 
-                    <div className="flex justify-between items-center">
-                        <BorderButton type="button" disabled={processing} onClick={handleAddProduct}>
-                            Add Product
-                        </BorderButton>
-                        <Button type="submit" disabled={processing}>
-                            {processing ? "Updating..." : "Update Sale"}
-                        </Button>
-                    </div>
+                    <Button type="submit" disabled={processing}>Update</Button>
                 </form>
             </div>
         </AuthenticatedLayout>

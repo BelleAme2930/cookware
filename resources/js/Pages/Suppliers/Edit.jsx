@@ -11,6 +11,7 @@ const Edit = ({ supplier }) => {
     const { data, setData, put, errors, processing } = useForm({
         name: supplier.name,
         phone: supplier.phone,
+        email: supplier.email,
         address: supplier.address,
     });
 
@@ -38,7 +39,7 @@ const Edit = ({ supplier }) => {
             <div className="max-w-[800px] mx-auto p-4">
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <Label title='Supplier Name' required htmlFor='name' />
+                        <Label title='Supplier Name' required htmlFor='name'/>
                         <TextInput
                             id="name"
                             value={data.name}
@@ -49,7 +50,7 @@ const Edit = ({ supplier }) => {
                         {errors.name && <div className="text-red-600 text-sm">{errors.name}</div>}
                     </div>
                     <div className="mb-4">
-                        <Label title='Phone' htmlFor='phone' />
+                        <Label title='Phone' htmlFor='phone'/>
                         <TextInput
                             id="phone"
                             value={data.phone}
@@ -59,7 +60,18 @@ const Edit = ({ supplier }) => {
                         {errors.phone && <div className="text-red-600 text-sm">{errors.phone}</div>}
                     </div>
                     <div className="mb-4">
-                        <Label title='Address' htmlFor='address' />
+                        <Label title='Email' htmlFor='email'/>
+                        <TextInput
+                            id="email"
+                            value={data.email}
+                            onChange={(e) => setData('email', e.target.value)}
+                            type="email"
+                            className={`w-full ${errors.email ? 'border-red-600' : ''}`}
+                        />
+                        {errors.email && <div className="text-red-600 text-sm">{errors.email}</div>}
+                    </div>
+                    <div className="mb-4">
+                        <Label title='Address' htmlFor='address'/>
                         <Textarea
                             id="address"
                             value={data.address}
