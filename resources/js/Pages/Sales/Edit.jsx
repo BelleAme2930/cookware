@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import Button from "@/Components/Button.jsx";
@@ -110,7 +110,7 @@ const Edit = ({ customers, products, accounts, sale }) => {
                         const availableQuantity = selectedProduct?.quantity - (product.quantity || 0);
 
                         return (
-                            <div key={index} className={`mb-4 py-5 px-4 border border-gray-300 rounded-md relative bg-white !bg-gray-50`}>
+                            <div key={index} className={`mb-4 py-5 px-4 border border-gray-300 rounded-md relative !bg-gray-50`}>
 
                                 <InputSelect
                                     id={`product_id_${index}`}

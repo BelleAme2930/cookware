@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\ProductTypeEnum;
 use App\Helpers\WeightHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -24,7 +25,7 @@ class ProductResource extends JsonResource
             'quantity' => $this->quantity ?? 0,
             'product_type' => $this->product_type,
             'sale_price' => $this->sale_price,
-            'total_stock_price' => $this->product_type === 'weight' ? WeightHelper::toKilos($this->weight) * $this->sale_price : $this->quantity * $this->sale_price,
+            'total_stock_price' => $this->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toKilos($this->weight) * $this->sale_price : $this->quantity * $this->sale_price,
             'created_at' => $this->created_at->format('Y-m-d'),
             'updated_at' => $this->updated_at->format('Y-m-d'),
         ];
