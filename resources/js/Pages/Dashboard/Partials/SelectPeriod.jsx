@@ -5,7 +5,7 @@ const SelectPeriod = ({ selectedPeriod, onChange }) => {
         <select
             value={selectedPeriod}
             onChange={onChange}
-            className="pr-8 py-1 rounded border-gray-300"
+            className="pr-8 py-2 rounded border-gray-300 w-48"
         >
             <option value="daily">Today</option>
             <option value="weekly">Weekly</option>

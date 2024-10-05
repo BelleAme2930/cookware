@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.jsx';
-import {Head} from '@inertiajs/react';
+import { Head } from '@inertiajs/react';
 import SalesWidget from "@/Pages/Dashboard/Sales/SalesWidget.jsx";
 import ShadowBox from "@/Components/ShadowBox.jsx";
 import SelectPeriod from "@/Pages/Dashboard/Partials/SelectPeriod.jsx";
@@ -47,19 +47,11 @@ export default function Dashboard({
                                       monthlyProfit,
                                       yearlyProfit,
                                   }) {
-
-    const [selectedSalesPeriod, setSelectedSalesPeriod] = useState('daily');
-    const [selectedPurchasesPeriod, setSelectedPurchasesPeriod] = useState('daily');
     const [selectedPeriod, setSelectedPeriod] = useState('daily');
 
-    const handleSalesPeriodChange = (event) => {
-        setSelectedSalesPeriod(event.target.value);
+    const handlePeriodChange = (event) => {
+        setSelectedPeriod(event.target.value);
     };
-
-    const handlePurchasesPeriodChange = (event) => {
-        setSelectedPurchasesPeriod(event.target.value);
-    };
-
 
     const salesData = {
         daily: {
@@ -88,7 +80,6 @@ export default function Dashboard({
         },
     };
 
-    // Purchases data structure
     const purchasesData = {
         daily: {
             totalPurchases: dailyPurchases,
@@ -131,43 +122,41 @@ export default function Dashboard({
                 </h2>
             }
         >
-            <Head title="Dashboard"/>
+            <Head title="Dashboard" />
 
             <div className="mx-auto max-w-[98%] p-3">
-                <div className='flex justify-between gap-2'>
-                    <div className='w-1/3'>
-                        <ShadowBox>
-                            <div className='flex justify-between items-center mb-6'>
-                                <h3 className='font-normal text-gray-700 text-2xl'>Sales</h3>
-                                <SelectPeriod
-                                    selectedPeriod={selectedSalesPeriod}
-                                    onChange={handleSalesPeriodChange}
-                                />
-                            </div>
-                            <SalesWidget salesData={salesData} selectedPeriod={selectedSalesPeriod}/>
-                        </ShadowBox>
+                <div>
+                    <div className='flex justify-end mb-3'>
+                        <SelectPeriod
+                            selectedPeriod={selectedPeriod}
+                            onChange={handlePeriodChange}
+                        />
                     </div>
-                    <div className='w-1/3'>
-                        <ShadowBox>
-                            <div className='flex justify-between items-center mb-6'>
-                                <h3 className='font-normal text-gray-700 text-2xl'>Purchases</h3>
-                                <SelectPeriod
-                                    selectedPeriod={selectedPurchasesPeriod}
-                                    onChange={handlePurchasesPeriodChange}
-                                />
-                            </div>
-                            <PurchasesWidget purchasesData={purchasesData} selectedPeriod={selectedPurchasesPeriod}/>
-                        </ShadowBox>
-                    </div>
-                    <div className='w-1/3'>
-                        <ShadowBox>
-                            <div className="flex justify-between items-center mb-6">
-                                <h3 className="font-normal text-gray-700 text-2xl">Profit</h3>
-                                <SelectPeriod selectedPeriod={selectedPeriod}
-                                              onChange={(e) => setSelectedPeriod(e.target.value)}/>
-                            </div>
-                            <ProfitWidget profitData={profitData} selectedPeriod={selectedPeriod}/>
-                        </ShadowBox>
+                    <div className='flex justify-between gap-2'>
+                        <div className='w-1/3'>
+                            <ShadowBox>
+                                <div className='flex justify-between items-center mb-6'>
+                                    <h3 className='font-normal text-gray-700 text-2xl'>Sales</h3>
+                                </div>
+                                <SalesWidget salesData={salesData} selectedPeriod={selectedPeriod}/>
+                            </ShadowBox>
+                        </div>
+                        <div className='w-1/3'>
+                            <ShadowBox>
+                                <div className='flex justify-between items-center mb-6'>
+                                    <h3 className='font-normal text-gray-700 text-2xl'>Purchases</h3>
+                                </div>
+                                <PurchasesWidget purchasesData={purchasesData} selectedPeriod={selectedPeriod}/>
+                            </ShadowBox>
+                        </div>
+                        <div className='w-1/3'>
+                            <ShadowBox>
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="font-normal text-gray-700 text-2xl">Profit</h3>
+                                </div>
+                                <ProfitWidget profitData={profitData} selectedPeriod={selectedPeriod}/>
+                            </ShadowBox>
+                        </div>
                     </div>
                 </div>
             </div>
