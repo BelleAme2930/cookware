@@ -10,7 +10,15 @@ class Purchase extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['due_date', 'purchase_date', 'supplier_id', 'payment_method', 'account_id', 'total_price'];
+    protected $fillable = ['due_date',
+        'purchase_date',
+        'supplier_id',
+        'payment_method',
+        'account_id',
+        'total_price',
+        'semi_credit_amount',
+        'remaining_balance',
+    ];
 
     public function products()
     {

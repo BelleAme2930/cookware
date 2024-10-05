@@ -10,7 +10,15 @@ class Sale extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['customer_id', 'total_price', 'due_date', 'sale_date', 'payment_method', 'account_id'];
+    protected $fillable = ['customer_id',
+        'total_price',
+        'due_date',
+        'sale_date',
+        'payment_method',
+        'account_id',
+        'semi_credit_amount',
+        'remaining_balance',
+    ];
 
     public function customer(): BelongsTo
     {

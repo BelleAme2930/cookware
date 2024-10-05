@@ -1,19 +1,25 @@
 import React, { useState } from 'react';
-import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 
-const SideMenuDropdownItem = ({ label, children, icon }) => {
-    const [isOpen, setIsOpen] = useState(false);
+const SideMenuDropdownItem = ({ label, children, icon, isOpen }) => {
+    const [isDropdownOpen, setIsDropdownOpen] = useState(isOpen);
 
     return (
-        <div className="">
+        <div>
             <button
-                onClick={() => setIsOpen(!isOpen)}
-                className="block w-full px-4 py-3 text-left text-gray-700 border-b border-gray-200 hover:bg-primary-100 hover:text-primary-900 transition-all duration-200"
+                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                className="flex items-center justify-between w-full px-4 py-3 text-left text-gray-700 border-b border-gray-200 hover:bg-primary-100 hover:text-primary-900 transition-all duration-200"
             >
-                {icon && <span className="inline-block mr-3"><FontAwesomeIcon icon={icon} className="text-primary-500"/></span>}
-                {label}
+                <div className="flex items-center">
+                    {icon && <span className="inline-block mr-3"><FontAwesomeIcon icon={icon} className="text-primary-500" /></span>}
+                    {label}
+                </div>
+                <span className="ml-auto">
+                    <FontAwesomeIcon icon={isDropdownOpen ? faChevronUp : faChevronDown} />
+                </span>
             </button>
-            {isOpen && (
+            {isDropdownOpen && (
                 <div className='ml-3'>
                     {children}
                 </div>

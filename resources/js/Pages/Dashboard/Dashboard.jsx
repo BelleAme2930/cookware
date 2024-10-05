@@ -8,6 +8,8 @@ import PurchasesWidget from "@/Pages/Dashboard/Purchases/PurchasesWidget.jsx";
 import Stocks from "@/Pages/Dashboard/Stocks/Stocks.jsx";
 import ProfitWidget from "@/Pages/Dashboard/Profit/ProfitWidget.jsx";
 import ExpensesWidget from "@/Pages/Dashboard/Expenses/ExpensesWidget.jsx";
+import Receivables from "@/Pages/Dashboard/Receivables/Receivables.jsx";
+import Payables from "@/Pages/Dashboard/Payables/Payables.jsx";
 
 export default function Dashboard({
                                       categories,
@@ -59,6 +61,8 @@ export default function Dashboard({
                                       weeklySemiCreditPurchases,
                                       monthlySemiCreditPurchases,
                                       yearlySemiCreditPurchases,
+                                      todayReceivables,
+                                      todayPayables,
                                   }) {
     const [selectedPeriod, setSelectedPeriod] = useState('daily');
 
@@ -202,6 +206,12 @@ export default function Dashboard({
 
             <div className='mx-auto max-w-[98%] p-3'>
                 <Stocks categories={categories}/>
+            </div>
+            <div className='mx-auto max-w-[98%] p-3'>
+                <Receivables receivables={todayReceivables}/>
+            </div>
+            <div className='mx-auto max-w-[98%] p-3'>
+                <Payables payables={todayPayables}/>
             </div>
         </AuthenticatedLayout>
     );

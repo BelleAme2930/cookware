@@ -38,22 +38,25 @@ export default function Authenticated({header, children}) {
 
                                         <Dropdown.Content>
                                             <Dropdown.Link href={route('categories.create')}>
-                                                Add Category
+                                                Add New Category
                                             </Dropdown.Link>
                                             <Dropdown.Link href={route('products.create')}>
-                                                Add Product
+                                                Add New Product
                                             </Dropdown.Link>
                                             <Dropdown.Link href={route('suppliers.create')}>
-                                                Add Supplier
+                                                Add New Supplier
                                             </Dropdown.Link>
                                             <Dropdown.Link href={route('customers.create')}>
-                                                Add Customer
+                                                Add New Customer
                                             </Dropdown.Link>
-                                            <Dropdown.Link href={route('customers.create')}>
-                                                Add Purchase
+                                            <Dropdown.Link href={route('purchases.create')}>
+                                                Add New Purchase
                                             </Dropdown.Link>
                                             <Dropdown.Link href={route('sales.create')}>
-                                                Add Purchase
+                                                Add New Sale
+                                            </Dropdown.Link>
+                                            <Dropdown.Link href={route('accounts.create')}>
+                                                Add New Account
                                             </Dropdown.Link>
                                         </Dropdown.Content>
                                     </Dropdown>

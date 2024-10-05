@@ -10,6 +10,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\PurchaseInvoiceController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\SalesExportController;
 use App\Http\Controllers\SalesInvoiceController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Foundation\Application;
@@ -41,6 +42,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/purchases/{purchase}/invoice', [PurchaseInvoiceController::class, 'show'])->name('purchases.invoices.show');
     Route::resource('purchases', PurchaseController::class);
     Route::resource('expenses', ExpenseController::class);
+
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

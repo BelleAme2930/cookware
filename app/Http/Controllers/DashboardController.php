@@ -102,6 +102,16 @@ class DashboardController extends Controller
         $yearlyCreditPurchases = Purchase::whereBetween('purchase_date', [$dateStartOfYear, $tomorrow])->where('payment_method', 'credit')->sum('total_price');
         $yearlySemiCreditPurchases = Purchase::whereBetween('purchase_date', [$dateStartOfYear, $tomorrow])->where('payment_method', 'semi_credit')->sum('total_price');
 
+        $todayReceivables = Sale::whereIn('payment_method', ['credit', 'semi_credit'])
+            ->whereDate('due_date', $today)
+            ->with('customer')
+            ->get();
+
+        $todayPayables = Purchase::whereIn('payment_method', ['credit', 'semi_credit'])
+            ->whereDate('due_date', $today)
+            ->with('supplier')
+            ->get();
+
         return Inertia::render('Dashboard/Dashboard', [
             'dailySales' => $dailySalesTotal,
             'dailyCashSales' => $dailyCashSales,
@@ -160,6 +170,9 @@ class DashboardController extends Controller
             'weeklyExpenses' => $weeklyExpenses,
             'monthlyExpenses' => $monthlyExpenses,
             'yearlyExpenses' => $yearlyExpenses,
+
+            'todayReceivables' => $todayReceivables,
+            'todayPayables' => $todayPayables,
 
             'categories' => CategoryResource::collection($categories)->resolve(),
         ]);

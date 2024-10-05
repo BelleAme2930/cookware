@@ -12,10 +12,103 @@ import {
     faShoppingCart,
     faFileInvoiceDollar,
     faDollarSign,
-    faTimes, faBars, faSackDollar
+    faTimes,
+    faBars,
+    faSackDollar
 } from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
+    const currentPath = window.location.pathname;
+
+    const menuItems = [
+        {
+            label: "Dashboard",
+            href: route('dashboard'),
+            icon: <FontAwesomeIcon icon={faTachometerAlt} className="text-primary-500"/>,
+        },
+        {
+            label: "Categories",
+            dropdown: true,
+            icon: faTags,
+            subItems: [
+                { label: "Add Category", href: route('categories.create') },
+                { label: "Category Listing", href: route('categories.index') },
+            ],
+        },
+        {
+            label: "Products",
+            dropdown: true,
+            icon: faBox,
+            subItems: [
+                { label: "Add Product", href: route('products.create') },
+                { label: "Product Listing", href: route('products.index') },
+            ],
+        },
+        {
+            label: "Suppliers",
+            dropdown: true,
+            icon: faUserFriends,
+            subItems: [
+                { label: "Add Supplier", href: route('suppliers.create') },
+                { label: "Supplier Listing", href: route('suppliers.index') },
+            ],
+        },
+        {
+            label: "Customers",
+            dropdown: true,
+            icon: faUserFriends,
+            subItems: [
+                { label: "Add Customer", href: route('customers.create') },
+                { label: "Customer Listing", href: route('customers.index') },
+            ],
+        },
+        {
+            label: "Sales",
+            dropdown: true,
+            icon: faShoppingCart,
+            subItems: [
+                { label: "Add Sale", href: route('sales.create') },
+                { label: "Sale Listing", href: route('sales.index') },
+            ],
+        },
+        {
+            label: "Purchases",
+            dropdown: true,
+            icon: faShoppingCart,
+            subItems: [
+                { label: "Add Purchase", href: route('purchases.create') },
+                { label: "Purchase Listing", href: route('purchases.index') },
+            ],
+        },
+        {
+            label: "Accounts",
+            dropdown: true,
+            icon: faDollarSign,
+            subItems: [
+                { label: "Add Account", href: route('accounts.create') },
+                { label: "Account Listing", href: route('accounts.index') },
+            ],
+        },
+        {
+            label: "Invoices",
+            dropdown: true,
+            icon: faFileInvoiceDollar,
+            subItems: [
+                { label: "Sales Invoices", href: route('sales.invoices.index') },
+                { label: "Purchase Invoices", href: route('purchases.invoices.index') },
+            ],
+        },
+        {
+            label: "Expenses",
+            dropdown: true,
+            icon: faSackDollar,
+            subItems: [
+                { label: "Add Expense", href: route('expenses.create') },
+                { label: "Expense Listing", href: route('expenses.index') },
+            ],
+        },
+    ];
+
     return (
         <div
             className={`fixed top-0 left-0 h-full ${isCollapsed ? 'w-16' : 'w-56'} bg-white shadow-lg transition-all duration-300 ease-in-out`}
@@ -29,66 +122,45 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
                     onClick={toggleSidebar}
                 >
                     <FontAwesomeIcon className='text-2xl text-black' icon={isCollapsed ? faBars : faTimes}/>
-
-                    {/*<svg*/}
-                    {/*    xmlns="http://www.w3.org/2000/svg"*/}
-                    {/*    fill="none"*/}
-                    {/*    viewBox="0 0 24 24"*/}
-                    {/*    strokeWidth="2"*/}
-                    {/*    stroke="currentColor"*/}
-                    {/*    className="w-6 h-6"*/}
-                    {/*>*/}
-                    {/*    <path*/}
-                    {/*        strokeLinecap="round"*/}
-                    {/*        strokeLinejoin="round"*/}
-                    {/*        d={isCollapsed ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"}*/}
-                    {/*    />*/}
-                    {/*</svg>*/}
                 </button>
             </div>
 
             <div className={`pb-4 mt-8 ${isCollapsed ? 'hidden' : 'block'}`}>
-                <SideMenuItem
-                    label="Dashboard"
-                    href={route('dashboard')}
-                    icon={<FontAwesomeIcon icon={faTachometerAlt} className="text-primary-500"/>}
-                />
-                <SideMenuDropdownItem label="Categories" icon={faTags}>
-                    <SideMenuItem label="Add Category" href={route('categories.create')} />
-                    <SideMenuItem label="Category Listing" href={route('categories.index')} />
-                </SideMenuDropdownItem>
-                <SideMenuDropdownItem label="Products" icon={faBox}>
-                    <SideMenuItem label="Add Product" href={route('products.create')} />
-                    <SideMenuItem label="Product Listing" href={route('products.index')} />
-                </SideMenuDropdownItem>
-                <SideMenuDropdownItem label="Suppliers" icon={faUserFriends}>
-                    <SideMenuItem label="Add Supplier" href={route('suppliers.create')} />
-                    <SideMenuItem label="Supplier Listing" href={route('suppliers.index')} />
-                </SideMenuDropdownItem>
-                <SideMenuDropdownItem label="Customers" icon={faUserFriends}>
-                    <SideMenuItem label="Add Customer" href={route('customers.create')} />
-                    <SideMenuItem label="Customer Listing" href={route('customers.index')} />
-                </SideMenuDropdownItem>
-                <SideMenuDropdownItem label="Sales" icon={faShoppingCart}>
-                    <SideMenuItem label="Add Sale" href={route('sales.create')} />
-                    <SideMenuItem label="Sale Listing" href={route('sales.index')} />
-                </SideMenuDropdownItem>
-                <SideMenuDropdownItem label="Purchases" icon={faShoppingCart}>
-                    <SideMenuItem label="Add Purchase" href={route('purchases.create')} />
-                    <SideMenuItem label="Purchase Listing" href={route('purchases.index')} />
-                </SideMenuDropdownItem>
-                <SideMenuDropdownItem label="Accounts" icon={faDollarSign}>
-                    <SideMenuItem label="Add Account" href={route('accounts.create')} />
-                    <SideMenuItem label="Account Listing" href={route('accounts.index')} />
-                </SideMenuDropdownItem>
-                <SideMenuDropdownItem label="Invoices" icon={faFileInvoiceDollar}>
-                    <SideMenuItem label="Sales Invoices" href={route('sales.invoices.index')} />
-                    <SideMenuItem label="Purchase Invoices" href={route('purchases.invoices.index')} />
-                </SideMenuDropdownItem>
-                <SideMenuDropdownItem label="Expenses" icon={faSackDollar}>
-                    <SideMenuItem label="Add Expense" href={route('expenses.create')} />
-                    <SideMenuItem label="Expense Listing" href={route('expenses.index')} />
-                </SideMenuDropdownItem>
+                {menuItems.map((item, index) => {
+                    if (item.dropdown) {
+                        const isOpen = item.subItems.some(subItem => {
+                            const subItemPath = new URL(subItem.href).pathname;
+                            return currentPath === subItemPath;
+                        });
+
+                        return (
+                            <SideMenuDropdownItem key={index} label={item.label} icon={item.icon} isOpen={isOpen}>
+                                {item.subItems.map((subItem, subIndex) => {
+                                    const subItemPath = new URL(subItem.href).pathname;
+                                    return (
+                                        <SideMenuItem
+                                            key={subIndex}
+                                            label={subItem.label}
+                                            href={subItem.href}
+                                            isActive={currentPath === subItemPath}
+                                        />
+                                    );
+                                })}
+                            </SideMenuDropdownItem>
+                        );
+                    } else {
+                        const itemPath = new URL(item.href).pathname;
+                        return (
+                            <SideMenuItem
+                                key={index}
+                                label={item.label}
+                                href={item.href}
+                                icon={item.icon}
+                                isActive={currentPath === itemPath}
+                            />
+                        );
+                    }
+                })}
             </div>
         </div>
     );
