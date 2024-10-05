@@ -133,14 +133,14 @@ class SaleController extends Controller
             'products.*.product_type' => 'required|string',
             'products.*.quantity' => 'nullable|integer|min:0',
             'products.*.weight' => 'nullable|numeric|min:0',
+            'products.*.sale_price' => 'required|numeric|min:0',
             'due_date' => 'required|date',
             'payment_method' => 'required|string',
             'account_id' => 'nullable|exists:accounts,id',
+            'semi_credit_amount' => 'nullable|numeric|min:0',
         ]);
 
-        DB::transaction(function () use ($validated, $sale) {
-            $sale->products()->detach();
-
+        DB::transaction(function () use ($sale, $validated) {
             $sale->update([
                 'customer_id' => $validated['customer_id'],
                 'due_date' => $validated['due_date'],
@@ -149,6 +149,8 @@ class SaleController extends Controller
             ]);
 
             $totalPrice = 0;
+
+            $sale->products()->detach();
 
             foreach ($validated['products'] as $productData) {
                 $product = Product::find($productData['product_id']);
@@ -165,7 +167,7 @@ class SaleController extends Controller
                 if ($product->product_type === ProductTypeEnum::ITEM->value) {
                     $totalPrice += ($productData['sale_price'] * $quantity);
                 } elseif ($product->product_type === ProductTypeEnum::WEIGHT->value) {
-                    $totalPrice += ($productData['sale_price'] * $weight);
+                    $totalPrice += ($productData['sale_price'] * $productData['weight']);
                 }
 
                 if ($product->product_type === ProductTypeEnum::ITEM->value && $quantity) {
@@ -176,10 +178,21 @@ class SaleController extends Controller
             }
 
             $sale->update(['total_price' => $totalPrice]);
+
+            if ($validated['payment_method'] === 'semi_credit') {
+                $semiCreditAmount = $validated['semi_credit_amount'] ?? 0;
+                $remainingBalance = $totalPrice - $semiCreditAmount;
+
+                $sale->update([
+                    'semi_credit_amount' => $semiCreditAmount,
+                    'remaining_balance' => $remainingBalance,
+                ]);
+            }
         });
 
-        return redirect()->route('sales.index')->with('success', 'Sale updated successfully.');
+        return redirect()->route('sales.index')->with('success', 'Sale updated successfully');
     }
+
 
     public function show(Sale $sale)
     {

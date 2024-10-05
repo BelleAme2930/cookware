@@ -57,18 +57,23 @@ class CustomerController extends Controller
 
     public function update(Request $request, Customer $customer)
     {
-        $rules = [
+        $request->validate([
             'name' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255|unique:customers,email,' . $customer->id,
-        ];
+            'address' => 'nullable|string',
+        ]);
 
-        $request->validate($rules);
-
-        $customer->update($request->only('name', 'phone', 'email'));
+        $customer->update([
+            'name' => $request->name,
+            'phone' => $request->phone,
+            'email' => $request->email,
+            'address' => $request->address,
+        ]);
 
         return redirect()->route('customers.index')->with('success', 'Customer updated successfully.');
     }
+
 
     public function destroy(Customer $customer)
     {

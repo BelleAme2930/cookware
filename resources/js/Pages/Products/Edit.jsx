@@ -10,11 +10,11 @@ import Label from "@/Components/Label.jsx";
 import ShadowBox from "@/Components/ShadowBox.jsx";
 
 const Edit = ({ product, categories, suppliers }) => {
-    const { data, setData, patch, errors, processing, reset } = useForm({
+    const { data, setData, put, errors, processing } = useForm({
         name: product.name || '',
         category_id: product.category_id || '',
         supplier_id: product.supplier_id || '',
-        weight: product.weight || 0,
+        weight: product.weight ?? product.weight,
         quantity: product.quantity || 0,
         sale_price: product.sale_price || 0,
         image: null,
@@ -33,10 +33,9 @@ const Edit = ({ product, categories, suppliers }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        patch(route('products.update', product.id), {
+        put(route('products.update', product.id), {
             onSuccess: () => {
                 toast.success('Product updated successfully');
-                reset();
             },
             onError: () => {
                 toast.error('Failed to update product');
@@ -76,8 +75,6 @@ const Edit = ({ product, categories, suppliers }) => {
                                 options={categoryOptions}
                                 value={data.category_id}
                                 onChange={(value) => setData('category_id', value.value)}
-                                link={categories.length === 0 ? route('categories.create') : null}
-                                linkText="Add category?"
                                 required
                             />
 
@@ -87,8 +84,6 @@ const Edit = ({ product, categories, suppliers }) => {
                                 options={supplierOptions}
                                 value={data.supplier_id}
                                 onChange={(value) => setData('supplier_id', value.value)}
-                                link={suppliers.length === 0 ? route('suppliers.create') : null}
-                                linkText="Add supplier?"
                                 required
                             />
 
@@ -161,6 +156,7 @@ const Edit = ({ product, categories, suppliers }) => {
                                     </div>
                                 </>
                             )}
+
                             <ImageUploader
                                 title='Select Product Image'
                                 id="image"
