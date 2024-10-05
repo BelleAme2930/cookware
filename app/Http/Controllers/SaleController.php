@@ -94,7 +94,7 @@ class SaleController extends Controller
 
             $sale->update(['total_price' => $totalPrice]);
 
-            if ($validated['payment_method'] === 'semi_credit') {
+            if ($validated['payment_method'] === PaymentMethodEnum::SEMI_CREDIT->value) {
                 $semiCreditAmount = $validated['semi_credit_amount'] ?? 0;
                 $remainingBalance = $totalPrice - $semiCreditAmount;
 
@@ -179,7 +179,7 @@ class SaleController extends Controller
 
             $sale->update(['total_price' => $totalPrice]);
 
-            if ($validated['payment_method'] === 'semi_credit') {
+            if ($validated['payment_method'] === PaymentMethodEnum::SEMI_CREDIT->value) {
                 $semiCreditAmount = $validated['semi_credit_amount'] ?? 0;
                 $remainingBalance = $totalPrice - $semiCreditAmount;
 

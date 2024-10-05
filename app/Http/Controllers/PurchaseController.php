@@ -99,7 +99,6 @@ class PurchaseController extends Controller
                     $totalPrice += ($productData['purchase_price'] * $productData['weight']);
                 }
 
-                // Update product quantity after purchase
                 if ($product->product_type === ProductTypeEnum::ITEM->value && $quantity) {
                     $product->increment('quantity', $quantity);
                 } elseif ($product->product_type === ProductTypeEnum::WEIGHT->value && $weight) {
@@ -109,7 +108,7 @@ class PurchaseController extends Controller
 
             $purchase->update(['total_price' => $totalPrice]);
 
-            if ($validated['payment_method'] === 'semi_credit') {
+            if ($validated['payment_method'] === PaymentMethodEnum::SEMI_CREDIT->value) {
                 $semiCreditAmount = $validated['semi_credit_amount'] ?? 0;
                 $remainingBalance = $totalPrice - $semiCreditAmount;
 
@@ -193,7 +192,7 @@ class PurchaseController extends Controller
 
             $purchase->update(['total_price' => $totalPrice]);
 
-            if ($validated['payment_method'] === 'semi_credit') {
+            if ($validated['payment_method'] === PaymentMethodEnum::SEMI_CREDIT->value) {
                 $semiCreditAmount = $validated['semi_credit_amount'] ?? 0;
                 $remainingBalance = $totalPrice - $semiCreditAmount;
 
