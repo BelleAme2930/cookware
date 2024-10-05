@@ -1,6 +1,6 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faMoneyBillWave, faCreditCard, faHandHoldingUsd, faCoins } from '@fortawesome/free-solid-svg-icons';
+import {faMoneyBillWave, faCreditCard, faHandHoldingUsd, faCoins, faMoneyBill} from '@fortawesome/free-solid-svg-icons';
 
 export default function SalesWidget({ salesData, selectedPeriod }) {
     const sales = salesData[selectedPeriod];
@@ -38,6 +38,14 @@ export default function SalesWidget({ salesData, selectedPeriod }) {
                     <div className="text-sm font-semibold">
                         <span className="block text-gray-800">Credit Sale</span>
                         <span className="block text-gray-500">PKR {sales.creditSales}</span>
+                    </div>
+                </div>
+
+                <div className="flex items-center space-x-4 bg-white px-4 py-3 rounded-lg shadow">
+                    <FontAwesomeIcon icon={faMoneyBill} className="text-red-500 text-3xl" />
+                    <div className="text-sm font-semibold">
+                        <span className="block text-gray-800">Semi Credit Sale</span>
+                        <span className="block text-gray-500">PKR {sales.semiCreditSales}</span>
                     </div>
                 </div>
             </div>

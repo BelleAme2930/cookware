@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.jsx';
-import { Head } from '@inertiajs/react';
+import {Head} from '@inertiajs/react';
 import SalesWidget from "@/Pages/Dashboard/Sales/SalesWidget.jsx";
 import ShadowBox from "@/Components/ShadowBox.jsx";
 import SelectPeriod from "@/Pages/Dashboard/Partials/SelectPeriod.jsx";
 import PurchasesWidget from "@/Pages/Dashboard/Purchases/PurchasesWidget.jsx";
 import Stocks from "@/Pages/Dashboard/Stocks/Stocks.jsx";
 import ProfitWidget from "@/Pages/Dashboard/Profit/ProfitWidget.jsx";
+import ExpensesWidget from "@/Pages/Dashboard/Expenses/ExpensesWidget.jsx";
 
 export default function Dashboard({
                                       categories,
@@ -46,6 +47,18 @@ export default function Dashboard({
                                       weeklyProfit,
                                       monthlyProfit,
                                       yearlyProfit,
+                                      dailyExpenses,
+                                      weeklyExpenses,
+                                      monthlyExpenses,
+                                      yearlyExpenses,
+                                      dailySemiCreditSales,
+                                      weeklySemiCreditSales,
+                                      monthlySemiCreditSales,
+                                      yearlySemiCreditSales,
+                                      dailySemiCreditPurchases,
+                                      weeklySemiCreditPurchases,
+                                      monthlySemiCreditPurchases,
+                                      yearlySemiCreditPurchases,
                                   }) {
     const [selectedPeriod, setSelectedPeriod] = useState('daily');
 
@@ -59,24 +72,28 @@ export default function Dashboard({
             cashSales: dailyCashSales,
             accountSales: dailyAccountSales,
             creditSales: dailyCreditSales,
+            semiCreditSales: dailySemiCreditSales,
         },
         weekly: {
             totalSales: weeklySales,
             cashSales: weeklyCashSales,
             accountSales: weeklyAccountSales,
             creditSales: weeklyCreditSales,
+            semiCreditSales: weeklySemiCreditSales,
         },
         monthly: {
             totalSales: monthlySales,
             cashSales: monthlyCashSales,
             accountSales: monthlyAccountSales,
             creditSales: monthlyCreditSales,
+            semiCreditSales: monthlySemiCreditSales,
         },
         yearly: {
             totalSales: yearlySales,
             cashSales: yearlyCashSales,
             accountSales: yearlyAccountSales,
             creditSales: yearlyCreditSales,
+            semiCreditSales: yearlySemiCreditSales,
         },
     };
 
@@ -86,24 +103,29 @@ export default function Dashboard({
             cashPurchases: dailyCashPurchases,
             accountPurchases: dailyAccountPurchases,
             creditPurchases: dailyCreditPurchases,
+            semiCreditPurchases: dailySemiCreditPurchases,
         },
         weekly: {
             totalPurchases: weeklyPurchases,
             cashPurchases: weeklyCashPurchases,
             accountPurchases: weeklyAccountPurchases,
             creditPurchases: weeklyCreditPurchases,
+            semiCreditPurchases: weeklySemiCreditPurchases,
+
         },
         monthly: {
             totalPurchases: monthlyPurchases,
             cashPurchases: monthlyCashPurchases,
             accountPurchases: monthlyAccountPurchases,
             creditPurchases: monthlyCreditPurchases,
+            semiCreditPurchases: monthlySemiCreditPurchases,
         },
         yearly: {
             totalPurchases: yearlyPurchases,
             cashPurchases: yearlyCashPurchases,
             accountPurchases: yearlyAccountPurchases,
             creditPurchases: yearlyCreditPurchases,
+            semiCreditPurchases: yearlySemiCreditPurchases,
         },
     };
 
@@ -114,6 +136,13 @@ export default function Dashboard({
         yearly: yearlyProfit,
     };
 
+    const expensesData = {
+        daily: dailyExpenses,
+        weekly: weeklyExpenses,
+        monthly: monthlyExpenses,
+        yearly: yearlyExpenses,
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -122,7 +151,7 @@ export default function Dashboard({
                 </h2>
             }
         >
-            <Head title="Dashboard" />
+            <Head title="Dashboard"/>
 
             <div className="mx-auto max-w-[98%] p-3">
                 <div>
@@ -151,10 +180,20 @@ export default function Dashboard({
                         </div>
                         <div className='w-1/3'>
                             <ShadowBox>
-                                <div className="flex justify-between items-center mb-6">
-                                    <h3 className="font-normal text-gray-700 text-2xl">Profit</h3>
+                                <div>
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h3 className="font-normal text-gray-700 text-2xl">Profit</h3>
+                                    </div>
+                                    <ProfitWidget profitData={profitData} selectedPeriod={selectedPeriod}/>
                                 </div>
-                                <ProfitWidget profitData={profitData} selectedPeriod={selectedPeriod}/>
+                                <hr className='mt-7 mb-6 border-red-500'/>
+                                <div>
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h3 className="font-normal text-gray-700 text-2xl">Expenses</h3>
+                                    </div>
+                                    <ExpensesWidget expensesData={expensesData}
+                                                    selectedPeriod={selectedPeriod}/>
+                                </div>
                             </ShadowBox>
                         </div>
                     </div>
