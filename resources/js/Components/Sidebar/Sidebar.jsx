@@ -12,7 +12,7 @@ import {
     faShoppingCart,
     faFileInvoiceDollar,
     faDollarSign,
-    faTimes, faBars
+    faTimes, faBars, faSackDollar
 } from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
@@ -84,6 +84,10 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
                 <SideMenuDropdownItem label="Invoices" icon={faFileInvoiceDollar}>
                     <SideMenuItem label="Sales Invoices" href={route('sales.invoices.index')} />
                     <SideMenuItem label="Purchase Invoices" href={route('purchases.invoices.index')} />
+                </SideMenuDropdownItem>
+                <SideMenuDropdownItem label="Expenses" icon={faSackDollar}>
+                    <SideMenuItem label="Add Expense" href={route('expenses.create')} />
+                    <SideMenuItem label="Expense Listing" href={route('expenses.index')} />
                 </SideMenuDropdownItem>
             </div>
         </div>

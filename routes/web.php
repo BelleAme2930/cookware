@@ -4,6 +4,7 @@ use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PurchaseController;
@@ -39,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/purchases/invoices', [PurchaseInvoiceController::class, 'index'])->name('purchases.invoices.index');
     Route::get('/purchases/{purchase}/invoice', [PurchaseInvoiceController::class, 'show'])->name('purchases.invoices.show');
     Route::resource('purchases', PurchaseController::class);
+    Route::resource('expenses', ExpenseController::class);
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
