@@ -8,12 +8,10 @@ use App\Helpers\WeightHelper;
 use App\Http\Resources\AccountResource;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\PurchaseResource;
-use App\Http\Resources\SaleResource;
 use App\Http\Resources\SupplierResource;
 use App\Models\Account;
 use App\Models\Product;
 use App\Models\Purchase;
-use App\Models\Sale;
 use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -99,6 +97,7 @@ class PurchaseController extends Controller
                     $totalPrice += ($productData['purchase_price'] * $productData['weight']);
                 }
 
+                // Update product quantities/weights accordingly
                 if ($product->product_type === ProductTypeEnum::ITEM->value && $quantity) {
                     $product->increment('quantity', $quantity);
                 } elseif ($product->product_type === ProductTypeEnum::WEIGHT->value && $weight) {
@@ -106,8 +105,10 @@ class PurchaseController extends Controller
                 }
             }
 
+            // Update total price in the purchase
             $purchase->update(['total_price' => $totalPrice]);
 
+            // Handle semi credit and credit payment methods
             if ($validated['payment_method'] === PaymentMethodEnum::SEMI_CREDIT->value) {
                 $semiCreditAmount = $validated['semi_credit_amount'] ?? 0;
                 $remainingBalance = $totalPrice - $semiCreditAmount;
@@ -115,6 +116,12 @@ class PurchaseController extends Controller
                 $purchase->update([
                     'semi_credit_amount' => $semiCreditAmount,
                     'remaining_balance' => $remainingBalance,
+                ]);
+            } elseif ($validated['payment_method'] === PaymentMethodEnum::CREDIT->value) {
+                // For CREDIT payment method, set semi_credit_amount to totalPrice and remaining_balance to totalPrice
+                $purchase->update([
+                    'semi_credit_amount' => $totalPrice,
+                    'remaining_balance' => $totalPrice,
                 ]);
             }
         });
@@ -161,6 +168,7 @@ class PurchaseController extends Controller
                 'account_id' => $validated['payment_method'] === PaymentMethodEnum::ACCOUNT->value ? $validated['account_id'] : null,
             ]);
 
+            // Clear previous product relationships
             $purchase->products()->detach();
 
             $totalPrice = 0;
@@ -183,6 +191,7 @@ class PurchaseController extends Controller
                     $totalPrice += ($productData['purchase_price'] * $productData['weight']);
                 }
 
+                // Update product quantities/weights accordingly
                 if ($product->product_type === ProductTypeEnum::ITEM->value && $quantity) {
                     $product->increment('quantity', $quantity);
                 } elseif ($product->product_type === ProductTypeEnum::WEIGHT->value && $weight) {
@@ -190,8 +199,10 @@ class PurchaseController extends Controller
                 }
             }
 
+            // Update total price in the purchase
             $purchase->update(['total_price' => $totalPrice]);
 
+            // Handle semi credit and credit payment methods
             if ($validated['payment_method'] === PaymentMethodEnum::SEMI_CREDIT->value) {
                 $semiCreditAmount = $validated['semi_credit_amount'] ?? 0;
                 $remainingBalance = $totalPrice - $semiCreditAmount;
@@ -200,12 +211,17 @@ class PurchaseController extends Controller
                     'semi_credit_amount' => $semiCreditAmount,
                     'remaining_balance' => $remainingBalance,
                 ]);
+            } elseif ($validated['payment_method'] === PaymentMethodEnum::CREDIT->value) {
+                // For CREDIT payment method, set semi_credit_amount to totalPrice and remaining_balance to totalPrice
+                $purchase->update([
+                    'semi_credit_amount' => $totalPrice,
+                    'remaining_balance' => $totalPrice,
+                ]);
             }
         });
 
         return redirect()->route('purchases.index')->with('success', 'Purchase updated successfully');
     }
-
 
     public function destroy(Purchase $purchase)
     {

@@ -85,6 +85,7 @@ class SaleController extends Controller
                     $totalPrice += ($productData['sale_price'] * $productData['weight']);
                 }
 
+                // Update product quantities/weights accordingly
                 if ($product->product_type === ProductTypeEnum::ITEM->value && $quantity) {
                     $product->decrement('quantity', $quantity);
                 } elseif ($product->product_type === ProductTypeEnum::WEIGHT->value && $weight) {
@@ -92,8 +93,10 @@ class SaleController extends Controller
                 }
             }
 
+            // Update total price in the sale
             $sale->update(['total_price' => $totalPrice]);
 
+            // Handle semi credit and credit payment methods
             if ($validated['payment_method'] === PaymentMethodEnum::SEMI_CREDIT->value) {
                 $semiCreditAmount = $validated['semi_credit_amount'] ?? 0;
                 $remainingBalance = $totalPrice - $semiCreditAmount;
@@ -102,12 +105,17 @@ class SaleController extends Controller
                     'semi_credit_amount' => $semiCreditAmount,
                     'remaining_balance' => $remainingBalance,
                 ]);
+            } elseif ($validated['payment_method'] === PaymentMethodEnum::CREDIT->value) {
+                // For CREDIT payment method, set semi_credit_amount to totalPrice and remaining_balance to totalPrice
+                $sale->update([
+                    'semi_credit_amount' => $totalPrice,
+                    'remaining_balance' => $totalPrice,
+                ]);
             }
         });
 
         return redirect()->route('sales.index')->with('success', 'Sale added successfully');
     }
-
 
     public function edit(Sale $sale)
     {
@@ -150,6 +158,7 @@ class SaleController extends Controller
 
             $totalPrice = 0;
 
+            // Clear previous product relationships
             $sale->products()->detach();
 
             foreach ($validated['products'] as $productData) {
@@ -170,6 +179,7 @@ class SaleController extends Controller
                     $totalPrice += ($productData['sale_price'] * $productData['weight']);
                 }
 
+                // Update product quantities/weights accordingly
                 if ($product->product_type === ProductTypeEnum::ITEM->value && $quantity) {
                     $product->decrement('quantity', $quantity);
                 } elseif ($product->product_type === ProductTypeEnum::WEIGHT->value && $weight) {
@@ -177,8 +187,10 @@ class SaleController extends Controller
                 }
             }
 
+            // Update total price in the sale
             $sale->update(['total_price' => $totalPrice]);
 
+            // Handle semi credit and credit payment methods
             if ($validated['payment_method'] === PaymentMethodEnum::SEMI_CREDIT->value) {
                 $semiCreditAmount = $validated['semi_credit_amount'] ?? 0;
                 $remainingBalance = $totalPrice - $semiCreditAmount;
@@ -187,12 +199,17 @@ class SaleController extends Controller
                     'semi_credit_amount' => $semiCreditAmount,
                     'remaining_balance' => $remainingBalance,
                 ]);
+            } elseif ($validated['payment_method'] === PaymentMethodEnum::CREDIT->value) {
+                // For CREDIT payment method, set semi_credit_amount to totalPrice and remaining_balance to totalPrice
+                $sale->update([
+                    'semi_credit_amount' => $totalPrice,
+                    'remaining_balance' => $totalPrice,
+                ]);
             }
         });
 
         return redirect()->route('sales.index')->with('success', 'Sale updated successfully');
     }
-
 
     public function show(Sale $sale)
     {
@@ -220,5 +237,4 @@ class SaleController extends Controller
 
         return redirect()->route('sales.index')->with('success', 'Sale deleted successfully.');
     }
-
 }
