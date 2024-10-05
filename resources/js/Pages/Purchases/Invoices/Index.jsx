@@ -66,7 +66,7 @@ const Index = ({ purchases }) => {
             header={<h2 className="text-lg leading-tight text-gray-800">Purchase Invoices</h2>}
         >
             <Head title="Purchase Invoices" />
-            <div className="mx-auto max-w-[90%] py-6">
+            <div className="mx-auto max-w-[96%] py-6">
                 <CustomDataTable
                     title="Purchase Invoices"
                     data={purchases}

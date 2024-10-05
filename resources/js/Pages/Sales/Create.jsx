@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState  } from 'react';
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import Button from "@/Components/Button.jsx";
@@ -16,7 +16,8 @@ const Create = ({ customers, products, accounts }) => {
         products: [],
         due_date: new Date().toISOString().split('T')[0],
         payment_method: 'cash',
-        account_id: ''
+        account_id: '',
+        semi_credit_amount: 0,
     });
 
     const [productFields, setProductFields] = useState([{
@@ -76,10 +77,16 @@ const Create = ({ customers, products, accounts }) => {
         label: `${acc.title} - ${acc.bank_name}`,
     }));
 
+
+    const totalPrice = productFields.reduce((total, product) => {
+        const price = product.product_type === 'weight' ? product.sale_price * (product.weight || 0) : product.sale_price * (product.quantity || 0);
+        return total + price;
+    }, 0);
+
     return (
         <AuthenticatedLayout header={<PageHeader title='Add New Sale' />}>
             <Head title="Add Sale" />
-            <div className="max-w-[90%] mx-auto p-4 border border-gray-300 mt-6 bg-white">
+            <div className="max-w-[96%] mx-auto p-4 border border-gray-300 mt-6 bg-white">
                 <form onSubmit={handleSubmit}>
                     <InputSelect
                         id="customer_id"
@@ -93,7 +100,6 @@ const Create = ({ customers, products, accounts }) => {
                     />
 
                     {productFields.map((product, index) => {
-
                         const selectedProductIds = productFields
                             .filter((_, i) => i !== index)
                             .map(field => field.product_id);
@@ -150,6 +156,16 @@ const Create = ({ customers, products, accounts }) => {
                                                 required
                                             />
                                         </div>
+                                        <div className="mt-4">
+                                            <Label htmlFor="total_price" title="Total Price"/>
+                                            <TextInput
+                                                id="total_price"
+                                                type="text"
+                                                value={`${totalPrice} Rs`}
+                                                disabled
+                                                className="w-full disabled:opacity-50"
+                                            />
+                                        </div>
                                     </>
                                 )}
 
@@ -159,7 +175,7 @@ const Create = ({ customers, products, accounts }) => {
                                             title='Quantity'
                                             htmlFor={`quantity_${index}`}
                                             suffix={`Available Stock: ${availableQuantity} pcs`}
-                                            suffixStyle={availableQuantity < 0 ? 'text-red-600' : 'text-gray-500'} // Change color based on value
+                                            suffixStyle={availableQuantity < 0 ? 'text-red-600' : 'text-gray-500'}
                                         />
                                         <TextInput
                                             id={`quantity_${index}`}
@@ -184,9 +200,18 @@ const Create = ({ customers, products, accounts }) => {
                                                 required
                                             />
                                         </div>
+                                        <div className="mt-4">
+                                            <Label htmlFor="total_price" title="Total Price"/>
+                                            <TextInput
+                                                id="total_price"
+                                                type="text"
+                                                value={`${totalPrice} Rs`}
+                                                disabled
+                                                className="w-full disabled:opacity-50"
+                                            />
+                                        </div>
                                     </>
                                 )}
-
 
                                 {index > 0 && (
                                     <IconButton
@@ -218,12 +243,27 @@ const Create = ({ customers, products, accounts }) => {
                         options={[
                             { value: 'cash', label: 'Cash' },
                             { value: 'account', label: 'Account' },
-                            { value: 'credit', label: 'Credit' }
+                            { value: 'credit', label: 'Credit' },
+                            { value: 'semi_credit', label: 'Semi Credit' }
                         ]}
                         onChange={(option) => setData('payment_method', option.value)}
                         value={data.payment_method}
                         required
                     />
+
+                    {data.payment_method === 'semi_credit' && (
+                        <div className="mb-4">
+                            <Label htmlFor="semi_credit_amount" title="Amount Paid" />
+                            <TextInput
+                                id="semi_credit_amount"
+                                type="number"
+                                value={data.semi_credit_amount}
+                                onChange={(e) => setData('semi_credit_amount', parseFloat(e.target.value))}
+                                required
+                                className='w-full'
+                            />
+                        </div>
+                    )}
 
                     {data.payment_method === 'account' && (
                         <InputSelect

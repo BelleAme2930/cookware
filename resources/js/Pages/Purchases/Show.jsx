@@ -19,7 +19,7 @@ const Show = ({ purchase }) => {
         >
             <Head title="Purchase Details" />
 
-            <div className="mx-auto max-w-[90%] py-6">
+            <div className="mx-auto max-w-[96%] py-6">
                 <div className="p-6 bg-white shadow-md rounded-md">
                     <div className='flex justify-end mb-6'>
                         <BorderButton onClick={() => router.visit(route('purchases.invoices.show', purchase.id))}>

@@ -52,6 +52,7 @@ class SaleController extends Controller
             'due_date' => 'required|date',
             'payment_method' => 'required|string',
             'account_id' => 'nullable|exists:accounts,id',
+            'semi_credit_amount' => 'nullable|numeric|min:0',
         ]);
 
         DB::transaction(function () use ($validated) {
@@ -92,10 +93,21 @@ class SaleController extends Controller
             }
 
             $sale->update(['total_price' => $totalPrice]);
+
+            if ($validated['payment_method'] === 'semi_credit') {
+                $semiCreditAmount = $validated['semi_credit_amount'] ?? 0;
+                $remainingBalance = $totalPrice - $semiCreditAmount;
+
+                $sale->update([
+                    'semi_credit_amount' => $semiCreditAmount,
+                    'remaining_balance' => $remainingBalance,
+                ]);
+            }
         });
 
         return redirect()->route('sales.index')->with('success', 'Sale added successfully');
     }
+
 
     public function edit(Sale $sale)
     {

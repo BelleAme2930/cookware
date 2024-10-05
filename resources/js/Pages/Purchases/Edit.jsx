@@ -71,7 +71,7 @@ const Edit = ({ suppliers, products, accounts, purchase }) => {
     return (
         <AuthenticatedLayout header={<PageHeader title='Edit Purchase' />}>
             <Head title="Edit Purchase" />
-            <div className="max-w-[90%] mx-auto p-4 border border-gray-300 mt-6 bg-white">
+            <div className="max-w-[96%] mx-auto p-4 border border-gray-300 mt-6 bg-white">
                 <form onSubmit={handleSubmit}>
                     <InputSelect
                         id="supplier_id"

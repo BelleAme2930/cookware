@@ -85,7 +85,7 @@ const Index = ({ sales }) => {
             }
         >
             <Head title="Sales" />
-            <div className='mx-auto max-w-[90%] py-6'>
+            <div className='mx-auto max-w-[96%] py-6'>
                 <CustomDataTable
                     title="Sales"
                     data={sales.data}

@@ -19,21 +19,24 @@ const Show = ({ sale }) => {
         >
             <Head title="Sale Details" />
 
-            <div className="mx-auto max-w-[90%] py-6">
+            <div className="mx-auto max-w-[96%] py-4">
                 <div className="p-6 bg-white shadow-md rounded-md">
-                    <div className='flex justify-end mb-6'>
+                    <div className='flex justify-end mb-4'>
                         <BorderButton onClick={() => router.visit(route('sales.invoices.show', sale.id))}>
                             <FontAwesomeIcon icon={faPrint} className='mr-2' />
                             Print Invoice
                         </BorderButton>
                     </div>
-                    <div className='flex bg-gray-100 p-4 rounded'>
+                    <div className='flex bg-gray-100 p-4 rounded mb-6'>
                         <div className='w-1/2'>
                             <h3 className="text-xl font-semibold mb-2">Sale Information</h3>
                             <p><strong>Total Price:</strong> {sale.total_price} Rs</p>
                             <p><strong>Sale Date:</strong> {sale.sale_date}</p>
                             <p><strong>Due Date:</strong> {sale.due_date}</p>
                             <p className='capitalize'><strong>Payment Method:</strong> {sale.payment_method}</p>
+                            {sale.account && (
+                                <p><strong>Account:</strong> {sale.account.title}</p>
+                            )}
                         </div>
                         <div className='w-1/2'>
                             <h3 className="text-xl font-semibold mb-2">Customer Details</h3>
@@ -43,11 +46,7 @@ const Show = ({ sale }) => {
                         </div>
                     </div>
 
-                    {sale.account && (
-                        <p><strong>Account:</strong> {sale.account.name}</p>
-                    )}
 
-                    <hr className="my-4"/>
 
                     <h3 className="text-xl font-semibold mb-4">Products</h3>
                     <div className="overflow-x-auto">
@@ -64,15 +63,15 @@ const Show = ({ sale }) => {
                             <tbody>
                             {sale.products.map((product, index) => (
                                 <tr key={index}>
-                                    <td className="px-4 py-2 border">{product.name}</td>
-                                    <td className="px-4 py-2 border capitalize">{product.product_type}</td>
-                                    <td className="px-4 py-2 border">
+                                    <td className="px-4 py-2 text-center border">{product.name}</td>
+                                    <td className="px-4 py-2 text-center border capitalize">{product.product_type}</td>
+                                    <td className="px-4 py-2 text-center border">
                                         {product.product_type === 'item' ? product.pivot.quantity : '-'}
                                     </td>
-                                    <td className="px-4 py-2 border">
+                                    <td className="px-4 py-2 text-center border">
                                         {product.product_type === 'weight' ? product.pivot.weight : '-'}
                                     </td>
-                                    <td className="px-4 py-2 border">{product.pivot.sale_price} Rs</td>
+                                    <td className="px-4 py-2 text-center border">{product.pivot.sale_price} Rs</td>
                                 </tr>
                             ))}
                             </tbody>

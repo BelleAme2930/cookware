@@ -19,7 +19,7 @@ const Show = ({ category }) => {
             header={<h2 className="text-xl font-semibold leading-tight text-gray-800">{category.name} - Products</h2>}
         >
             <Head title={`${category.name} Products`} />
-            <div className="mx-auto max-w-[90%] py-6">
+            <div className="mx-auto max-w-[96%] py-6">
                 <CustomDataTable
                     title={`${category.name} - Products`}
                     data={category.products}

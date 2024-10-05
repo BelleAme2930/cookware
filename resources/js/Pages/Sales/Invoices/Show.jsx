@@ -3,6 +3,7 @@ import { Head } from "@inertiajs/react";
 import Button from "@/Components/Button.jsx";
 
 const Invoice = ({ sale }) => {
+    console.log(sale)
     return (
         <div className="min-h-screen bg-gray-100 p-4">
             <Head title={`Invoice - Sale #INV-S-${sale.id}`} />
@@ -22,7 +23,7 @@ const Invoice = ({ sale }) => {
                         <span className="font-bold">Customer:</span> <span>{sale.customer.name}</span>
                     </p>
                     <p className="text-sm text-gray-600">
-                        <span className="font-bold">Date:</span> {new Date(sale.created_at).toLocaleDateString()}
+                        <span className="font-bold">Date:</span> {sale.sale_date}
                     </p>
                 </div>
 
@@ -52,7 +53,7 @@ const Invoice = ({ sale }) => {
                 </div>
 
                 <div className="mt-12">
-                    <p className="text-sm"><span className='font-semibold'>RTM:</span> 179593</p>
+                    <p className="text-sm"><span className='font-semibold'>Bilal Shafique</span></p>
                     <p className="text-sm"><span className='font-semibold'>Address:</span> Muslim Road, Opposite Mini Stadium, Gujranwala</p>
                     <p className="text-sm"><span className='font-semibold'>Phone:</span> 055-4441095, 055-4298990</p>
                 </div>

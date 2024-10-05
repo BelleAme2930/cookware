@@ -5,7 +5,6 @@ import {faEye} from "@fortawesome/free-solid-svg-icons";
 import {router} from '@inertiajs/core';
 
 const Stocks = ({categories}) => {
-    console.log(categories)
 
     const showProductsRoute = (id) => route('categories.show', id);
 

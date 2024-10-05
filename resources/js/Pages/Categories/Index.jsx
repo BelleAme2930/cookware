@@ -57,7 +57,7 @@ const Index = ({ categories }) => {
             }
         >
             <Head title="Categories" />
-            <div className='mx-auto max-w-[90%] py-6'>
+            <div className='mx-auto max-w-[96%] py-6'>
                 <CustomDataTable
                     title="Categories"
                     data={categories.data}

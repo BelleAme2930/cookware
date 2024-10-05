@@ -59,7 +59,7 @@ const Index = ({ suppliers }) => {
             }
         >
             <Head title="Suppliers" />
-            <div className='mx-auto max-w-[90%] py-6'>
+            <div className='mx-auto max-w-[96%] py-6'>
                 <CustomDataTable
                     title="Suppliers"
                     data={suppliers}

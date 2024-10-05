@@ -16,7 +16,8 @@ const Create = ({ suppliers, products, accounts }) => {
         products: [],
         due_date: new Date().toISOString().split('T')[0],
         payment_method: 'cash',
-        account_id: ''
+        account_id: '',
+        semi_credit_amount: 0,
     });
 
     const [productFields, setProductFields] = useState([{
@@ -24,7 +25,7 @@ const Create = ({ suppliers, products, accounts }) => {
         product_type: '',
         quantity: 0,
         weight: '',
-        price: '',
+        purchase_price: '',
     }]);
 
     const supplierOptions = suppliers.map(supplier => ({
@@ -43,7 +44,7 @@ const Create = ({ suppliers, products, accounts }) => {
     };
 
     const handleAddProduct = () => {
-        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '', price: '' }]);
+        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '', purchase_price: '' }]);
     };
 
     const handleRemoveProduct = (index) => {
@@ -79,7 +80,7 @@ const Create = ({ suppliers, products, accounts }) => {
     return (
         <AuthenticatedLayout header={<PageHeader title='Add New Purchase' />}>
             <Head title="Add Purchase" />
-            <div className="max-w-[90%] mx-auto p-4 border border-gray-300 mt-6 bg-white">
+            <div className="max-w-[96%] mx-auto p-4 border border-gray-300 mt-6 bg-white">
                 <form onSubmit={handleSubmit}>
                     <InputSelect
                         id="supplier_id"
@@ -132,8 +133,8 @@ const Create = ({ suppliers, products, accounts }) => {
                                                 id={`price_${index}`}
                                                 label="Price"
                                                 type="number"
-                                                value={product.price}
-                                                onChange={(e) => handleProductChange(index, 'price', parseFloat(e.target.value))}
+                                                value={product.purchase_price}
+                                                onChange={(e) => handleProductChange(index, 'purchase_price', parseFloat(e.target.value))}
                                                 required
                                             />
                                         </div>
@@ -158,8 +159,8 @@ const Create = ({ suppliers, products, accounts }) => {
                                                 id={`price_${index}`}
                                                 label="Price"
                                                 type="number"
-                                                value={product.price}
-                                                onChange={(e) => handleProductChange(index, 'price', parseFloat(e.target.value))}
+                                                value={product.purchase_price}
+                                                onChange={(e) => handleProductChange(index, 'purchase_price', parseFloat(e.target.value))}
                                                 required
                                             />
                                         </div>
@@ -196,12 +197,27 @@ const Create = ({ suppliers, products, accounts }) => {
                         options={[
                             { value: 'cash', label: 'Cash' },
                             { value: 'account', label: 'Account' },
-                            { value: 'credit', label: 'Credit' }
+                            { value: 'credit', label: 'Credit' },
+                            { value: 'semi_credit', label: 'Semi Credit' }
                         ]}
                         onChange={(option) => setData('payment_method', option.value)}
                         value={data.payment_method}
                         required
                     />
+
+                    {data.payment_method === 'semi_credit' && (
+                        <div className="mb-4">
+                            <Label htmlFor="semi_credit_amount" title="Amount Paid" />
+                            <TextInput
+                                id="semi_credit_amount"
+                                type="number"
+                                value={data.semi_credit_amount}
+                                onChange={(e) => setData('semi_credit_amount', parseFloat(e.target.value))}
+                                required
+                                className='w-full'
+                            />
+                        </div>
+                    )}
 
                     {data.payment_method === 'account' && (
                         <InputSelect
