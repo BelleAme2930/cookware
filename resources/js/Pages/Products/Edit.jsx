@@ -5,7 +5,6 @@ import TextInput from "@/Components/TextInput.jsx";
 import Button from "@/Components/Button.jsx";
 import { toast } from "react-toastify";
 import InputSelect from "@/Components/InputSelect.jsx";
-import ImageUploader from "@/Components/ImageUploader.jsx";
 import Label from "@/Components/Label.jsx";
 import ShadowBox from "@/Components/ShadowBox.jsx";
 
