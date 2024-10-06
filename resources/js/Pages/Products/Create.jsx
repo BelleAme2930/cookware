@@ -14,10 +14,7 @@ const Create = ({categories, suppliers}) => {
         name: '',
         category_id: '',
         supplier_id: '',
-        weight: 0,
-        quantity: 0,
         sale_price: 0,
-        image: null,
         product_type: 'weight',
     });
 
@@ -104,71 +101,19 @@ const Create = ({categories, suppliers}) => {
                                 required
                             />
 
-                            {data.product_type === 'weight' ? (
-                                <>
-                                    <div className="mb-4 w-full">
-                                        <Label htmlFor='weight' required title='Weight (KG)'/>
-                                        <TextInput
-                                            type="number"
-                                            id="weight"
-                                            value={data.weight}
-                                            onChange={(e) => setData('weight', e.target.value)}
-                                            required
-                                            className={`w-full ${errors.weight ? 'border-red-600' : ''}`}
-                                        />
-                                        {errors.weight && <div className="text-red-600 text-sm">{errors.weight}</div>}
-                                    </div>
+                            <div className="mb-4 w-full">
+                                <Label htmlFor='sale_price' required title='Sale Price' suffix='PKR'/>
+                                <TextInput
+                                    type="number"
+                                    id="sale_price"
+                                    value={data.sale_price}
+                                    onChange={(e) => setData('sale_price', e.target.value)}
+                                    required
+                                    className={`w-full ${errors.sale_price ? 'border-red-600' : ''}`}
+                                />
+                                {errors.sale_price && <div className="text-red-600 text-sm">{errors.sale_price}</div>}
+                            </div>
 
-                                    <div className="mb-4 w-full">
-                                        <Label htmlFor='price' required title='Sale Price Per KG' suffix='PKR'/>
-                                        <TextInput
-                                            type="number"
-                                            id="price"
-                                            value={data.sale_price}
-                                            onChange={(e) => setData('sale_price', parseInt(e.target.value))}
-                                            required
-                                            className={`w-full ${errors.sale_price ? 'border-red-600' : ''}`}
-                                        />
-                                        {errors.sale_price && <div className="text-red-600 text-sm">{errors.sale_price}</div>}
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <div className="mb-4 w-full">
-                                        <Label htmlFor='quantity' required title='Quantity'/>
-                                        <TextInput
-                                            type="number"
-                                            id="quantity"
-                                            value={data.quantity}
-                                            onChange={(e) => setData('quantity', parseFloat(e.target.value))}
-                                            required
-                                            className={`w-full ${errors.quantity ? 'border-red-600' : ''}`}
-                                        />
-                                        {errors.quantity &&
-                                            <div className="text-red-600 text-sm">{errors.quantity}</div>}
-                                    </div>
-
-                                    <div className="mb-4 w-full">
-                                        <Label htmlFor='sale_price' required title='Sale Price Per Item' suffix='PKR'/>
-                                        <TextInput
-                                            type="number"
-                                            id="sale_price"
-                                            value={data.sale_price}
-                                            onChange={(e) => setData('sale_price', e.target.value)}
-                                            required
-                                            className={`w-full ${errors.sale_price ? 'border-red-600' : ''}`}
-                                        />
-                                        {errors.sale_price && <div className="text-red-600 text-sm">{errors.sale_price}</div>}
-                                    </div>
-                                </>
-                            )}
-
-                            <ImageUploader
-                                title='Select Product Image'
-                                id="image"
-                                onChange={(e) => setData('image', e.target.files[0])}
-                                error={errors.image}
-                            />
                         </div>
                         <div className='px-2'>
                             <Button type="submit" disabled={processing}>

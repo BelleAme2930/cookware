@@ -36,12 +36,11 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'name' => 'required|string|max:255|unique:products,name',
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'name' => 'required|string|max:255|unique:products,name',
-            'quantity' => 'nullable|numeric|min:0',
-            'weight' => 'required_if:product_type,weight|numeric|min:0',
-            'sale_price' => 'required|numeric|min:0',
+            'sale_price' => 'required|numeric|min:1',
+            'product_type' => 'required|string',
         ]);
 
         Product::create([
@@ -49,8 +48,8 @@ class ProductController extends Controller
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
             'sale_price' => $request->sale_price,
-            'weight' => $request->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toGrams($request->weight) : null,
-            'quantity' => $request->product_type === ProductTypeEnum::ITEM->value ? $request->quantity : null,
+            'weight' => 0,
+            'quantity' => 0,
             'product_type' => $request->product_type,
         ]);
 
@@ -86,9 +85,8 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
             'name' => 'required|string|max:255|unique:products,name,' . $product->id,
-            'quantity' => 'nullable|numeric|min:0',
-            'weight' => 'required_if:product_type,weight|numeric|min:0',
-            'sale_price' => 'required|numeric|min:0',
+            'sale_price' => 'required|numeric|min:1',
+            'product_type' => 'required|string',
         ]);
 
         $product->update([
@@ -96,8 +94,6 @@ class ProductController extends Controller
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
             'sale_price' => $request->sale_price,
-            'weight' => $request->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toGrams($request->weight) : null,
-            'quantity' => $request->product_type === ProductTypeEnum::ITEM->value ? $request->quantity : null,
             'product_type' => $request->product_type,
         ]);
 
