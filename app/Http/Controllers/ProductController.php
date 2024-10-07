@@ -41,6 +41,7 @@ class ProductController extends Controller
             'supplier_id' => 'required|exists:suppliers,id',
             'sale_price' => 'required|numeric|min:1',
             'product_type' => 'required|string',
+            'weight_per_item' => 'required|integer',
         ]);
 
         Product::create([
@@ -50,6 +51,7 @@ class ProductController extends Controller
             'sale_price' => $request->sale_price,
             'weight' => 0,
             'quantity' => 0,
+            'weight_per_item' => $request->weight_per_item,
             'product_type' => $request->product_type,
         ]);
 

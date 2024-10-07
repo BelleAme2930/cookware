@@ -17,7 +17,7 @@ const Create = ({ suppliers, products, accounts }) => {
         due_date: new Date().toISOString().split('T')[0],
         payment_method: 'cash',
         account_id: '',
-        semi_credit_amount: 0,
+        amount_paid: 0,
     });
 
     const [productFields, setProductFields] = useState([{
@@ -103,7 +103,8 @@ const Create = ({ suppliers, products, accounts }) => {
                         const selectedProduct = products.find(p => p.id === product.product_id);
 
                         return (
-                            <div key={index} className={`mb-4 py-5 px-4 border border-gray-300 rounded-md relative !bg-gray-50`}>
+                            <div key={index}
+                                 className={`mb-4 py-5 px-4 border border-gray-300 rounded-md relative !bg-gray-50`}>
                                 <InputSelect
                                     id={`product_id_${index}`}
                                     label={`Product ${index + 1}`}
@@ -117,7 +118,8 @@ const Create = ({ suppliers, products, accounts }) => {
 
                                 {product.product_type === 'weight' && (
                                     <>
-                                        <Label title='Weight' htmlFor={`weight_${index}`} suffix={'Inventory: ' + selectedProduct?.weight + ' KG'}/>
+                                        <Label title='Weight' htmlFor={`weight_${index}`}
+                                               suffix={'Inventory: ' + selectedProduct?.weight + ' KG'}/>
                                         <TextInput
                                             id={`weight_${index}`}
                                             label="Weight"
@@ -143,7 +145,8 @@ const Create = ({ suppliers, products, accounts }) => {
 
                                 {product.product_type === 'item' && (
                                     <>
-                                        <Label title='Quantity' htmlFor={`quantity_${index}`} suffix={'Inventory: ' + selectedProduct.quantity + ' pcs'}/>
+                                        <Label title='Quantity' htmlFor={`quantity_${index}`}
+                                               suffix={'Inventory: ' + selectedProduct.quantity + ' pcs'}/>
                                         <TextInput
                                             id={`quantity_${index}`}
                                             label="Quantity"
@@ -179,47 +182,23 @@ const Create = ({ suppliers, products, accounts }) => {
                         );
                     })}
 
-                    <div className="mb-4">
-                        <Label htmlFor="due_date" title="Due Date" />
-                        <TextInput
-                            id="due_date"
-                            type="date"
-                            value={data.due_date}
-                            onChange={(e) => setData('due_date', e.target.value)}
-                            required
-                            className='w-full'
-                        />
-                    </div>
-
                     <InputSelect
                         id="payment_method"
                         label="Payment Method"
                         options={[
-                            { value: 'cash', label: 'Cash' },
-                            { value: 'account', label: 'Account' },
-                            { value: 'credit', label: 'Credit' },
-                            { value: 'semi_credit', label: 'Semi Credit' }
+                            {value: 'cash', label: 'Full Cash'},
+                            {value: 'account', label: 'Full in Account'},
+                            {value: 'half_cash_half_account', label: 'Half Cash + Half in Account'},
+                            {value: 'credit', label: 'Full Credit'},
+                            {value: 'half_cash_half_credit', label: 'Half Cash + Half Credit'},
+                            {value: 'half_account_half_credit', label: 'Half in Account + Half Credit'},
                         ]}
                         onChange={(option) => setData('payment_method', option.value)}
                         value={data.payment_method}
                         required
                     />
 
-                    {data.payment_method === 'semi_credit' && (
-                        <div className="mb-4">
-                            <Label htmlFor="semi_credit_amount" title="Amount Paid" />
-                            <TextInput
-                                id="semi_credit_amount"
-                                type="number"
-                                value={data.semi_credit_amount}
-                                onChange={(e) => setData('semi_credit_amount', parseFloat(e.target.value))}
-                                required
-                                className='w-full'
-                            />
-                        </div>
-                    )}
-
-                    {data.payment_method === 'account' && (
+                    {(data.payment_method === 'account' || data.payment_method === 'half_cash_half_account' || data.payment_method === 'half_account_half_credit') && (
                         <InputSelect
                             id="account_id"
                             label="Select Account"
@@ -228,8 +207,36 @@ const Create = ({ suppliers, products, accounts }) => {
                             onChange={(selected) => setData('account_id', selected.value)}
                             link={!accounts.length ? route('accounts.create') : null}
                             linkText="Add account?"
-                            required
+                            required={data.payment_method === 'account' || data.payment_method === 'half_cash_half_account' || data.payment_method === 'half_account_half_credit'}
                         />
+                    )}
+
+                    {(data.payment_method === 'half_cash_half_credit' || data.payment_method === 'half_account_half_credit') && (
+                        <div className="mb-4">
+                            <Label htmlFor="amount_paid" title="Amount Paid"/>
+                            <TextInput
+                                id="amount_paid"
+                                type="number"
+                                value={data.amount_paid}
+                                onChange={(e) => setData('amount_paid', parseFloat(e.target.value))}
+                                required={data.payment_method === 'half_cash_half_credit' || data.payment_method === 'half_account_half_credit'}
+                                className='w-full'
+                            />
+                        </div>
+                    )}
+
+                    {(data.payment_method === 'credit' || data.payment_method === 'half_cash_half_credit' || data.payment_method === 'half_account_half_credit') && (
+                        <div className="mb-4">
+                            <Label htmlFor="due_date" title="Due Date"/>
+                            <TextInput
+                                id="due_date"
+                                type="date"
+                                value={data.due_date}
+                                onChange={(e) => setData('due_date', e.target.value)}
+                                required={data.payment_method === 'credit' || data.payment_method === 'half_cash_half_credit' || data.payment_method === 'half_account_half_credit'}
+                                className='w-full'
+                            />
+                        </div>
                     )}
 
                     <div className="flex justify-between items-center">

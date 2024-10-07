@@ -18,6 +18,7 @@ class Product extends Model
         'weight',
         'quantity',
         'sale_price',
+        'weight_per_item',
         'image',
     ];
 

@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('product_type');
             $table->unsignedBigInteger('weight')->nullable();
             $table->unsignedBigInteger('quantity')->nullable();
+            $table->unsignedBigInteger('weight_per_item')->nullable();
             $table->unsignedBigInteger('sale_price');
             $table->timestamps();
         });

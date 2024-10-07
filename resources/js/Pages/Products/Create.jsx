@@ -13,8 +13,9 @@ const Create = ({categories, suppliers}) => {
         name: '',
         category_id: '',
         supplier_id: '',
-        sale_price: 0,
+        sale_price: 1,
         product_type: 'weight',
+        weight_per_item: 1,
     });
 
     const categoryOptions = categories.map(cat => ({
@@ -101,18 +102,31 @@ const Create = ({categories, suppliers}) => {
                             />
 
                             <div className="mb-4 w-full">
+                                <Label htmlFor='weight_per_item' required title='Weight Per Item' suffix='KG'/>
+                                <TextInput
+                                    type="number"
+                                    id="weight_per_item"
+                                    value={data.weight_per_item}
+                                    onChange={(e) => setData('weight_per_item', parseInt(e.target.value))}
+                                    required
+                                    className={`w-full ${errors.weight_per_item ? 'border-red-600' : ''}`}
+                                />
+                                {errors.weight_per_item &&
+                                    <div className="text-red-600 text-sm">{errors.weight_per_item}</div>}
+                            </div>
+
+                            <div className="mb-4 w-full">
                                 <Label htmlFor='sale_price' required title='Sale Price' suffix='PKR'/>
                                 <TextInput
                                     type="number"
                                     id="sale_price"
                                     value={data.sale_price}
-                                    onChange={(e) => setData('sale_price', e.target.value)}
+                                    onChange={(e) => setData('sale_price', parseInt(e.target.value))}
                                     required
                                     className={`w-full ${errors.sale_price ? 'border-red-600' : ''}`}
                                 />
                                 {errors.sale_price && <div className="text-red-600 text-sm">{errors.sale_price}</div>}
                             </div>
-
                         </div>
                         <div className='px-2'>
                             <Button type="submit" disabled={processing}>
