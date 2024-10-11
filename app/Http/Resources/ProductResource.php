@@ -22,6 +22,7 @@ class ProductResource extends JsonResource
             'supplier_id' => $this->supplier_id,
             'name' => $this->name,
             'weight' => WeightHelper::toKilos($this->weight ?? 0) ?? 0,
+            'weight_per_item' => WeightHelper::toKilos($this->weight_per_item ?? 0) ?? 0,
             'quantity' => $this->quantity ?? 0,
             'product_type' => $this->product_type,
             'sale_price' => $this->sale_price,

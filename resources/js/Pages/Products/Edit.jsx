@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import TextInput from "@/Components/TextInput.jsx";
@@ -10,11 +10,12 @@ import ShadowBox from "@/Components/ShadowBox.jsx";
 
 const Edit = ({ product, categories, suppliers }) => {
     const { data, setData, put, errors, processing } = useForm({
-        name: product.name || '',
-        category_id: product.category_id || '',
-        supplier_id: product.supplier_id || '',
-        sale_price: product.sale_price || 0,
-        product_type: product.product_type || 'weight',
+        name: product.name,
+        category_id: product.category_id,
+        supplier_id: product.supplier_id,
+        sale_price: product.sale_price,
+        product_type: product.product_type,
+        weight_per_item: product.weight_per_item,
     });
 
     const categoryOptions = categories.map(cat => ({
@@ -54,7 +55,7 @@ const Edit = ({ product, categories, suppliers }) => {
                     <form onSubmit={handleSubmit}>
                         <div className='flex flex-wrap'>
                             <div className="mb-4 w-full">
-                                <Label htmlFor='name' required title='Product Name'/>
+                                <Label htmlFor='name' required title='Product Name' />
                                 <TextInput
                                     required
                                     id="name"
@@ -71,6 +72,8 @@ const Edit = ({ product, categories, suppliers }) => {
                                 options={categoryOptions}
                                 value={data.category_id}
                                 onChange={(value) => setData('category_id', value.value)}
+                                link={categories.length === 0 ? route('categories.create') : null}
+                                linkText="Add category?"
                                 required
                             />
 
@@ -80,6 +83,8 @@ const Edit = ({ product, categories, suppliers }) => {
                                 options={supplierOptions}
                                 value={data.supplier_id}
                                 onChange={(value) => setData('supplier_id', value.value)}
+                                link={suppliers.length === 0 ? route('suppliers.create') : null}
+                                linkText="Add supplier?"
                                 required
                             />
 
@@ -87,8 +92,8 @@ const Edit = ({ product, categories, suppliers }) => {
                                 id="product_type"
                                 label="Product Type"
                                 options={[
-                                    {label: 'Per KG', value: 'weight'},
-                                    {label: 'Per Item', value: 'item'},
+                                    { label: 'Per KG', value: 'weight' },
+                                    { label: 'Per Item', value: 'item' },
                                 ]}
                                 value={data.product_type}
                                 onChange={(value) => setData('product_type', value.value)}
@@ -96,10 +101,23 @@ const Edit = ({ product, categories, suppliers }) => {
                             />
 
                             <div className="mb-4 w-full">
-                                <Label htmlFor='price' required title='Sale Price Per KG' suffix='PKR'/>
+                                <Label htmlFor='weight_per_item' required title='Weight Per Item' suffix='KG' />
                                 <TextInput
                                     type="number"
-                                    id="price"
+                                    id="weight_per_item"
+                                    value={data.weight_per_item}
+                                    onChange={(e) => setData('weight_per_item', parseInt(e.target.value))}
+                                    required
+                                    className={`w-full ${errors.weight_per_item ? 'border-red-600' : ''}`}
+                                />
+                                {errors.weight_per_item && <div className="text-red-600 text-sm">{errors.weight_per_item}</div>}
+                            </div>
+
+                            <div className="mb-4 w-full">
+                                <Label htmlFor='sale_price' required title='Sale Price' suffix='PKR' />
+                                <TextInput
+                                    type="number"
+                                    id="sale_price"
                                     value={data.sale_price}
                                     onChange={(e) => setData('sale_price', parseInt(e.target.value))}
                                     required
@@ -107,7 +125,6 @@ const Edit = ({ product, categories, suppliers }) => {
                                 />
                                 {errors.sale_price && <div className="text-red-600 text-sm">{errors.sale_price}</div>}
                             </div>
-
                         </div>
                         <div className='px-2'>
                             <Button type="submit" disabled={processing}>

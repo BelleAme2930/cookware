@@ -71,7 +71,7 @@ class PurchaseController extends Controller
             foreach ($validated['products'] as $productData) {
                 $product = Product::find($productData['product_id']);
                 $productType = $product->product_type;
-                $weightPerItem = $product->weight_per_item;
+                $weightPerItem = WeightHelper::toKilos($product->weight_per_item);
 
                 $quantity = 0;
                 $weight = 0;
@@ -92,11 +92,8 @@ class PurchaseController extends Controller
                     'purchase_price' => $productData['purchase_price'],
                 ]);
 
-                if ($productType === ProductTypeEnum::ITEM->value && $quantity) {
-                    $product->increment('quantity', $quantity);
-                } elseif ($productType === ProductTypeEnum::WEIGHT->value && $weight) {
-                    $product->increment('weight', $weight);
-                }
+                $product->increment('quantity', $quantity);
+                $product->increment('weight', WeightHelper::toGrams($weight));
             }
 
             $purchase->update([
@@ -108,21 +105,21 @@ class PurchaseController extends Controller
                 case PaymentMethodEnum::CASH->value:
                 case PaymentMethodEnum::HALF_CASH_HALF_ACCOUNT->value:
                     $purchase->update([
-                        'credit_amount' => 0,
+                        'amount_paid' => 0,
                         'remaining_balance' => 0,
                     ]);
                     break;
                 case PaymentMethodEnum::CREDIT->value:
                     $purchase->update([
-                        'credit_amount' => $totalPrice,
+                        'amount_paid' => $totalPrice,
                         'remaining_balance' => $totalPrice,
                     ]);
                     break;
                 case PaymentMethodEnum::HALF_ACCOUNT_HALF_CREDIT->value:
                 case PaymentMethodEnum::HALF_CASH_HALF_CREDIT->value:
                     $purchase->update([
-                        'credit_amount' => $validated['amount_paid'] ? $totalPrice / $validated['amount_paid'] : 0,
-                        'remaining_balance' => $validated['amount_paid'] ? $totalPrice / $validated['amount_paid'] : 0,
+                        'amount_paid' => $validated['amount_paid'] ?: 0,
+                        'remaining_balance' => $validated['amount_paid'] ? ($totalPrice - $validated['amount_paid']) : 0,
                     ]);
                     break;
             }
@@ -147,84 +144,49 @@ class PurchaseController extends Controller
         ]);
     }
 
-    public function update(Request $request, Purchase $purchase)
+    public function update(Request $request, $id)
     {
-        $validated = $request->validate([
+        $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
             'products' => 'required|array',
             'products.*.product_id' => 'required|exists:products,id',
-            'products.*.product_type' => 'required|string',
-            'products.*.quantity' => 'nullable|integer|min:0',
-            'products.*.weight' => 'nullable|numeric|min:0',
+            'products.*.quantity' => 'required|integer|min:1',
+            'products.*.weight' => 'required_if:products.*.product_type,weight|numeric|min:0',
             'products.*.purchase_price' => 'required|numeric|min:0',
             'due_date' => 'required|date',
             'payment_method' => 'required|string',
             'account_id' => 'nullable|exists:accounts,id',
-            'semi_credit_amount' => 'nullable|numeric|min:0',
+            'amount_paid' => 'nullable|numeric|min:0',
         ]);
 
-        DB::transaction(function () use ($validated, $purchase) {
-            $purchase->update([
-                'supplier_id' => $validated['supplier_id'],
-                'due_date' => $validated['due_date'],
-                'payment_method' => $validated['payment_method'],
-                'account_id' => $validated['payment_method'] === PaymentMethodEnum::ACCOUNT->value ? $validated['account_id'] : null,
-            ]);
+        // Find the purchase record
+        $purchase = Purchase::findOrFail($id);
 
-            // Clear previous product relationships
-            $purchase->products()->detach();
+        // Update the purchase details
+        $purchase->update([
+            'supplier_id' => $request->supplier_id,
+            'due_date' => $request->due_date,
+            'payment_method' => $request->payment_method,
+            'account_id' => $request->account_id,
+            'amount_paid' => $request->amount_paid,
+        ]);
 
-            $totalPrice = 0;
+        // Sync the products
+        $productsData = [];
+        foreach ($request->products as $product) {
+            $productsData[$product['product_id']] = [
+                'quantity' => $product['quantity'],
+                'weight' => $product['weight'],
+                'purchase_price' => $product['purchase_price'],
+            ];
+        }
 
-            foreach ($validated['products'] as $productData) {
-                $product = Product::find($productData['product_id']);
+        // Update the pivot table with products
+        $purchase->products()->sync($productsData);
 
-                $quantity = $product->product_type === ProductTypeEnum::ITEM->value ? $productData['quantity'] : null;
-                $weight = $product->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toGrams($productData['weight']) : null;
-
-                $purchase->products()->attach($product->id, [
-                    'quantity' => $quantity,
-                    'weight' => $weight,
-                    'purchase_price' => $productData['purchase_price'],
-                ]);
-
-                if ($product->product_type === ProductTypeEnum::ITEM->value) {
-                    $totalPrice += ($productData['purchase_price'] * $quantity);
-                } elseif ($product->product_type === ProductTypeEnum::WEIGHT->value) {
-                    $totalPrice += ($productData['purchase_price'] * $productData['weight']);
-                }
-
-                // Update product quantities/weights accordingly
-                if ($product->product_type === ProductTypeEnum::ITEM->value && $quantity) {
-                    $product->increment('quantity', $quantity);
-                } elseif ($product->product_type === ProductTypeEnum::WEIGHT->value && $weight) {
-                    $product->increment('weight', $weight);
-                }
-            }
-
-            // Update total price in the purchase
-            $purchase->update(['total_price' => $totalPrice]);
-
-            // Handle semi credit and credit payment methods
-            if ($validated['payment_method'] === PaymentMethodEnum::SEMI_CREDIT->value) {
-                $semiCreditAmount = $validated['semi_credit_amount'] ?? 0;
-                $remainingBalance = $totalPrice - $semiCreditAmount;
-
-                $purchase->update([
-                    'semi_credit_amount' => $semiCreditAmount,
-                    'remaining_balance' => $remainingBalance,
-                ]);
-            } elseif ($validated['payment_method'] === PaymentMethodEnum::CREDIT->value) {
-                // For CREDIT payment method, set semi_credit_amount to totalPrice and remaining_balance to totalPrice
-                $purchase->update([
-                    'semi_credit_amount' => $totalPrice,
-                    'remaining_balance' => $totalPrice,
-                ]);
-            }
-        });
-
-        return redirect()->route('purchases.index')->with('success', 'Purchase updated successfully');
+        return redirect()->route('purchases.index')->with('success', 'Purchase updated successfully!');
     }
+
 
     public function destroy(Purchase $purchase)
     {

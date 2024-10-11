@@ -51,7 +51,7 @@ class ProductController extends Controller
             'sale_price' => $request->sale_price,
             'weight' => 0,
             'quantity' => 0,
-            'weight_per_item' => $request->weight_per_item,
+            'weight_per_item' => WeightHelper::toGrams($request->weight_per_item),
             'product_type' => $request->product_type,
         ]);
 
@@ -81,27 +81,32 @@ class ProductController extends Controller
         ]);
     }
 
-    public function update(Request $request, Product $product)
+    public function update(Request $request, $id)
     {
         $request->validate([
+            'name' => 'required|string|max:255|unique:products,name,' . $id,
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'name' => 'required|string|max:255|unique:products,name,' . $product->id,
             'sale_price' => 'required|numeric|min:1',
             'product_type' => 'required|string',
+            'weight_per_item' => 'required|integer',
         ]);
+
+        $product = Product::findOrFail($id);
 
         $product->update([
             'category_id' => $request->category_id,
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
             'sale_price' => $request->sale_price,
+            'weight' => 0,
+            'quantity' => 0,
+            'weight_per_item' => $request->weight_per_item,
             'product_type' => $request->product_type,
         ]);
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
-
 
 
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import Button from "@/Components/Button.jsx";
@@ -28,6 +28,9 @@ const Create = ({ suppliers, products, accounts }) => {
         purchase_price: '',
     }]);
 
+    const [totalPurchasePrice, setTotalPurchasePrice] = useState(0);
+    const [remainingCredit, setRemainingCredit] = useState(0);
+
     const supplierOptions = suppliers.map(supplier => ({
         value: supplier.id,
         label: supplier.name,
@@ -52,6 +55,7 @@ const Create = ({ suppliers, products, accounts }) => {
         updatedFields.splice(index, 1);
         setProductFields(updatedFields);
         setData('products', updatedFields);
+        calculateTotalPurchasePrice(updatedFields); // Update total price when a product is removed
     };
 
     const handleProductChange = (index, field, value) => {
@@ -63,9 +67,38 @@ const Create = ({ suppliers, products, accounts }) => {
             updatedFields[index]['product_type'] = selectedProduct ? selectedProduct.product_type : '';
         }
 
+        // Update total purchase price based on weight or purchase price changes
+        calculateTotalPurchasePrice(updatedFields);
+
         setProductFields(updatedFields);
         setData('products', updatedFields);
     };
+
+    const calculateTotalPurchasePrice = (fields) => {
+        let total = 0;
+        fields.forEach(product => {
+            if (product.product_type === 'weight') {
+                const weight = parseFloat(product.weight) || 0;
+                const pricePerKg = parseFloat(product.purchase_price) || 0;
+                total += weight * pricePerKg;
+            } else if (product.product_type === 'item') {
+                const quantity = parseInt(product.quantity) || 0;
+                const pricePerItem = parseFloat(product.purchase_price) || 0;
+                total += quantity * pricePerItem;
+            }
+        });
+        setTotalPurchasePrice(total);
+        calculateRemainingCredit(data.amount_paid, total); // Update remaining credit whenever total changes
+    };
+
+    const calculateRemainingCredit = (amountPaid, total) => {
+        setRemainingCredit(total - amountPaid);
+    };
+
+    // Update remaining credit whenever amount paid changes
+    useEffect(() => {
+        calculateRemainingCredit(data.amount_paid, totalPurchasePrice);
+    }, [data.amount_paid, totalPurchasePrice]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -182,6 +215,10 @@ const Create = ({ suppliers, products, accounts }) => {
                         );
                     })}
 
+                    <div className='text-center'>
+                        <h1 className='text-xl font-semibold'>Total Purchase Price: {totalPurchasePrice}</h1>
+                    </div>
+
                     <InputSelect
                         id="payment_method"
                         label="Payment Method"
@@ -213,7 +250,7 @@ const Create = ({ suppliers, products, accounts }) => {
 
                     {(data.payment_method === 'half_cash_half_credit' || data.payment_method === 'half_account_half_credit') && (
                         <div className="mb-4">
-                            <Label htmlFor="amount_paid" title="Amount Paid"/>
+                            <Label htmlFor="amount_paid" title="Amount Paid" suffix={`Remaining Amount: ${remainingCredit}`}/>
                             <TextInput
                                 id="amount_paid"
                                 type="number"

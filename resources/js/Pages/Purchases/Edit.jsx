@@ -1,4 +1,4 @@
-import React, { useState  } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import Button from "@/Components/Button.jsx";
@@ -12,21 +12,25 @@ import Label from "@/Components/Label.jsx";
 
 const Edit = ({ purchase, suppliers, products, accounts }) => {
     const { data, setData, put, processing } = useForm({
-        supplier_id: purchase.supplier_id || '',
-        products: purchase.products || [],
-        due_date: purchase.due_date || new Date().toISOString().split('T')[0],
-        payment_method: purchase.payment_method || 'cash',
+        supplier_id: purchase.supplier_id,
+        products: purchase.products.map(product => ({
+            product_id: product.id,
+            product_type: product.product_type,
+            quantity: product.pivot.quantity,
+            weight: product.pivot.weight,
+            purchase_price: product.pivot.purchase_price,
+        })),
+        due_date: purchase.due_date.split('T')[0],
+        payment_method: purchase.payment_method,
         account_id: purchase.account_id || '',
-        semi_credit_amount: purchase.semi_credit_amount || 0,
+        amount_paid: purchase.amount_paid || 0,
     });
 
-    const [productFields, setProductFields] = useState(purchase.products.map(product => ({
-        product_id: product.product_id,
-        product_type: product.product_type,
-        quantity: product.quantity || 0,
-        weight: product.weight || '',
-        purchase_price: product.purchase_price || '',
-    })));
+    const [productFields, setProductFields] = useState(data.products);
+
+    useEffect(() => {
+        setData('products', productFields);
+    }, [productFields]);
 
     const supplierOptions = suppliers.map(supplier => ({
         value: supplier.id,
@@ -51,7 +55,6 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
         const updatedFields = [...productFields];
         updatedFields.splice(index, 1);
         setProductFields(updatedFields);
-        setData('products', updatedFields);
     };
 
     const handleProductChange = (index, field, value) => {
@@ -88,6 +91,8 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
                         options={supplierOptions}
                         value={data.supplier_id}
                         onChange={(selected) => setData('supplier_id', selected.value)}
+                        link={!suppliers.length ? route('suppliers.create') : null}
+                        linkText="Add supplier?"
                         required
                     />
 
@@ -108,12 +113,14 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
                                     options={filteredProductOptions}
                                     value={product.product_id}
                                     onChange={(selected) => handleProductChange(index, 'product_id', selected.value)}
+                                    link={!products.length ? route('products.create') : null}
+                                    linkText="Add product?"
                                     required
                                 />
 
                                 {product.product_type === 'weight' && (
                                     <>
-                                        <Label title='Weight' htmlFor={`weight_${index}`} suffix={'Inventory: ' + selectedProduct?.weight + ' KG'}/>
+                                        <Label title='Weight' htmlFor={`weight_${index}`} suffix={'Inventory: ' + selectedProduct?.weight + ' KG'} />
                                         <TextInput
                                             id={`weight_${index}`}
                                             label="Weight"
@@ -122,9 +129,8 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
                                             onChange={(e) => handleProductChange(index, 'weight', parseFloat(e.target.value))}
                                             required
                                         />
-
                                         <div className='mt-4'>
-                                            <Label title='Purchase Price per KG' htmlFor={`price_${index}`}/>
+                                            <Label title='Purchase Price per KG' htmlFor={`price_${index}`} />
                                             <TextInput
                                                 id={`price_${index}`}
                                                 label="Price"
@@ -139,7 +145,7 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
 
                                 {product.product_type === 'item' && (
                                     <>
-                                        <Label title='Quantity' htmlFor={`quantity_${index}`} suffix={'Inventory: ' + selectedProduct?.quantity + ' pcs'}/>
+                                        <Label title='Quantity' htmlFor={`quantity_${index}`} suffix={'Inventory: ' + selectedProduct.quantity + ' pcs'} />
                                         <TextInput
                                             id={`quantity_${index}`}
                                             label="Quantity"
@@ -148,9 +154,8 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
                                             onChange={(e) => handleProductChange(index, 'quantity', parseInt(e.target.value))}
                                             required
                                         />
-
                                         <div className='mt-4'>
-                                            <Label title='Purchase Price per Item' htmlFor={`price_${index}`}/>
+                                            <Label title='Purchase Price per Item' htmlFor={`price_${index}`} />
                                             <TextInput
                                                 id={`price_${index}`}
                                                 label="Price"
@@ -175,59 +180,65 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
                         );
                     })}
 
-                    <div className="mb-4">
-                        <Label htmlFor="due_date" title="Due Date" />
-                        <TextInput
-                            id="due_date"
-                            type="date"
-                            value={data.due_date}
-                            onChange={(e) => setData('due_date', e.target.value)}
-                            required
-                            className='w-full'
-                        />
-                    </div>
-
                     <InputSelect
                         id="payment_method"
                         label="Payment Method"
                         options={[
-                            { value: 'cash', label: 'Cash' },
-                            { value: 'account', label: 'Account' },
-                            { value: 'credit', label: 'Credit' },
-                            { value: 'semi_credit', label: 'Semi Credit' }
+                            { value: 'cash', label: 'Full Cash' },
+                            { value: 'account', label: 'Full in Account' },
+                            { value: 'half_cash_half_account', label: 'Half Cash + Half in Account' },
+                            { value: 'credit', label: 'Full Credit' },
+                            { value: 'half_cash_half_credit', label: 'Half Cash + Half Credit' },
+                            { value: 'half_account_half_credit', label: 'Half in Account + Half Credit' },
                         ]}
                         onChange={(option) => setData('payment_method', option.value)}
                         value={data.payment_method}
                         required
                     />
 
-                    {data.payment_method === 'semi_credit' && (
-                        <div className="mb-4">
-                            <Label htmlFor="semi_credit_amount" title="Amount Paid" />
-                            <TextInput
-                                id="semi_credit_amount"
-                                type="number"
-                                value={data.semi_credit_amount}
-                                onChange={(e) => setData('semi_credit_amount', parseFloat(e.target.value))}
-                                required
-                                className='w-full'
-                            />
-                        </div>
-                    )}
-
-                    {data.payment_method === 'account' && (
+                    {(data.payment_method === 'account' || data.payment_method === 'half_cash_half_account' || data.payment_method === 'half_account_half_credit') && (
                         <InputSelect
                             id="account_id"
                             label="Select Account"
                             options={accountOptions}
                             value={data.account_id}
                             onChange={(selected) => setData('account_id', selected.value)}
-                            required
+                            link={!accounts.length ? route('accounts.create') : null}
+                            linkText="Add account?"
+                            required={data.payment_method === 'account' || data.payment_method === 'half_cash_half_account' || data.payment_method === 'half_account_half_credit'}
                         />
                     )}
 
+                    {(data.payment_method === 'half_cash_half_credit' || data.payment_method === 'half_account_half_credit') && (
+                        <div className="mb-4">
+                            <Label htmlFor="amount_paid" title="Amount Paid" />
+                            <TextInput
+                                id="amount_paid"
+                                type="number"
+                                value={data.amount_paid}
+                                onChange={(e) => setData('amount_paid', parseFloat(e.target.value))}
+                                required={data.payment_method === 'half_cash_half_credit' || data.payment_method === 'half_account_half_credit'}
+                                className='w-full'
+                            />
+                        </div>
+                    )}
+
+                    {(data.payment_method === 'credit' || data.payment_method === 'half_cash_half_credit' || data.payment_method === 'half_account_half_credit') && (
+                        <div className="mb-4">
+                            <Label htmlFor="due_date" title="Due Date" />
+                            <TextInput
+                                id="due_date"
+                                type="date"
+                                value={data.due_date}
+                                onChange={(e) => setData('due_date', e.target.value)}
+                                required={data.payment_method === 'credit' || data.payment_method === 'half_cash_half_credit' || data.payment_method === 'half_account_half_credit'}
+                                className='w-full'
+                            />
+                        </div>
+                    )}
+
                     <div className="flex justify-between items-center">
-                        <BorderButton type="button" disabled={processing} onClick={handleAddProduct}>
+                        <BorderButton type="button" onClick={handleAddProduct}>
                             Add Product
                         </BorderButton>
                         <Button type="submit" disabled={processing}>

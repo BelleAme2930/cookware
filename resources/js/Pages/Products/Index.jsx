@@ -28,11 +28,13 @@ const Index = ({ products }) => {
         },
         {
             name: 'Weight (kg)',
-            selector: row => row.product_type === 'weight' ? row.weight : '-',
+            selector: row =>
+                row.product_type === 'item' && row.weight > 0 ? `~${row.weight}` : row.weight,
         },
         {
             name: 'Quantity',
-            selector: row => row.product_type === 'item' ? row.quantity : '-'
+            selector: row =>
+                row.product_type === 'weight' && row.quantity > 0 ? `~${row.quantity}` : row.quantity,
         },
         {
             name: 'Sale Price',

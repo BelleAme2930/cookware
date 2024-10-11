@@ -18,20 +18,16 @@ class PurchaseResource extends JsonResource
     {
         $data = [
             'id' => $this->id,
-            'type' => $this->type,
-            'single_price' => $this->single_price,
             'supplier_id' => $this->supplier_id,
             'total_price' => $this->total_price,
+            'credit_amount' => $this->credit_amount,
+            'remaining_balance' => $this->remaining_balance,
             'payment_method' => $this->payment_method,
-            'account_id' => $this->account_id,
-            'due_date' => $this->due_date,
-            'quantity' => $this->quantity ?? null,
-            'weight' => $this->weight ? WeightHelper::toKilos($this->weight) : null,
             'total_weight' => WeightHelper::toKilos($this->products->sum('pivot.weight')),
             'total_quantity' => $this->products->sum('pivot.quantity'),
+            'account_id' => $this->account_id,
+            'due_date' => $this->due_date,
             'purchase_date' => $this->purchase_date,
-            'created_at' => $this->created_at->format('Y-m-d'),
-            'updated_at' => $this->updated_at->format('Y-m-d'),
         ];
 
         if ($this->relationLoaded('supplier')) {
@@ -45,8 +41,8 @@ class PurchaseResource extends JsonResource
                     'name' => $product->name,
                     'product_type' => $product->product_type,
                     'pivot' => [
-                        'quantity' => $product->product_type === ProductTypeEnum::ITEM->value ? $product->pivot->quantity : null,
-                        'weight' => $product->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toKilos($product->pivot->weight) : null,
+                        'quantity' => $product->pivot->quantity ?? null,
+                        'weight' => WeightHelper::toKilos($product->pivot->weight) ?? null,
                         'purchase_price' => $product->pivot->purchase_price,
                     ],
                 ];

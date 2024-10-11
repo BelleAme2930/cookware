@@ -19,7 +19,7 @@ class PurchaseInvoiceController extends Controller
         $purchases = Purchase::with('supplier')->get();
 
         return Inertia::render('Purchases/Invoices/Index', [
-            'purchases' => $purchases
+            'purchases' => PurchaseResource::collection($purchases)->resolve(),
         ]);
     }
 
