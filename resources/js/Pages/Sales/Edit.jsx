@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import Button from "@/Components/Button.jsx";
@@ -10,23 +10,25 @@ import IconButton from "@/Components/IconButton.jsx";
 import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import Label from "@/Components/Label.jsx";
 
-const Edit = ({ customers, products, accounts, sale }) => {
+const Edit = ({ sale, customers, products, accounts }) => {
     const { data, setData, put, processing } = useForm({
-        customer_id: sale.customer_id || '',
-        products: sale.products.map(product => ({
-            product_id: product.id,
-            product_type: product.product_type,
-            quantity: product.quantity || 0,
-            weight: product.weight || '',
-            sale_price: product.pivot.sale_price || 0,
-        })) || [],
+        customer_id: sale.customer_id,
+        products: sale.products.map(prod => ({
+            product_id: prod.id,
+            product_type: prod.product_type,
+            quantity: prod.pivot.quantity,
+            weight: prod.pivot.weight,
+            sale_price: prod.pivot.sale_price,
+        })),
         due_date: sale.due_date || new Date().toISOString().split('T')[0],
-        payment_method: sale.payment_method || 'cash',
-        account_id: sale.account_id || '',
-        semi_credit_amount: sale.semi_credit_amount || 0,
+        payment_method: sale.exact_payment_method,
+        account_id: sale.account_id,
+        amount_received: sale.amount_received || 0,
     });
 
     const [productFields, setProductFields] = useState(data.products);
+    const [totalSalePrice, setTotalSalePrice] = useState(0);
+    const [remainingAmount, setRemainingAmount] = useState(0);
 
     const customerOptions = customers.map(customer => ({
         value: customer.id,
@@ -44,7 +46,7 @@ const Edit = ({ customers, products, accounts, sale }) => {
     };
 
     const handleAddProduct = () => {
-        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '', sale_price: 0 }]);
+        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '', sale_price: '' }]);
     };
 
     const handleRemoveProduct = (index) => {
@@ -52,6 +54,7 @@ const Edit = ({ customers, products, accounts, sale }) => {
         updatedFields.splice(index, 1);
         setProductFields(updatedFields);
         setData('products', updatedFields);
+        calculateTotalSalePrice(updatedFields);
     };
 
     const handleProductChange = (index, field, value) => {
@@ -63,9 +66,40 @@ const Edit = ({ customers, products, accounts, sale }) => {
             updatedFields[index]['product_type'] = selectedProduct ? selectedProduct.product_type : '';
         }
 
+        calculateTotalSalePrice(updatedFields);
+
         setProductFields(updatedFields);
         setData('products', updatedFields);
     };
+
+    const calculateTotalSalePrice = (fields) => {
+        let total = 0;
+        fields.forEach(product => {
+            if (product.product_type === 'weight') {
+                const weight = parseFloat(product.weight) || 0;
+                const pricePerKg = parseFloat(product.sale_price) || 0;
+                total += weight * pricePerKg;
+            } else if (product.product_type === 'item') {
+                const quantity = parseInt(product.quantity) || 0;
+                const pricePerItem = parseFloat(product.sale_price) || 0;
+                total += quantity * pricePerItem;
+            }
+        });
+        setTotalSalePrice(total);
+        calculateRemainingAmount(data.amount_received, total);
+    };
+
+    const calculateRemainingAmount = (amountReceived, total) => {
+        setRemainingAmount(total - amountReceived);
+    };
+
+    useEffect(() => {
+        calculateTotalSalePrice(productFields);
+    }, [productFields]);
+
+    useEffect(() => {
+        calculateRemainingAmount(data.amount_received, totalSalePrice);
+    }, [data.amount_received, totalSalePrice]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -76,11 +110,6 @@ const Edit = ({ customers, products, accounts, sale }) => {
         value: acc.id,
         label: `${acc.title} - ${acc.bank_name}`,
     }));
-
-    const totalPrice = productFields.reduce((total, product) => {
-        const price = product.product_type === 'weight' ? product.sale_price * (product.weight || 0) : product.sale_price * (product.quantity || 0);
-        return total + price;
-    }, 0);
 
     return (
         <AuthenticatedLayout header={<PageHeader title='Edit Sale' />}>
@@ -103,15 +132,10 @@ const Edit = ({ customers, products, accounts, sale }) => {
                             .filter((_, i) => i !== index)
                             .map(field => field.product_id);
 
-                        const selectedProduct = products.find(p => p.id === product.product_id);
-
                         const filteredProductOptions = getProductOptions(selectedProductIds);
-                        const availableWeight = selectedProduct?.weight - (product.weight || 0);
-                        const availableQuantity = selectedProduct?.quantity - (product.quantity || 0);
 
                         return (
                             <div key={index} className={`mb-4 py-5 px-4 border border-gray-300 rounded-md relative !bg-gray-50`}>
-
                                 <InputSelect
                                     id={`product_id_${index}`}
                                     label={`Product ${index + 1}`}
@@ -125,12 +149,7 @@ const Edit = ({ customers, products, accounts, sale }) => {
 
                                 {product.product_type === 'weight' && (
                                     <>
-                                        <Label
-                                            title='Weight'
-                                            htmlFor={`weight_${index}`}
-                                            suffix={`Available Weight: ${availableWeight} KG`}
-                                            suffixStyle={availableWeight < 0 ? 'text-red-600' : 'text-gray-700'}
-                                        />
+                                        <Label title='Weight' htmlFor={`weight_${index}`} />
                                         <TextInput
                                             id={`weight_${index}`}
                                             label="Weight"
@@ -138,31 +157,17 @@ const Edit = ({ customers, products, accounts, sale }) => {
                                             value={product.weight}
                                             onChange={(e) => handleProductChange(index, 'weight', parseFloat(e.target.value))}
                                             required
-                                            max={selectedProduct.weight + Math.abs(availableWeight)}
                                         />
+
                                         <div className='mt-4'>
-                                            <Label
-                                                title='Sale Price'
-                                                htmlFor={`sale_price_${index}`}
-                                                suffix={`Default Sale Price: ${selectedProduct.sale_price} Rs`}
-                                            />
+                                            <Label title='Sale Price per KG' htmlFor={`price_${index}`} />
                                             <TextInput
-                                                id={`sale_price_${index}`}
-                                                label="Sale Price"
+                                                id={`price_${index}`}
+                                                label="Price"
                                                 type="number"
                                                 value={product.sale_price}
                                                 onChange={(e) => handleProductChange(index, 'sale_price', parseFloat(e.target.value))}
                                                 required
-                                            />
-                                        </div>
-                                        <div className="mt-4">
-                                            <Label htmlFor="total_price" title="Total Price"/>
-                                            <TextInput
-                                                id="total_price"
-                                                type="text"
-                                                value={`${totalPrice} Rs`}
-                                                disabled
-                                                className="w-full disabled:opacity-50"
                                             />
                                         </div>
                                     </>
@@ -170,12 +175,7 @@ const Edit = ({ customers, products, accounts, sale }) => {
 
                                 {product.product_type === 'item' && (
                                     <>
-                                        <Label
-                                            title='Quantity'
-                                            htmlFor={`quantity_${index}`}
-                                            suffix={`Available Stock: ${availableQuantity} pcs`}
-                                            suffixStyle={availableQuantity < 0 ? 'text-red-600' : 'text-gray-500'}
-                                        />
+                                        <Label title='Quantity' htmlFor={`quantity_${index}`} />
                                         <TextInput
                                             id={`quantity_${index}`}
                                             label="Quantity"
@@ -184,29 +184,16 @@ const Edit = ({ customers, products, accounts, sale }) => {
                                             onChange={(e) => handleProductChange(index, 'quantity', parseInt(e.target.value))}
                                             required
                                         />
+
                                         <div className='mt-4'>
-                                            <Label
-                                                title='Sale Price'
-                                                htmlFor={`sale_price_${index}`}
-                                                suffix={`Default Sale Price: ${selectedProduct.sale_price} Rs`}
-                                            />
+                                            <Label title='Sale Price per Item' htmlFor={`price_${index}`} />
                                             <TextInput
-                                                id={`sale_price_${index}`}
-                                                label="Sale Price"
+                                                id={`price_${index}`}
+                                                label="Price"
                                                 type="number"
                                                 value={product.sale_price}
                                                 onChange={(e) => handleProductChange(index, 'sale_price', parseFloat(e.target.value))}
                                                 required
-                                            />
-                                        </div>
-                                        <div className="mt-4">
-                                            <Label htmlFor="total_price" title="Total Price"/>
-                                            <TextInput
-                                                id="total_price"
-                                                type="text"
-                                                value={`${totalPrice} Rs`}
-                                                disabled
-                                                className="w-full disabled:opacity-50"
                                             />
                                         </div>
                                     </>
@@ -224,47 +211,27 @@ const Edit = ({ customers, products, accounts, sale }) => {
                         );
                     })}
 
-                    <div className="mb-4">
-                        <Label htmlFor="due_date" title="Due Date" />
-                        <TextInput
-                            id="due_date"
-                            type="date"
-                            value={data.due_date}
-                            onChange={(e) => setData('due_date', e.target.value)}
-                            required
-                            className='w-full'
-                        />
+                    <div className='text-center'>
+                        <h1 className='text-xl font-semibold'>Total Sale Price: {totalSalePrice}</h1>
                     </div>
 
                     <InputSelect
                         id="payment_method"
                         label="Payment Method"
                         options={[
-                            { value: 'cash', label: 'Cash' },
-                            { value: 'account', label: 'Account' },
-                            { value: 'credit', label: 'Credit' },
-                            { value: 'semi_credit', label: 'Semi Credit' }
+                            { value: 'cash', label: 'Full Cash' },
+                            { value: 'account', label: 'Full in Account' },
+                            { value: 'half_cash_half_account', label: 'Half Cash + Half in Account' },
+                            { value: 'credit', label: 'Full Credit' },
+                            { value: 'half_cash_half_credit', label: 'Half Cash + Half Credit' },
+                            { value: 'half_account_half_credit', label: 'Half in Account + Half Credit' },
                         ]}
                         onChange={(option) => setData('payment_method', option.value)}
                         value={data.payment_method}
                         required
                     />
 
-                    {data.payment_method === 'semi_credit' && (
-                        <div className="mb-4">
-                            <Label htmlFor="semi_credit_amount" title="Amount Paid" />
-                            <TextInput
-                                id="semi_credit_amount"
-                                type="number"
-                                value={data.semi_credit_amount}
-                                onChange={(e) => setData('semi_credit_amount', parseFloat(e.target.value))}
-                                required
-                                className='w-full'
-                            />
-                        </div>
-                    )}
-
-                    {data.payment_method === 'account' && (
+                    {(data.payment_method === 'account' || data.payment_method === 'half_cash_half_account' || data.payment_method === 'half_account_half_credit') && (
                         <InputSelect
                             id="account_id"
                             label="Select Account"
@@ -277,13 +244,27 @@ const Edit = ({ customers, products, accounts, sale }) => {
                         />
                     )}
 
-                    <div className="flex justify-between items-center">
-                        <BorderButton type="button" disabled={processing} onClick={handleAddProduct}>
-                            Add Product
-                        </BorderButton>
-                        <Button type="submit" disabled={processing}>
-                            {processing ? "Saving..." : "Save Changes"}
+                    {(data.payment_method === 'half_cash_half_credit' || data.payment_method === 'half_account_half_credit') && (
+                        <div className="mb-4">
+                            <Label htmlFor="amount_received" title="Amount Received" suffix={`Remaining Amount: ${remainingAmount}`} />
+                            <TextInput
+                                id="amount_received"
+                                type="number"
+                                value={data.amount_received}
+                                onChange={(e) => setData('amount_received', parseFloat(e.target.value))}
+                                required
+                                className='w-full'
+                            />
+                        </div>
+                    )}
+
+                    <div className="flex justify-end space-x-4 mt-4">
+                        <Button type="submit" processing={processing}>
+                            Update Sale
                         </Button>
+                        <BorderButton href={route('sales.index')}>
+                            Cancel
+                        </BorderButton>
                     </div>
                 </form>
             </div>
