@@ -22,7 +22,8 @@ class PurchaseResource extends JsonResource
             'total_price' => $this->total_price,
             'credit_amount' => $this->credit_amount,
             'remaining_balance' => $this->remaining_balance,
-            'payment_method' => $this->payment_method,
+            'payment_method' => $this->formatPaymentMethod($this->payment_method),
+            'exact_payment_method' => $this->payment_method,
             'total_weight' => WeightHelper::toKilos($this->products->sum('pivot.weight')),
             'total_quantity' => $this->products->sum('pivot.quantity'),
             'account_id' => $this->account_id,
@@ -50,5 +51,10 @@ class PurchaseResource extends JsonResource
         }
 
         return $data;
+    }
+
+    private function formatPaymentMethod(string $paymentMethod): string
+    {
+        return ucwords(str_replace('_', ' ', $paymentMethod));
     }
 }

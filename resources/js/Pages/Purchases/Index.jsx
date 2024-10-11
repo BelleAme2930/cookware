@@ -22,34 +22,27 @@ const Index = ({ purchases }) => {
             selector: row => row.supplier.name,
         },
         {
-            name: 'Products',
-            selector: row => row.products.length,
+            name: 'Total Weight',
+            selector: row => row.total_weight.toLocaleString() + ' KG',
         },
         {
-            name: 'Weight (kg)',
-            selector: row => row.total_weight,
-        },
-        {
-            name: 'Quantity',
-            selector: row => {
-                const quantities = row.products
-                    .filter(product => product.product_type === 'item')
-                    .map(product => product.pivot.quantity);
-
-                return quantities.every(q => q === 0) ? '-' : quantities.join(', ') || '-';
-            },
+            name: 'Total Quantity',
+            selector: row => row.total_quantity,
         },
         {
             name: 'Total Price',
-            selector: row => row.total_price,
+            selector: row => row.total_price.toLocaleString(),
         },
         {
             name: 'Purchase Date',
             selector: row => row.purchase_date,
+        },{
+            name: 'Payment Method',
+            selector: row => row.payment_method,
         },
         {
             name: 'Due Date',
-            selector: row => row.due_date,
+            selector: row => row.due_date ?? '-',
         },
         {
             name: 'Actions',
@@ -57,7 +50,7 @@ const Index = ({ purchases }) => {
                 <div className="flex space-x-2">
                     <IconButton onClick={() => router.visit(viewRoute(row.id))} icon={faEye} />
                     <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />
-                    <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />
+                    {/*<IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />*/}
                     <IconButton onClick={() => router.visit(route('purchases.invoices.show', row.id))} icon={faPrint} />
                 </div>
             )
@@ -99,7 +92,7 @@ const Index = ({ purchases }) => {
             <div className='mx-auto max-w-[96%] py-6'>
                 <CustomDataTable
                     title="Purchases"
-                    data={purchases.data}
+                    data={purchases}
                     columns={columns}
                     filterCriteria={filterCriteria}
                 />

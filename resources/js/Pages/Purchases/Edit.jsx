@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import Button from "@/Components/Button.jsx";
@@ -13,32 +13,33 @@ import Label from "@/Components/Label.jsx";
 const Edit = ({ purchase, suppliers, products, accounts }) => {
     const { data, setData, put, processing } = useForm({
         supplier_id: purchase.supplier_id,
-        products: purchase.products.map(product => ({
-            product_id: product.id,
-            product_type: product.product_type,
-            quantity: product.pivot.quantity,
-            weight: product.pivot.weight,
-            purchase_price: product.pivot.purchase_price,
+        products: purchase.products.map(prod => ({
+            product_id: prod.id,
+            product_type: prod.product_type,
+            quantity: prod.pivot.quantity,
+            weight: prod.pivot.weight,
+            purchase_price: prod.pivot.purchase_price,
         })),
-        due_date: purchase.due_date.split('T')[0],
-        payment_method: purchase.payment_method,
-        account_id: purchase.account_id || '',
+        due_date: purchase.due_date,
+        payment_method: purchase.exact_payment_method,
+        account_id: purchase.account_id,
         amount_paid: purchase.amount_paid || 0,
     });
 
-    const [productFields, setProductFields] = useState(data.products);
+    console.log(data);
 
-    useEffect(() => {
-        setData('products', productFields);
-    }, [productFields]);
+    const [productFields, setProductFields] = useState(data.products);
+    const [totalPurchasePrice, setTotalPurchasePrice] = useState(0);
+    const [remainingCredit, setRemainingCredit] = useState(0);
 
     const supplierOptions = suppliers.map(supplier => ({
         value: supplier.id,
         label: supplier.name,
     }));
 
-    const getProductOptions = (selectedProducts) => {
+    const getProductOptions = (selectedProducts, supplier_id) => {
         return products
+            .filter(product => product.supplier_id === supplier_id)
             .filter(product => !selectedProducts.includes(product.id))
             .map(product => ({
                 value: product.id,
@@ -47,15 +48,34 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
             }));
     };
 
-    const handleAddProduct = () => {
-        setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '', purchase_price: '' }]);
+    useEffect(() => {
+        calculateTotalPurchasePrice(productFields);
+    }, [productFields]);
+
+    const calculateTotalPurchasePrice = (fields) => {
+        let total = 0;
+        fields.forEach(product => {
+            if (product.product_type === 'weight') {
+                const weight = parseFloat(product.weight) || 0;
+                const pricePerKg = parseFloat(product.purchase_price) || 0;
+                total += weight * pricePerKg;
+            } else if (product.product_type === 'item') {
+                const quantity = parseInt(product.quantity) || 0;
+                const pricePerItem = parseFloat(product.purchase_price) || 0;
+                total += quantity * pricePerItem;
+            }
+        });
+        setTotalPurchasePrice(total);
+        calculateRemainingCredit(data.amount_paid, total);
     };
 
-    const handleRemoveProduct = (index) => {
-        const updatedFields = [...productFields];
-        updatedFields.splice(index, 1);
-        setProductFields(updatedFields);
+    const calculateRemainingCredit = (amountPaid, total) => {
+        setRemainingCredit(total - amountPaid);
     };
+
+    useEffect(() => {
+        calculateRemainingCredit(data.amount_paid, totalPurchasePrice);
+    }, [data.amount_paid, totalPurchasePrice]);
 
     const handleProductChange = (index, field, value) => {
         const updatedFields = [...productFields];
@@ -68,6 +88,14 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
 
         setProductFields(updatedFields);
         setData('products', updatedFields);
+    };
+
+    const handleRemoveProduct = (index) => {
+        const updatedFields = [...productFields];
+        updatedFields.splice(index, 1);
+        setProductFields(updatedFields);
+        setData('products', updatedFields);
+        calculateTotalPurchasePrice(updatedFields); // Update total price when a product is removed
     };
 
     const handleSubmit = (e) => {
@@ -101,9 +129,7 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
                             .filter((_, i) => i !== index)
                             .map(field => field.product_id);
 
-                        const filteredProductOptions = getProductOptions(selectedProductIds);
-
-                        const selectedProduct = products.find(p => p.id === product.product_id);
+                        const filteredProductOptions = getProductOptions(selectedProductIds, data.supplier_id);
 
                         return (
                             <div key={index} className={`mb-4 py-5 px-4 border border-gray-300 rounded-md relative !bg-gray-50`}>
@@ -120,7 +146,7 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
 
                                 {product.product_type === 'weight' && (
                                     <>
-                                        <Label title='Weight' htmlFor={`weight_${index}`} suffix={'Inventory: ' + selectedProduct?.weight + ' KG'} />
+                                        <Label title='Weight' htmlFor={`weight_${index}`} />
                                         <TextInput
                                             id={`weight_${index}`}
                                             label="Weight"
@@ -129,6 +155,7 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
                                             onChange={(e) => handleProductChange(index, 'weight', parseFloat(e.target.value))}
                                             required
                                         />
+
                                         <div className='mt-4'>
                                             <Label title='Purchase Price per KG' htmlFor={`price_${index}`} />
                                             <TextInput
@@ -145,7 +172,7 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
 
                                 {product.product_type === 'item' && (
                                     <>
-                                        <Label title='Quantity' htmlFor={`quantity_${index}`} suffix={'Inventory: ' + selectedProduct.quantity + ' pcs'} />
+                                        <Label title='Quantity' htmlFor={`quantity_${index}`} />
                                         <TextInput
                                             id={`quantity_${index}`}
                                             label="Quantity"
@@ -154,6 +181,7 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
                                             onChange={(e) => handleProductChange(index, 'quantity', parseInt(e.target.value))}
                                             required
                                         />
+
                                         <div className='mt-4'>
                                             <Label title='Purchase Price per Item' htmlFor={`price_${index}`} />
                                             <TextInput
@@ -180,6 +208,10 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
                         );
                     })}
 
+                    <div className='text-center'>
+                        <h1 className='text-xl font-semibold'>Total Purchase Price: {totalPurchasePrice}</h1>
+                    </div>
+
                     <InputSelect
                         id="payment_method"
                         label="Payment Method"
@@ -205,45 +237,31 @@ const Edit = ({ purchase, suppliers, products, accounts }) => {
                             onChange={(selected) => setData('account_id', selected.value)}
                             link={!accounts.length ? route('accounts.create') : null}
                             linkText="Add account?"
-                            required={data.payment_method === 'account' || data.payment_method === 'half_cash_half_account' || data.payment_method === 'half_account_half_credit'}
+                            required
                         />
                     )}
 
                     {(data.payment_method === 'half_cash_half_credit' || data.payment_method === 'half_account_half_credit') && (
                         <div className="mb-4">
-                            <Label htmlFor="amount_paid" title="Amount Paid" />
+                            <Label htmlFor="amount_paid" title="Amount Paid" suffix={`Remaining Amount: ${remainingCredit}`} />
                             <TextInput
                                 id="amount_paid"
                                 type="number"
                                 value={data.amount_paid}
                                 onChange={(e) => setData('amount_paid', parseFloat(e.target.value))}
-                                required={data.payment_method === 'half_cash_half_credit' || data.payment_method === 'half_account_half_credit'}
+                                required
                                 className='w-full'
                             />
                         </div>
                     )}
 
-                    {(data.payment_method === 'credit' || data.payment_method === 'half_cash_half_credit' || data.payment_method === 'half_account_half_credit') && (
-                        <div className="mb-4">
-                            <Label htmlFor="due_date" title="Due Date" />
-                            <TextInput
-                                id="due_date"
-                                type="date"
-                                value={data.due_date}
-                                onChange={(e) => setData('due_date', e.target.value)}
-                                required={data.payment_method === 'credit' || data.payment_method === 'half_cash_half_credit' || data.payment_method === 'half_account_half_credit'}
-                                className='w-full'
-                            />
-                        </div>
-                    )}
-
-                    <div className="flex justify-between items-center">
-                        <BorderButton type="button" onClick={handleAddProduct}>
-                            Add Product
-                        </BorderButton>
-                        <Button type="submit" disabled={processing}>
-                            {processing ? "Updating..." : "Update Purchase"}
+                    <div className="flex justify-end space-x-4 mt-4">
+                        <Button type="submit" processing={processing}>
+                            Update Purchase
                         </Button>
+                        <BorderButton href={route('purchases.index')}>
+                            Cancel
+                        </BorderButton>
                     </div>
                 </form>
             </div>

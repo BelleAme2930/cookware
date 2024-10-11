@@ -36,8 +36,9 @@ const Create = ({ suppliers, products, accounts }) => {
         label: supplier.name,
     }));
 
-    const getProductOptions = (selectedProducts) => {
+    const getProductOptions = (selectedProducts, supplier_id) => {
         return products
+            .filter(product => product.supplier_id === supplier_id)
             .filter(product => !selectedProducts.includes(product.id))
             .map(product => ({
                 value: product.id,
@@ -45,6 +46,7 @@ const Create = ({ suppliers, products, accounts }) => {
                 product_type: product.product_type,
             }));
     };
+
 
     const handleAddProduct = () => {
         setProductFields([...productFields, { product_id: '', product_type: '', quantity: 1, weight: '', purchase_price: '' }]);
@@ -110,6 +112,8 @@ const Create = ({ suppliers, products, accounts }) => {
         label: `${acc.title} - ${acc.bank_name}`,
     }));
 
+
+
     return (
         <AuthenticatedLayout header={<PageHeader title='Add New Purchase' />}>
             <Head title="Add Purchase" />
@@ -131,7 +135,7 @@ const Create = ({ suppliers, products, accounts }) => {
                             .filter((_, i) => i !== index)
                             .map(field => field.product_id);
 
-                        const filteredProductOptions = getProductOptions(selectedProductIds);
+                        const filteredProductOptions = getProductOptions(selectedProductIds, data.supplier_id);
 
                         const selectedProduct = products.find(p => p.id === product.product_id);
 
@@ -152,7 +156,7 @@ const Create = ({ suppliers, products, accounts }) => {
                                 {product.product_type === 'weight' && (
                                     <>
                                         <Label title='Weight' htmlFor={`weight_${index}`}
-                                               suffix={'Inventory: ' + selectedProduct?.weight + ' KG'}/>
+                                               suffix={selectedProduct && 'Inventory: ' + selectedProduct?.weight + ' KG'}/>
                                         <TextInput
                                             id={`weight_${index}`}
                                             label="Weight"
