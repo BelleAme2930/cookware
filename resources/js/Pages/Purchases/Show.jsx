@@ -8,7 +8,6 @@ import BorderButton from "@/Components/BorderButton.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 const Show = ({ purchase }) => {
-    console.log(purchase)
     return (
         <AuthenticatedLayout
             header={

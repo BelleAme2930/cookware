@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\SaleResource;
 use App\Models\Sale;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -19,7 +20,7 @@ class SalesInvoiceController extends Controller
         $sales = Sale::with('customer')->get();
 
         return Inertia::render('Sales/Invoices/Index', [
-            'sales' => $sales
+            'sales' => SaleResource::collection($sales)->resolve()
         ]);
     }
 
@@ -34,7 +35,7 @@ class SalesInvoiceController extends Controller
         $sale->load('customer', 'products');
 
         return Inertia::render('Sales/Invoices/Show', [
-            'sale' => $sale
+            'sale' => SaleResource::make($sale)->resolve(),
         ]);
     }
 

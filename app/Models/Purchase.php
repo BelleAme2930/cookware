@@ -10,7 +10,8 @@ class Purchase extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['due_date',
+    protected $fillable = [
+        'due_date',
         'purchase_date',
         'supplier_id',
         'payment_method',
@@ -30,5 +31,10 @@ class Purchase extends Model
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
+    }
+
+    public function account()
+    {
+        return $this->belongsTo(Account::class);
     }
 }

@@ -1,19 +1,24 @@
 import React from 'react';
 import { Head } from "@inertiajs/react";
 import Button from "@/Components/Button.jsx";
+import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
+import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
 
 const Invoice = ({ purchase }) => {
-    console.log(purchase);
     const isCredit = ['credit', 'half_cash_half_credit', 'half_account_half_credit'].includes(purchase.payment_method);
     const isAccount = ['account', 'half_cash_half_account', 'half_account_half_credit'].includes(purchase.payment_method);
 
     return (
         <div className="min-h-screen bg-gray-100 p-4">
-            <Head title={`Invoice - Purchase #INV-P-${purchase.id}`} />
+            <Head title={`Invoice - Purchase #INV-P-${purchase.id}`}/>
+
+            <div className='mb-3 print:hidden'>
+                <PrimaryIconLink href={route('dashboard')} icon={faArrowLeft}>Back to Dashboard</PrimaryIconLink>
+            </div>
 
             <div className="max-w-[2480px] w-[90%] mx-auto p-6 bg-white shadow-lg rounded-lg">
                 <div className="flex justify-between items-center mb-6">
-                    <img src="/assets/images/logo.png" alt="Company Logo" className="h-16 w-auto" />
+                    <img src="/assets/images/logo.png" alt="Company Logo" className="h-16 w-auto"/>
                     <h2 className="text-xl font-bold text-gray-800">Invoice: INV-P-{purchase.id}</h2>
                 </div>
 
@@ -63,8 +68,12 @@ const Invoice = ({ purchase }) => {
                     <tr className="bg-gray-200">
                         <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold">Product</th>
                         <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Quantity</th>
-                        <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Weight (kg)</th>
-                        <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Price per Unit</th>
+                        <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Weight
+                            (kg)
+                        </th>
+                        <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Price
+                            per Unit
+                        </th>
                         <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Total</th>
                     </tr>
                     </thead>
@@ -93,8 +102,10 @@ const Invoice = ({ purchase }) => {
                 {/* Footer */}
                 <div className="mt-12">
                     <p className="text-md mb-1"><span className="font-semibold">LG Kitchenware Showroom</span></p>
-                    <p className="text-md mb-1"><span className="font-semibold">Address:</span> Muslim Road, Opposite Mini Stadium, Gujranwala</p>
-                    <p className="text-md mb-1"><span className="font-semibold">Phone:</span> 055-4441095, 055-4298990</p>
+                    <p className="text-md mb-1"><span className="font-semibold">Address:</span> Muslim Road, Opposite
+                        Mini Stadium, Gujranwala</p>
+                    <p className="text-md mb-1"><span className="font-semibold">Phone:</span> 055-4441095, 055-4298990
+                    </p>
                 </div>
 
                 {/* Print Button */}

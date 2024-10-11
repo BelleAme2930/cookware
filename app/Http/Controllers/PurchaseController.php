@@ -16,7 +16,6 @@ use App\Models\Product;
 use App\Models\Purchase;
 use App\Models\Supplier;
 use Carbon\Carbon;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
