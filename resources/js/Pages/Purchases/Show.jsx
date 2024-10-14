@@ -69,6 +69,7 @@ const Show = ({ purchase }) => {
                             <thead>
                             <tr className="bg-gray-50">
                                 <th className="px-4 py-2 border">Product Name</th>
+                                <th className="px-4 py-2 border">Size</th>
                                 <th className="px-4 py-2 border">Type</th>
                                 <th className="px-4 py-2 border">Quantity</th>
                                 <th className="px-4 py-2 border">Weight</th>
@@ -79,9 +80,26 @@ const Show = ({ purchase }) => {
                             {purchase.products.map((product, index) => (
                                 <tr key={index} className="text-center">
                                     <td className="px-4 py-2 border">{product.name}</td>
+                                    {/*<td className="px-4 py-2 border">*/}
+                                    {/*    {Object.entries(product.sizes)*/}
+                                    {/*        .map(([size, quantity]) => `${size} / ${quantity}`)*/}
+                                    {/*        .join(', ')}*/}
+                                    {/*</td>*/}
+                                    <td>
+                                        <div className='flex gap-1 justify-center'>
+                                            <div className='flex flex-col justify-center'>
+                                                <div className='border-b border-black w-8 mx-auto'>1</div>
+                                                <div>6</div>
+                                            </div>
+                                            <div className='flex flex-col justify-center'>
+                                                <div className='border-b border-black w-8 mx-auto'>2</div>
+                                                <div>3</div>
+                                            </div>
+                                        </div>
+                                    </td>
                                     <td className="px-4 py-2 border capitalize">{product.product_type}</td>
                                     <td className="px-4 py-2 border">
-                                        {product.pivot.quantity}
+                                    {product.pivot.quantity}
                                     </td>
                                     <td className="px-4 py-2 border">
                                         {product.pivot.weight + ' KG'}

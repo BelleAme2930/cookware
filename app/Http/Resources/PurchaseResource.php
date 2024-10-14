@@ -37,6 +37,7 @@ class PurchaseResource extends JsonResource
 
         if ($this->relationLoaded('products')) {
             $data['products'] = $this->products->map(function($product) {
+                $sizes = json_decode($product->sizes, true);
                 return [
                     'id' => $product->id,
                     'name' => $product->name,
@@ -46,12 +47,14 @@ class PurchaseResource extends JsonResource
                         'weight' => WeightHelper::toKilos($product->pivot->weight) ?? null,
                         'purchase_price' => $product->pivot->purchase_price,
                     ],
+                    'sizes' => $sizes,
                 ];
             });
         }
 
         return $data;
     }
+
 
     private function formatPaymentMethod(string $paymentMethod): string
     {

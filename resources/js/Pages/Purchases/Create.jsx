@@ -11,6 +11,7 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 import Label from "@/Components/Label.jsx";
 
 const Create = ({ suppliers, products, accounts }) => {
+    console.log(products)
     const { data, setData, post, processing } = useForm({
         supplier_id: '',
         products: [],
@@ -62,11 +63,17 @@ const Create = ({ suppliers, products, accounts }) => {
 
     const handleProductChange = (index, field, value) => {
         const updatedFields = [...productFields];
-        updatedFields[index][field] = value;
+        if (field === 'sizes') {
+            updatedFields[index].sizes = value;
+        } else {
+            updatedFields[index][field] = value;
 
-        if (field === 'product_id') {
-            const selectedProduct = products.find(product => product.id === value);
-            updatedFields[index]['product_type'] = selectedProduct ? selectedProduct.product_type : '';
+            if (field === 'product_id') {
+                const selectedProduct = products.find(product => product.id === value);
+                updatedFields[index]['product_type'] = selectedProduct ? selectedProduct.product_type : '';
+                // Initialize sizes for the selected product
+                updatedFields[index].sizes = selectedProduct.sizes ? Object.keys(selectedProduct.sizes).reduce((acc, size) => ({ ...acc, [size]: 0 }), {}) : {};
+            }
         }
 
         // Update total purchase price based on weight or purchase price changes
@@ -75,6 +82,7 @@ const Create = ({ suppliers, products, accounts }) => {
         setProductFields(updatedFields);
         setData('products', updatedFields);
     };
+
 
     const calculateTotalPurchasePrice = (fields) => {
         let total = 0;
@@ -153,6 +161,25 @@ const Create = ({ suppliers, products, accounts }) => {
                                     required
                                 />
 
+                                {selectedProduct && (
+                                    <>
+                                        <Label title='Sizes and Quantities' />
+                                        {Object.entries(selectedProduct.sizes).map(([sizeId, sizeQuantity]) => (
+                                            <div key={sizeId}>
+                                                <Label title={`Size ${sizeId}`} />
+                                                <TextInput
+                                                    type="number"
+                                                    value={product.sizes[sizeId] || 0}
+                                                    onChange={(e) => {
+                                                        const updatedSizes = { ...product.sizes, [sizeId]: parseInt(e.target.value) };
+                                                        handleProductChange(index, 'sizes', updatedSizes);
+                                                    }}
+                                                />
+                                            </div>
+                                        ))}
+                                    </>
+                                )}
+
                                 {product.product_type === 'weight' && (
                                     <>
                                         <Label title='Weight' htmlFor={`weight_${index}`}
@@ -227,12 +254,13 @@ const Create = ({ suppliers, products, accounts }) => {
                         id="payment_method"
                         label="Payment Method"
                         options={[
-                            {value: 'cash', label: 'Full Cash'},
-                            {value: 'account', label: 'Full in Account'},
-                            {value: 'half_cash_half_account', label: 'Half Cash + Half in Account'},
-                            {value: 'credit', label: 'Full Credit'},
-                            {value: 'half_cash_half_credit', label: 'Half Cash + Half Credit'},
-                            {value: 'half_account_half_credit', label: 'Half in Account + Half Credit'},
+                            {value: 'cash', label: 'Cash'},
+                            {value: 'account', label: 'Account'},
+                            {value: 'half_cash_half_account', label: 'Cash + Account'},
+                            {value: 'credit', label: 'Credit'},
+                            {value: 'half_cash_half_credit', label: 'Cash + Credit'},
+                            {value: 'half_account_half_credit', label: 'Account + Credit'},
+                            {value: 'half_account_half_credit', label: 'Cash + Account + Credit'},
                         ]}
                         onChange={(option) => setData('payment_method', option.value)}
                         value={data.payment_method}

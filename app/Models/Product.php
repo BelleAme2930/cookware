@@ -20,6 +20,7 @@ class Product extends Model
         'sale_price',
         'weight_per_item',
         'image',
+        'sizes',
     ];
 
     public function category(): BelongsTo

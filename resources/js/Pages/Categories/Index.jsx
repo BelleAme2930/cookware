@@ -2,7 +2,7 @@ import React from 'react';
 import CustomDataTable from "@/Components/CustomDataTable.jsx";
 import { Head } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import { faAdd, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {faAdd, faEdit, faEye, faTrash} from "@fortawesome/free-solid-svg-icons";
 import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 import IconButton from "@/Components/IconButton.jsx";
 import { toast } from "react-toastify";
@@ -12,6 +12,7 @@ const Index = ({ categories }) => {
 
     const editRoute = (id) => route('categories.edit', id);
     const deleteRoute = (id) => route('categories.destroy', id);
+    const viewRoute = (id) => route('categories.show', id);
 
     const columns = [
         {name: 'Name', selector: row => row.name},
@@ -22,6 +23,7 @@ const Index = ({ categories }) => {
             name: 'Actions',
             cell: row => (
                 <div className="flex space-x-2">
+                    <IconButton onClick={() => router.visit(viewRoute(row.id))} icon={faEye} />
                     <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />
                     <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />
                 </div>

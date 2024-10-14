@@ -35,6 +35,7 @@ class StorePurchaseRequest extends FormRequest
             'payment_method' => 'required|string',
             'account_id' => 'nullable|exists:accounts,id',
             'amount_paid' => 'nullable|integer|min:0',
+            'products.*.sizes.*' => 'integer|min:0',
         ];
     }
 }

@@ -39,9 +39,11 @@ class ProductController extends Controller
             'name' => 'required|string|max:255|unique:products,name',
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'sale_price' => 'required|numeric|min:1',
+            'sale_price' => 'nullable|numeric|min:1',
             'product_type' => 'required|string',
-            'weight_per_item' => 'required|integer',
+            'weight_per_item' => 'nullable|integer',
+            'sizes' => 'required|array',
+            'sizes.*' => 'integer|min:0',
         ]);
 
         Product::create([
@@ -51,8 +53,9 @@ class ProductController extends Controller
             'sale_price' => $request->sale_price,
             'weight' => 0,
             'quantity' => 0,
-            'weight_per_item' => WeightHelper::toGrams($request->weight_per_item),
+//            'weight_per_item' => WeightHelper::toGrams($request->weight_per_item),
             'product_type' => $request->product_type,
+            'sizes' => json_encode($request->sizes), // Store the sizes as JSON
         ]);
 
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
@@ -61,7 +64,7 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        $product->weight_per_unit_kilos = WeightHelper::toKilos($product->weight_per_unit);
+        $product->load(['category', 'supplier']);
         return Inertia::render('Products/Show', [
             'product' => $product,
         ]);

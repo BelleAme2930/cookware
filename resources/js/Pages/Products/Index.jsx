@@ -1,17 +1,18 @@
 import React from 'react';
-import { Head } from '@inertiajs/react';
+import {Head} from '@inertiajs/react';
 import CustomDataTable from "@/Components/CustomDataTable.jsx";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import { faAdd, faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
+import {faAdd, faEdit, faEye, faTrash} from "@fortawesome/free-solid-svg-icons";
 import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 import IconButton from "@/Components/IconButton.jsx";
-import { toast } from "react-toastify";
-import { router } from '@inertiajs/core';
+import {toast} from "react-toastify";
+import {router} from '@inertiajs/core';
 
-const Index = ({ products }) => {
+const Index = ({products}) => {
 
     const editRoute = (id) => route('products.edit', id);
     const deleteRoute = (id) => route('products.destroy', id);
+    const showRoute = (id) => route('products.show', id);
 
     const columns = [
         {
@@ -56,7 +57,8 @@ const Index = ({ products }) => {
             name: 'Actions',
             cell: row => (
                 <div className="flex space-x-2">
-                <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />
+                    <IconButton onClick={() => router.visit(showRoute(row.id))} icon={faEye}/>
+                    <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit}/>
                     <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash}/>
                 </div>
             )
@@ -64,10 +66,10 @@ const Index = ({ products }) => {
     ];
 
     const filterCriteria = [
-        { selector: row => row.name },
-        { selector: row => row.category.name },
-        { selector: row => row.supplier.name },
-        { selector: row => row.product_type },
+        {selector: row => row.name},
+        {selector: row => row.category.name},
+        {selector: row => row.supplier.name},
+        {selector: row => row.product_type},
     ];
 
 
@@ -93,7 +95,7 @@ const Index = ({ products }) => {
                 </div>
             }
         >
-            <Head title="Products" />
+            <Head title="Products"/>
             <div className='mx-auto w-full max-w-[96%] py-6'>
                 <CustomDataTable
                     title="Products"

@@ -6,6 +6,7 @@ import Label from "@/Components/Label.jsx";
 import Button from "@/Components/Button.jsx";
 import { toast } from "react-toastify";
 import ShadowBox from "@/Components/ShadowBox.jsx";
+import InputSelect from "@/Components/InputSelect.jsx";
 
 const Create = () => {
     const { data, setData, post, errors, processing, reset } = useForm({
@@ -26,6 +27,17 @@ const Create = () => {
             },
         });
     };
+
+    // Options for the bank_name select input
+    const bankOptions = [
+        { value: 'Bank Alfalah', label: 'Bank Alfalah' },
+        { value: 'HBL Bank', label: 'HBL Bank' },
+        { value: 'UBL Bank', label: 'UBL Bank' },
+        { value: 'Meezan Bank', label: 'Meezan Bank' },
+        { value: 'Jazzcash', label: 'Jazzcash' },
+        { value: 'Easypaisa', label: 'Easypaisa' },
+        { value: 'Nayapay', label: 'Nayapay' },
+    ];
 
     return (
         <AuthenticatedLayout
@@ -61,14 +73,17 @@ const Create = () => {
                                 <div className="text-red-600 text-sm">{errors.account_number}</div>}
                         </div>
                         <div className="mb-4">
-                            <Label title='Bank Name' required={true} htmlFor='bank_name'/>
-                            <TextInput
+                            <InputSelect
                                 id="bank_name"
+                                label="Bank Name"
+                                options={bankOptions}
                                 value={data.bank_name}
-                                onChange={(e) => setData('bank_name', e.target.value)}
-                                className={`w-full ${errors.bank_name ? 'border-red-600' : ''}`}
+                                onChange={(option) => setData('bank_name', option ? option.value : '')}
+                                error={!!errors.bank_name}
+                                required={true}
+                                errorMsg={errors.bank_name}
+                                className="w-full"
                             />
-                            {errors.bank_name && <div className="text-red-600 text-sm">{errors.bank_name}</div>}
                         </div>
                         <Button type="submit" disabled={processing}>
                             Add Account

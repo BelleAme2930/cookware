@@ -25,8 +25,8 @@ class AccountController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255|unique:accounts,title',
-            'account_number' => 'required|string|max:255|unique:accounts,account_number',
+            'title' => 'required|string|max:255',
+            'account_number' => 'required|string|max:255',
             'bank_name' => 'required|string|max:255',
             'account_type' => 'nullable|string|max:255',
             'balance' => 'nullable|numeric',
@@ -48,8 +48,8 @@ class AccountController extends Controller
     public function update(Request $request, Account $account)
     {
         $validated = $request->validate([
-            'title' => 'required|string|max:255|unique:accounts,title,' . $account->id,
-            'account_number' => 'required|string|max:255|unique:accounts,account_number,' . $account->id,
+            'title' => 'required|string|max:255',
+            'account_number' => 'required|string|max:255',
             'bank_name' => 'required|string|max:255',
             'account_type' => 'nullable|string|max:255',
             'balance' => 'nullable|numeric',

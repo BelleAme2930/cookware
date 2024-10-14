@@ -24,6 +24,7 @@ class ProductResource extends JsonResource
             'weight' => WeightHelper::toKilos($this->weight ?? 0) ?? 0,
             'weight_per_item' => WeightHelper::toKilos($this->weight_per_item ?? 0) ?? 0,
             'quantity' => $this->quantity ?? 0,
+            'sizes' => json_decode($this->sizes),
             'product_type' => $this->product_type,
             'sale_price' => $this->sale_price,
             'total_stock_price' => $this->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toKilos($this->weight) * $this->sale_price : $this->quantity * $this->sale_price,
