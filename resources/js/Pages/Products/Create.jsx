@@ -8,20 +8,19 @@ import InputSelect from "@/Components/InputSelect.jsx";
 import Label from "@/Components/Label.jsx";
 import ShadowBox from "@/Components/ShadowBox.jsx";
 import IconButton from "@/Components/IconButton.jsx";
-import {faAdd} from "@fortawesome/free-solid-svg-icons";
+import { faAdd, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 const Create = ({ categories, suppliers }) => {
     const { data, setData, post, errors, processing, reset } = useForm({
         name: '',
         category_id: '',
         supplier_id: '',
-        sale_price: 1,
         product_type: 'weight',
         weight_per_item: 1,
-        sizes: {}, // Object to hold size and its initial quantity
+        sizes: [],
     });
 
-    const [newSize, setNewSize] = useState(''); // To hold the value of the new size input
+    const [newSize, setNewSize] = useState('');
 
     const categoryOptions = categories.map(cat => ({
         value: cat.id,
@@ -39,21 +38,26 @@ const Create = ({ categories, suppliers }) => {
             return;
         }
 
-        if (data.sizes.hasOwnProperty(newSize)) {
+        if (data.sizes.some(size => size.size === newSize)) {
             toast.error('Size already exists');
             return;
         }
 
-        setData('sizes', {
+        setData('sizes', [
             ...data.sizes,
-            [newSize]: 0, // Initialize the new size with a quantity of zero
-        });
-        setNewSize(''); // Clear the input field after adding
+            { size: newSize, sale_price: 0 },
+        ]);
+        setNewSize('');
     };
 
-    const removeSize = (size) => {
-        const updatedSizes = { ...data.sizes };
-        delete updatedSizes[size];
+    const removeSize = (sizeToRemove) => {
+        const updatedSizes = data.sizes.filter(sizeObj => sizeObj.size !== sizeToRemove);
+        setData('sizes', updatedSizes);
+    };
+
+    const updateSalePrice = (index, newPrice) => {
+        const updatedSizes = [...data.sizes];
+        updatedSizes[index].sale_price = newPrice;
         setData('sizes', updatedSizes);
     };
 
@@ -95,6 +99,7 @@ const Create = ({ categories, suppliers }) => {
                                 />
                                 {errors.name && <div className="text-red-600 text-sm">{errors.name}</div>}
                             </div>
+
                             <InputSelect
                                 id="category_id"
                                 label="Category"
@@ -121,8 +126,8 @@ const Create = ({ categories, suppliers }) => {
                                 id="product_type"
                                 label="Product Type"
                                 options={[
-                                    {label: 'Per KG', value: 'weight'},
-                                    {label: 'Per Item', value: 'item'},
+                                    { label: 'Per KG', value: 'weight' },
+                                    { label: 'Per Item', value: 'item' },
                                 ]}
                                 value={data.product_type}
                                 onChange={(value) => setData('product_type', value.value)}
@@ -137,25 +142,12 @@ const Create = ({ categories, suppliers }) => {
                                         id="weight_per_item"
                                         value={data.weight_per_item}
                                         onChange={(e) => setData('weight_per_item', parseInt(e.target.value))}
-                                        // required={data.product_type === 'weight'}
                                         className={`w-full ${errors.weight_per_item ? 'border-red-600' : ''}`}
                                     />
                                     {errors.weight_per_item &&
                                         <div className="text-red-600 text-sm">{errors.weight_per_item}</div>}
                                 </div>
                             )}
-
-                            <div className="mb-4 w-full">
-                                <Label htmlFor='sale_price' required title='Sale Price' suffix='Rs'/>
-                                <TextInput
-                                    type="number"
-                                    id="sale_price"
-                                    value={data.sale_price}
-                                    onChange={(e) => setData('sale_price', parseInt(e.target.value))}
-                                    className={`w-full ${errors.sale_price ? 'border-red-600' : ''}`}
-                                />
-                                {errors.sale_price && <div className="text-red-600 text-sm">{errors.sale_price}</div>}
-                            </div>
 
                             {/* Size Input and Add Button */}
                             <div className="mb-4 w-full">
@@ -172,23 +164,37 @@ const Create = ({ categories, suppliers }) => {
                             </div>
 
                             {/* Display added sizes */}
-                            {Object.keys(data.sizes).length > 0 && (
+                            {data.sizes.length > 0 && (
                                 <div className="mb-4 w-full">
-                                    <Label title='Sizes'/>
-                                    <div className="flex flex-wrap gap-2">
-                                        {Object.keys(data.sizes).map(size => (
+                                    <Label title='Sizes & Prices'/>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {data.sizes.map((sizeObj, index) => (
                                             <div
-                                                key={size}
-                                                className="flex items-center bg-gray-200 px-2 py-1 rounded"
+                                                key={index}
+                                                className="flex flex-col bg-white shadow-md p-4 rounded-lg border border-gray-300"
                                             >
-                                                <span className="mr-2">{size}</span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeSize(size)}
-                                                    className="text-red-600"
-                                                >
-                                                    &times;
-                                                </button>
+                                                <div className="flex justify-between items-center mb-2">
+                                                    <span className="text-sm font-semibold text-gray-700">
+                                                        Size: {sizeObj.size}
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => removeSize(sizeObj.size)}
+                                                        className="text-red-500 hover:text-red-700"
+                                                    >
+                                                        <i className="fa fa-trash" aria-hidden="true"></i>
+                                                    </button>
+                                                </div>
+                                                <div className="flex items-center">
+                                                    <span className="text-sm text-gray-600 mr-2">Price:</span>
+                                                    <TextInput
+                                                        type="number"
+                                                        value={sizeObj.sale_price}
+                                                        onChange={(e) => updateSalePrice(index, parseInt(e.target.value))}
+                                                        placeholder="Enter price"
+                                                        className="w-full border rounded px-2 py-1"
+                                                    />
+                                                </div>
                                             </div>
                                         ))}
                                     </div>

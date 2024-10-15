@@ -20,7 +20,6 @@ class Product extends Model
         'sale_price',
         'weight_per_item',
         'image',
-        'sizes',
     ];
 
     public function category(): BelongsTo
@@ -38,6 +37,11 @@ class Product extends Model
         return $this->belongsToMany(Sale::class, 'product_sale')
             ->withPivot('quantity', 'weight', 'total_price')
             ->withTimestamps();
+    }
+
+    public function sizes()
+    {
+        return $this->hasMany(ProductSize::class);
     }
 
 }

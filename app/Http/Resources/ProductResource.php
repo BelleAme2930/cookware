@@ -21,23 +21,18 @@ class ProductResource extends JsonResource
             'category_id' => $this->category_id,
             'supplier_id' => $this->supplier_id,
             'name' => $this->name,
-            'weight' => WeightHelper::toKilos($this->weight ?? 0) ?? 0,
-            'weight_per_item' => WeightHelper::toKilos($this->weight_per_item ?? 0) ?? 0,
-            'quantity' => $this->quantity ?? 0,
-            'sizes' => json_decode($this->sizes),
             'product_type' => $this->product_type,
-            'sale_price' => $this->sale_price,
-            'total_stock_price' => $this->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toKilos($this->weight) * $this->sale_price : $this->quantity * $this->sale_price,
+            'weight' => WeightHelper::toKilos($this->weight ?? 0) ?? 0,
+            'quantity' => $this->quantity ?? 0,
+            'weight_per_item' => WeightHelper::toKilos($this->weight_per_item ?? 0) ?? 0,
+//            'sale_price' => $this->sale_price,
+//            'total_stock_price' => $this->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toKilos($this->weight) * $this->sale_price : $this->quantity * $this->sale_price,
             'created_at' => $this->created_at->format('Y-m-d'),
             'updated_at' => $this->updated_at->format('Y-m-d'),
         ];
 
-        if ($this->relationLoaded('category')) {
-            $data['category'] = CategoryResource::make($this->category)->resolve();
-        }
-
-        if ($this->relationLoaded('supplier')) {
-            $data['supplier'] = SupplierResource::make($this->supplier)->resolve();
+        if ($this->relationLoaded('sizes')) {
+            $data['sizes'] = ProductSizeResource::collection($this->sizes)->resolve();
         }
 
         return $data;

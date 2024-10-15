@@ -20,15 +20,7 @@ const Index = ({products}) => {
             selector: row => row.name,
         },
         {
-            name: 'Category',
-            selector: row => row.category.name,
-        },
-        {
-            name: 'Supplier',
-            selector: row => row.supplier.name,
-        },
-        {
-            name: 'Weight (kg)',
+            name: 'Weight',
             selector: row =>
                 row.product_type === 'item' && row.weight > 0 ? `~${row.weight}` : row.weight,
         },
@@ -38,20 +30,11 @@ const Index = ({products}) => {
                 row.product_type === 'weight' && row.quantity > 0 ? `~${row.quantity}` : row.quantity,
         },
         {
-            name: 'Sale Price',
-            selector: row => row.sale_price + ' Rs',
-        },
-        {
-            name: 'Type',
-            selector: row => (
-                <div className="capitalize">
-                    {row.product_type === 'weight' ? 'Per KG' : 'Per Item'}
-                </div>
-            ),
-        },
-        {
-            name: 'Total Stock Price',
-            selector: row => row.total_stock_price,
+            name: 'Sizes',
+            selector: row =>
+                row.sizes && row.sizes.length > 0
+                    ? row.sizes.map(size => size.size).join(', ')
+                    : '-',
         },
         {
             name: 'Actions',

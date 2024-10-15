@@ -17,7 +17,8 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with(['category', 'supplier'])->get();
+        $products = Product::with(['sizes'])->get();
+
         return Inertia::render('Products/Index', [
             'products' => ProductResource::collection($products)->resolve(),
         ]);
@@ -28,8 +29,8 @@ class ProductController extends Controller
         $categories = Category::all();
         $suppliers = Supplier::all();
         return Inertia::render('Products/Create', [
-            'categories' => $categories,
-            'suppliers' => $suppliers,
+            'categories' => CategoryResource::collection($categories)->resolve(),
+            'suppliers' => SupplierResource::collection($suppliers)->resolve(),
         ]);
     }
 
@@ -39,34 +40,39 @@ class ProductController extends Controller
             'name' => 'required|string|max:255|unique:products,name',
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
-            'sale_price' => 'nullable|numeric|min:1',
             'product_type' => 'required|string',
             'weight_per_item' => 'nullable|integer',
             'sizes' => 'required|array',
-            'sizes.*' => 'integer|min:0',
+            'sizes.*.size' => 'required|string',
+            'sizes.*.sale_price' => 'required|integer|min:0',
         ]);
 
-        Product::create([
+        $product = Product::create([
             'category_id' => $request->category_id,
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
-            'sale_price' => $request->sale_price,
             'weight' => 0,
             'quantity' => 0,
-//            'weight_per_item' => WeightHelper::toGrams($request->weight_per_item),
             'product_type' => $request->product_type,
-            'sizes' => json_encode($request->sizes), // Store the sizes as JSON
+            'weight_per_item' => $request->weight_per_item,
         ]);
+
+        foreach ($request->sizes as $size) {
+            $product->sizes()->create([
+                'size' => $size['size'],
+                'sale_price' => $size['sale_price'],
+            ]);
+        }
 
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }
 
-
     public function show(Product $product)
     {
-        $product->load(['category', 'supplier']);
+        $product->load(['category', 'supplier', 'sizes']);
+
         return Inertia::render('Products/Show', [
-            'product' => $product,
+            'product' => ProductResource::make($product)->resolve(),
         ]);
     }
 
@@ -75,7 +81,7 @@ class ProductController extends Controller
         $categories = Category::all();
         $suppliers = Supplier::all();
 
-        $product->load(['category', 'supplier']);
+        $product->load(['category', 'supplier', 'sizes']);
 
         return Inertia::render('Products/Edit', [
             'product' => ProductResource::make($product)->resolve(),
@@ -110,8 +116,6 @@ class ProductController extends Controller
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
-
-
 
     public function destroy(Product $product)
     {
