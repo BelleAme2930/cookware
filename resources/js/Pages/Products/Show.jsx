@@ -1,102 +1,80 @@
 import React from 'react';
-import { Head } from '@inertiajs/react';
+import {Head} from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import { faEdit, faTrash } from "@fortawesome/free-solid-svg-icons";
-import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
-import IconButton from "@/Components/IconButton.jsx";
-import { toast } from "react-toastify";
-import { router } from '@inertiajs/core';
+import ShadowBox from "@/Components/ShadowBox.jsx";
 
-const Show = ({ product }) => {
-    console.log(product)
-    const editRoute = (id) => route('products.edit', id);
-    const deleteRoute = (id) => route('products.destroy', id);
-
-    // Parse sizes JSON string into a JavaScript object
-    const sizes = product.sizes ? JSON.parse(product.sizes) : {};
-
-    const confirmDelete = (id) => {
-        if (window.confirm("Are you sure you want to delete this product?")) {
-            router.delete(deleteRoute(id), {
-                onSuccess: () => {
-                    toast.success('Product deleted successfully.');
-                },
-                onError: () => {
-                    toast.error('Failed to delete product.');
-                },
-            });
-        }
-    };
-
+const Show = ({product}) => {
     return (
         <AuthenticatedLayout
             header={
                 <div className='flex items-center justify-between'>
-                    <h2 className="text-lg font-semibold text-gray-800">{`Product: ${product.name}`}</h2>
-                    <div className="flex space-x-2">
-                        <PrimaryIconLink href={editRoute(product.id)} icon={faEdit}>Edit Product</PrimaryIconLink>
-                        <IconButton onClick={() => confirmDelete(product.id)} icon={faTrash} />
-                    </div>
+                    <h2 className="text-lg leading-tight text-gray-800">Product Details</h2>
                 </div>
             }
         >
-            <Head title={`Product - ${product.name}`} />
-            <div className='mx-auto max-w-[900px] py-6 space-y-6'>
-                {/* Product Details Card */}
-                <div className="bg-white shadow-md rounded-lg p-6">
-                    <h3 className="text-xl font-bold mb-4 text-primary-500">Product Details</h3>
-                    <div className="grid grid-cols-2 gap-4">
+            <Head title={`Product: ${product.name}`}/>
+            <div className="max-w-[900px] mx-auto p-4">
+                <ShadowBox>
+                    <div className="mb-4">
+                        <h3 className="text-xl font-semibold text-gray-700 mb-4 text-center">{product.name}</h3>
                         <div>
-                            <p className="text-gray-600"><strong>Name:</strong> {product.name}</p>
-                            <p className="text-gray-600"><strong>Product Type:</strong> {product.product_type === 'weight' ? 'Per KG' : 'Per Item'}</p>
-                            <p className="text-gray-600"><strong>Weight (kg):</strong> {product.weight}</p>
-                            <p className="text-gray-600"><strong>Quantity:</strong> {product.quantity}</p>
-                        </div>
-                        <div>
-                            <p className="text-gray-600"><strong>Sale Price:</strong> {product.sale_price} Rs</p>
-                            <p className="text-gray-600"><strong>Total Stock Price:</strong> {product.total_stock_price} Rs</p>
-                            <p className="text-gray-600"><strong>Created At:</strong> {new Date(product.created_at).toLocaleDateString()}</p>
+                            <h4 className="text-lg font-semibold text-gray-700 mb-2">Product Details</h4>
+                            <div className='bg-white shadow-sm p-4 rounded-lg border border-gray-200 flex'>
+                                <div className='w-full md:w-1/2'>
+                                    <div className="text-gray-600 mb-2">
+                                        <strong>Category:</strong> {product.category ? product.category.name : 'N/A'}
+                                    </div>
+                                    <div className="text-gray-600 mb-2">
+                                        <strong>Supplier:</strong> {product.supplier ? product.supplier.name : 'N/A'}
+                                    </div>
+                                    <div className="text-gray-600 mb-2">
+                                        <strong>Product
+                                            Type:</strong> {product.product_type === 'weight' ? 'Per KG' : 'Per Item'}
+                                    </div>
+                                    <div className="text-gray-600">
+                                        <strong>Available Sizes:</strong> {product.sizes.length > 0 ? product.sizes.map(size => size.size).join(', ') : 'No sizes available'}
+                                    </div>
+                                </div>
+                                <div className='w-full md:w-1/2'>
+                                        <div className="text-gray-600 mb-2">
+                                            <strong>Total Available Weight:</strong> {product.weight} KG
+                                        </div>
+                                    {product.product_type === 'weight' && (
+                                        <div className="text-gray-600 mb-2">
+                                            <strong>Total Available Quantity:</strong> {product.quantity} Pcs
+                                        </div>
+                                    )}
+                                    {product.product_type === 'weight' && (
+                                        <div className="text-gray-600">
+                                            <strong>Weight Per Item:</strong> {product.weight_per_item} KG
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Sizes Information Card */}
-                <div className="bg-white shadow-md rounded-lg p-6">
-                    <h3 className="text-xl font-bold mb-4 text-primary-500">Sizes</h3>
-                    <div className="grid grid-cols-1 gap-2">
-                        {Object.keys(sizes).length > 0 ? (
-                            <ul className="list-disc pl-5 text-gray-600">
-                                {Object.entries(sizes).map(([size, quantity]) => (
-                                    <li key={size}>
-                                        <strong>Size {size}:</strong> {quantity} available
-                                    </li>
+                    {product.sizes.length > 0 && (
+                        <div className="mb-4">
+                            <h4 className="text-lg font-semibold text-gray-700 mb-2">Size & Price Details</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {product.sizes.map((sizeObj, index) => (
+                                    <div
+                                        key={index}
+                                        className="flex flex-col bg-white shadow-sm p-4 rounded-lg border border-gray-200"
+                                    >
+                                        <div className="flex justify-between items-center">
+                                            <div className='text-md text-gray-700'>
+                                                <div className='mb-1'><strong>Size: </strong>{sizeObj.size}</div>
+                                                <div><strong>Price: </strong>{sizeObj.sale_price} Rs</div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 ))}
-                            </ul>
-                        ) : (
-                            <p className="text-gray-600">No sizes available</p>
-                        )}
-                    </div>
-                </div>
-
-                {/* Category Information Card */}
-                <div className="bg-white shadow-md rounded-lg p-6">
-                    <h3 className="text-xl font-bold mb-4 text-primary-500">Category Information</h3>
-                    <div className="grid grid-cols-1 gap-2">
-                        <p className="text-gray-600"><strong>Name:</strong> {product.category.name}</p>
-                        <p className="text-gray-600"><strong>Description:</strong> {product.category.description || 'No description available'}</p>
-                    </div>
-                </div>
-
-                {/* Supplier Information Card */}
-                <div className="bg-white shadow-md rounded-lg p-6">
-                    <h3 className="text-xl font-bold mb-4 text-primary-500">Supplier Information</h3>
-                    <div className="grid grid-cols-1 gap-2">
-                        <p className="text-gray-600"><strong>Name:</strong> {product.supplier.name}</p>
-                        <p className="text-gray-600"><strong>Email:</strong> {product.supplier.email}</p>
-                        <p className="text-gray-600"><strong>Phone:</strong> {product.supplier.phone}</p>
-                        <p className="text-gray-600"><strong>Address:</strong> {product.supplier.address}</p>
-                    </div>
-                </div>
+                            </div>
+                        </div>
+                    )}
+                </ShadowBox>
             </div>
         </AuthenticatedLayout>
     );

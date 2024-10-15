@@ -25,14 +25,20 @@ class ProductResource extends JsonResource
             'weight' => WeightHelper::toKilos($this->weight ?? 0) ?? 0,
             'quantity' => $this->quantity ?? 0,
             'weight_per_item' => WeightHelper::toKilos($this->weight_per_item ?? 0) ?? 0,
-//            'sale_price' => $this->sale_price,
-//            'total_stock_price' => $this->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toKilos($this->weight) * $this->sale_price : $this->quantity * $this->sale_price,
             'created_at' => $this->created_at->format('Y-m-d'),
             'updated_at' => $this->updated_at->format('Y-m-d'),
         ];
 
         if ($this->relationLoaded('sizes')) {
             $data['sizes'] = ProductSizeResource::collection($this->sizes)->resolve();
+        }
+
+        if ($this->relationLoaded('category')) {
+            $data['category'] = CategoryResource::make($this->category)->resolve();
+        }
+
+        if ($this->relationLoaded('supplier')) {
+            $data['supplier'] = SupplierResource::make($this->supplier)->resolve();
         }
 
         return $data;
