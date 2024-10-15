@@ -41,9 +41,9 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
             'product_type' => 'required|string',
-            'weight_per_item' => 'nullable|integer',
             'sizes' => 'required|array',
             'sizes.*.size' => 'required|string',
+            'sizes.*.weight' => 'required|integer',
             'sizes.*.sale_price' => 'required|integer|min:0',
         ]);
 
@@ -54,13 +54,13 @@ class ProductController extends Controller
             'weight' => 0,
             'quantity' => 0,
             'product_type' => $request->product_type,
-            'weight_per_item' => WeightHelper::toGrams($request->weight_per_item),
         ]);
 
         foreach ($request->sizes as $size) {
             $product->sizes()->create([
                 'size' => $size['size'],
                 'sale_price' => $size['sale_price'],
+                'weight' => WeightHelper::toGrams($size['weight']),
             ]);
         }
 
