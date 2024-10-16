@@ -34,8 +34,13 @@ const Create = ({ categories, suppliers }) => {
     }));
 
     const addSize = () => {
-        if (newSize.trim() === '' || newWeight.trim() === '' || newSalePrice.trim() === '') {
-            toast.error('Size, weight, and sale price cannot be empty');
+        if (newSize.trim() === '' || newSalePrice.trim() === '') {
+            toast.error('Size and sale price cannot be empty');
+            return;
+        }
+
+        if (data.product_type === 'weight' && newWeight.trim() === '') {
+            toast.error('Weight cannot be empty for a weight-based product');
             return;
         }
 
@@ -44,14 +49,21 @@ const Create = ({ categories, suppliers }) => {
             return;
         }
 
-        setData('sizes', [
-            ...data.sizes,
-            { size: newSize, weight: parseInt(newWeight), sale_price: parseFloat(newSalePrice) },
-        ]);
+        const newSizeData = {
+            size: newSize,
+            sale_price: newSalePrice,
+        };
+
+        if (data.product_type === 'weight') {
+            newSizeData.weight = newWeight;
+        }
+
+        setData('sizes', [...data.sizes, newSizeData]);
         setNewSize('');
         setNewWeight('');
         setNewSalePrice('');
     };
+
 
     const removeSize = (sizeToRemove) => {
         const updatedSizes = data.sizes.filter(sizeObj => sizeObj.size !== sizeToRemove);
@@ -131,9 +143,8 @@ const Create = ({ categories, suppliers }) => {
                                 required
                             />
 
-                            {/* Size, Weight, and Sale Price Input */}
                             <div className="mb-4 w-full">
-                                <Label htmlFor='newSize' title='Size, Weight & Sale Price'/>
+                                <Label htmlFor='newSize' title={data.product_type === 'weight' ? 'Size, Weight & Sale Price' : 'Size & Sale Price'}/>
                                 <div className="flex gap-2 items-center">
                                     <TextInput
                                         id="newSize"
@@ -141,13 +152,15 @@ const Create = ({ categories, suppliers }) => {
                                         onChange={(e) => setNewSize(e.target.value)}
                                         placeholder="Enter size (e.g., XS, XXL)"
                                     />
-                                    <TextInput
-                                        type="number"
-                                        id="newWeight"
-                                        value={newWeight}
-                                        onChange={(e) => setNewWeight(e.target.value)}
-                                        placeholder="Weight in KG"
-                                    />
+                                    {data.product_type === 'weight' && (
+                                        <TextInput
+                                            type="number"
+                                            id="newWeight"
+                                            value={newWeight}
+                                            onChange={(e) => setNewWeight(e.target.value)}
+                                            placeholder="Weight in KG"
+                                        />
+                                    )}
                                     <TextInput
                                         type="number"
                                         id="newSalePrice"
@@ -173,9 +186,11 @@ const Create = ({ categories, suppliers }) => {
                                                     <div className="text-sm font-semibold text-gray-700">
                                                         Size: {sizeObj.size}
                                                     </div>
-                                                    <div className="text-sm font-semibold text-gray-700">
-                                                        Weight: {sizeObj.weight} KG
-                                                    </div>
+                                                    {data.product_type === 'weight' && (
+                                                        <div className="text-sm font-semibold text-gray-700">
+                                                            Weight: {sizeObj.weight} KG
+                                                        </div>
+                                                    )}
                                                     <div className="text-sm font-semibold text-gray-700">
                                                         Price: {sizeObj.sale_price} Rs
                                                     </div>
@@ -187,7 +202,7 @@ const Create = ({ categories, suppliers }) => {
                                 </div>
                             )}
 
-                            <div className='px-2'>
+                            <div className='flex justify-center w-full mt-3'>
                                 <Button type="submit" disabled={processing}>
                                     Add Product
                                 </Button>

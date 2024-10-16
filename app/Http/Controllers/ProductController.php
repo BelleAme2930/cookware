@@ -43,7 +43,7 @@ class ProductController extends Controller
             'product_type' => 'required|string',
             'sizes' => 'required|array',
             'sizes.*.size' => 'required|string',
-            'sizes.*.weight' => 'required|integer',
+            'sizes.*.weight' => 'nullable|numeric',
             'sizes.*.sale_price' => 'required|integer|min:0',
         ]);
 
@@ -60,7 +60,7 @@ class ProductController extends Controller
             $product->sizes()->create([
                 'size' => $size['size'],
                 'sale_price' => $size['sale_price'],
-                'weight' => WeightHelper::toGrams($size['weight']),
+                'weight' => $request->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toGrams($size['weight']) : null,
             ]);
         }
 

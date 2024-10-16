@@ -63,16 +63,24 @@ const Create = ({ suppliers, products, accounts }) => {
 
     const handleProductChange = (index, field, value) => {
         const updatedFields = [...productFields];
+
+        // Check if sizes are initialized for the product
+        if (!updatedFields[index].sizes) {
+            updatedFields[index].sizes = {}; // Initialize sizes if undefined
+        }
+
         if (field === 'sizes') {
             updatedFields[index].sizes = value;
         } else {
             updatedFields[index][field] = value;
 
+            // Initialize sizes for the selected product if it's selected
             if (field === 'product_id') {
                 const selectedProduct = products.find(product => product.id === value);
                 updatedFields[index]['product_type'] = selectedProduct ? selectedProduct.product_type : '';
-                // Initialize sizes for the selected product
-                updatedFields[index].sizes = selectedProduct.sizes ? Object.keys(selectedProduct.sizes).reduce((acc, size) => ({ ...acc, [size]: 0 }), {}) : {};
+                updatedFields[index].sizes = selectedProduct.sizes
+                    ? selectedProduct.sizes.reduce((acc, size) => ({ ...acc, [size.id]: 0 }), {}) // Initialize sizes with zero quantity
+                    : {};
             }
         }
 
@@ -82,6 +90,7 @@ const Create = ({ suppliers, products, accounts }) => {
         setProductFields(updatedFields);
         setData('products', updatedFields);
     };
+
 
 
     const calculateTotalPurchasePrice = (fields) => {
@@ -147,6 +156,8 @@ const Create = ({ suppliers, products, accounts }) => {
 
                         const selectedProduct = products.find(p => p.id === product.product_id);
 
+                        console.log(selectedProduct)
+
                         return (
                             <div key={index}
                                  className={`mb-4 py-5 px-4 border border-gray-300 rounded-md relative !bg-gray-50`}>
@@ -161,28 +172,31 @@ const Create = ({ suppliers, products, accounts }) => {
                                     required
                                 />
 
-                                {selectedProduct && (
+                                {selectedProduct && selectedProduct.sizes && (
                                     <>
-                                        <Label title='Sizes and Quantities' />
-                                        {Object.entries(selectedProduct.sizes).map(([sizeId, sizeQuantity]) => (
-                                            <div key={sizeId}>
-                                                <Label title={`Size ${sizeId}`} />
-                                                <TextInput
-                                                    type="number"
-                                                    value={product.sizes[sizeId] || 0}
-                                                    onChange={(e) => {
-                                                        const updatedSizes = { ...product.sizes, [sizeId]: parseInt(e.target.value) };
-                                                        handleProductChange(index, 'sizes', updatedSizes);
-                                                    }}
-                                                />
-                                            </div>
-                                        ))}
+                                        <Label title='Sizes & Quantities'/>
+                                        <div className='flex gap-2 justify-center bg-white border border-gray-200 p-4 mb-4 rounded-md'>
+                                            {selectedProduct.sizes.map((size) => (
+                                                <div key={size.id} className="mb-4 w-1/3">
+                                                    <Label title={`Size: ${size.size}`} />
+                                                    <TextInput
+                                                        type="number"
+                                                        value={product.sizes[size.id] || 0}
+                                                        onChange={(e) => {
+                                                            const updatedSizes = { ...product.sizes, [size.id]: parseInt(e.target.value) };
+                                                            handleProductChange(index, 'sizes', updatedSizes); // Pass the current index to handleProductChange
+                                                        }}
+                                                        placeholder="Enter quantity"
+                                                    />
+                                                </div>
+                                            ))}
+                                        </div>
                                     </>
                                 )}
 
                                 {product.product_type === 'weight' && (
                                     <>
-                                        <Label title='Weight' htmlFor={`weight_${index}`}
+                                        <Label title='Total Weight' htmlFor={`weight_${index}`}
                                                suffix={selectedProduct && 'Inventory: ' + selectedProduct?.weight + ' KG'}/>
                                         <TextInput
                                             id={`weight_${index}`}
