@@ -24,7 +24,6 @@ class ProductResource extends JsonResource
             'product_type' => $this->product_type,
             'weight' => WeightHelper::toKilos($this->weight ?? 0) ?? 0,
             'quantity' => $this->quantity ?? 0,
-            'weight_per_item' => WeightHelper::toKilos($this->weight_per_item ?? 0) ?? 0,
             'created_at' => $this->created_at->format('Y-m-d'),
             'updated_at' => $this->updated_at->format('Y-m-d'),
         ];

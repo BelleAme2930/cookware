@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import TextInput from "@/Components/TextInput.jsx";
@@ -8,20 +8,20 @@ import InputSelect from "@/Components/InputSelect.jsx";
 import Label from "@/Components/Label.jsx";
 import ShadowBox from "@/Components/ShadowBox.jsx";
 import IconButton from "@/Components/IconButton.jsx";
-import { faAdd } from "@fortawesome/free-solid-svg-icons";
+import { faAdd, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 const Edit = ({ product, categories, suppliers }) => {
-    console.log(product)
-    const { data, setData, put, errors, processing } = useForm({
+    const { data, setData, put, errors, processing, reset } = useForm({
         name: product.name || '',
         category_id: product.category_id || '',
         supplier_id: product.supplier_id || '',
         product_type: product.product_type || 'weight',
-        weight_per_item: product.weight_per_item || 1,
         sizes: product.sizes || [],
     });
 
     const [newSize, setNewSize] = useState('');
+    const [newWeight, setNewWeight] = useState('');
+    const [newSalePrice, setNewSalePrice] = useState('');
 
     const categoryOptions = categories.map(cat => ({
         value: cat.id,
@@ -33,9 +33,22 @@ const Edit = ({ product, categories, suppliers }) => {
         label: sup.name,
     }));
 
+    // Effect to reset sizes when product type changes
+    useEffect(() => {
+        // If the new product type is different from the previous one
+        if (data.product_type !== product.product_type) {
+            setData('sizes', []); // Reset sizes
+        }
+    }, [data.product_type]);
+
     const addSize = () => {
-        if (newSize.trim() === '') {
-            toast.error('Size cannot be empty');
+        if (newSize.trim() === '' || newSalePrice.trim() === '') {
+            toast.error('Size and sale price cannot be empty');
+            return;
+        }
+
+        if (data.product_type === 'weight' && newWeight.trim() === '') {
+            toast.error('Weight cannot be empty for a weight-based product');
             return;
         }
 
@@ -44,21 +57,23 @@ const Edit = ({ product, categories, suppliers }) => {
             return;
         }
 
-        setData('sizes', [
-            ...data.sizes,
-            { size: newSize, sale_price: 0 },
-        ]);
+        const newSizeData = {
+            size: newSize,
+            sale_price: newSalePrice,
+        };
+
+        if (data.product_type === 'weight') {
+            newSizeData.weight = newWeight;
+        }
+
+        setData('sizes', [...data.sizes, newSizeData]);
         setNewSize('');
+        setNewWeight('');
+        setNewSalePrice('');
     };
 
     const removeSize = (sizeToRemove) => {
         const updatedSizes = data.sizes.filter(sizeObj => sizeObj.size !== sizeToRemove);
-        setData('sizes', updatedSizes);
-    };
-
-    const updateSalePrice = (index, newPrice) => {
-        const updatedSizes = [...data.sizes];
-        updatedSizes[index].sale_price = newPrice;
         setData('sizes', updatedSizes);
     };
 
@@ -67,12 +82,22 @@ const Edit = ({ product, categories, suppliers }) => {
         put(route('products.update', product.id), {
             onSuccess: () => {
                 toast.success('Product updated successfully');
+                reset();
             },
             onError: () => {
                 toast.error('Failed to update product');
                 console.error(errors);
             },
         });
+    };
+
+    const isFormValid = () => {
+        return (
+            data.name &&
+            data.category_id &&
+            data.supplier_id &&
+            data.product_type
+        );
     };
 
     return (
@@ -84,7 +109,7 @@ const Edit = ({ product, categories, suppliers }) => {
             }
         >
             <Head title="Edit Product"/>
-            <div className="max-w-[900px] mx-auto p-4">
+            <div className="max-w-[90%] w-full mx-auto p-4">
                 <ShadowBox>
                     <form onSubmit={handleSubmit}>
                         <div className='flex flex-wrap'>
@@ -134,34 +159,37 @@ const Edit = ({ product, categories, suppliers }) => {
                                 required
                             />
 
-                            {data.product_type === 'weight' && (
-                                <div className="mb-4 w-full">
-                                    <Label htmlFor='weight_per_item' required title='Weight Per Item' suffix='KG'/>
-                                    <TextInput
-                                        type="number"
-                                        id="weight_per_item"
-                                        value={data.weight_per_item}
-                                        onChange={(e) => setData('weight_per_item', parseInt(e.target.value))}
-                                        className={`w-full ${errors.weight_per_item ? 'border-red-600' : ''}`}
-                                    />
-                                    {errors.weight_per_item &&
-                                        <div className="text-red-600 text-sm">{errors.weight_per_item}</div>}
-                                </div>
-                            )}
-
                             <div className="mb-4 w-full">
-                                <Label htmlFor='newSize' title='Add Size'/>
+                                <Label htmlFor='newSize' title={data.product_type === 'weight' ? 'Size, Weight & Sale Price' : 'Size & Sale Price'}/>
                                 <div className="flex gap-2 items-center">
                                     <TextInput
                                         id="newSize"
                                         value={newSize}
                                         onChange={(e) => setNewSize(e.target.value)}
-                                        placeholder="Enter size (e.g., XS, XXL, Custom)"
+                                        placeholder="Enter size (e.g., XS, XXL)"
+                                    />
+                                    {data.product_type === 'weight' && (
+                                        <TextInput
+                                            type="number"
+                                            id="newWeight"
+                                            value={newWeight}
+                                            onChange={(e) => setNewWeight(e.target.value)}
+                                            placeholder="Weight in KG"
+                                        />
+                                    )}
+                                    <TextInput
+                                        type="number"
+                                        id="newSalePrice"
+                                        value={newSalePrice}
+                                        onChange={(e) => setNewSalePrice(e.target.value)}
+                                        placeholder={data.product_type === 'weight' ? 'Sale Price per KG' : 'Sale Price per piece'}
                                     />
                                     <IconButton type="button" onClick={addSize} icon={faAdd}/>
                                 </div>
+                                {errors.sizes && <div className="text-red-600 text-sm mt-2">{errors.sizes}</div>}
                             </div>
 
+                            {/* Display added sizes */}
                             {data.sizes.length > 0 && (
                                 <div className="mb-4 w-full">
                                     <Label title='Sizes & Prices'/>
@@ -171,27 +199,19 @@ const Edit = ({ product, categories, suppliers }) => {
                                                 key={index}
                                                 className="flex flex-col bg-white shadow-md p-4 rounded-lg border border-gray-300"
                                             >
-                                                <div className="flex justify-between items-center mb-2">
-                                                    <span className="text-sm font-semibold text-gray-700">
+                                                <div className="flex justify-between items-center">
+                                                    <div className="text-sm font-semibold text-gray-700">
                                                         Size: {sizeObj.size}
-                                                    </span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => removeSize(sizeObj.size)}
-                                                        className="text-red-500 hover:text-red-700"
-                                                    >
-                                                        <i className="fa fa-trash" aria-hidden="true"></i>
-                                                    </button>
-                                                </div>
-                                                <div className="flex items-center">
-                                                    <span className="text-sm text-gray-600 mr-2">Price:</span>
-                                                    <TextInput
-                                                        type="number"
-                                                        value={sizeObj.sale_price}
-                                                        onChange={(e) => updateSalePrice(index, parseInt(e.target.value))}
-                                                        placeholder="Enter price"
-                                                        className="w-full border rounded px-2 py-1"
-                                                    />
+                                                    </div>
+                                                    {data.product_type === 'weight' && (
+                                                        <div className="text-sm font-semibold text-gray-700">
+                                                            Weight: {sizeObj.weight} KG
+                                                        </div>
+                                                    )}
+                                                    <div className="text-sm font-semibold text-gray-700">
+                                                        Price: {sizeObj.sale_price} Rs
+                                                    </div>
+                                                    <IconButton onClick={() => removeSize(sizeObj.size)} icon={faTrash}/>
                                                 </div>
                                             </div>
                                         ))}
@@ -199,8 +219,8 @@ const Edit = ({ product, categories, suppliers }) => {
                                 </div>
                             )}
 
-                            <div className='px-2'>
-                                <Button type="submit" disabled={processing}>
+                            <div className='flex justify-center w-full mt-3'>
+                                <Button type="submit" disabled={processing || !isFormValid()}>
                                     Update Product
                                 </Button>
                             </div>

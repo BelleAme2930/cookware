@@ -64,7 +64,6 @@ const Create = ({ categories, suppliers }) => {
         setNewSalePrice('');
     };
 
-
     const removeSize = (sizeToRemove) => {
         const updatedSizes = data.sizes.filter(sizeObj => sizeObj.size !== sizeToRemove);
         setData('sizes', updatedSizes);
@@ -84,6 +83,15 @@ const Create = ({ categories, suppliers }) => {
         });
     };
 
+    const isFormValid = () => {
+        return (
+            data.name &&
+            data.category_id &&
+            data.supplier_id &&
+            data.product_type
+        );
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -93,7 +101,7 @@ const Create = ({ categories, suppliers }) => {
             }
         >
             <Head title="Add Product"/>
-            <div className="max-w-[900px] mx-auto p-4">
+            <div className="max-w-[90%] w-full mx-auto p-4">
                 <ShadowBox>
                     <form onSubmit={handleSubmit}>
                         <div className='flex flex-wrap'>
@@ -166,10 +174,11 @@ const Create = ({ categories, suppliers }) => {
                                         id="newSalePrice"
                                         value={newSalePrice}
                                         onChange={(e) => setNewSalePrice(e.target.value)}
-                                        placeholder="Sale Price"
+                                        placeholder={data.product_type === 'weight' ? 'Sale Price per KG' : 'Sale Price per piece'}
                                     />
                                     <IconButton type="button" onClick={addSize} icon={faAdd}/>
                                 </div>
+                                {errors.sizes && <div className="text-red-600 text-sm mt-2">{errors.sizes}</div>}
                             </div>
 
                             {/* Display added sizes */}
@@ -203,7 +212,7 @@ const Create = ({ categories, suppliers }) => {
                             )}
 
                             <div className='flex justify-center w-full mt-3'>
-                                <Button type="submit" disabled={processing}>
+                                <Button type="submit" disabled={processing || !isFormValid()}>
                                     Add Product
                                 </Button>
                             </div>

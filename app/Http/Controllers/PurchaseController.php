@@ -13,6 +13,7 @@ use App\Http\Resources\PurchaseResource;
 use App\Http\Resources\SupplierResource;
 use App\Models\Account;
 use App\Models\Product;
+use App\Models\ProductSize;
 use App\Models\Purchase;
 use App\Models\Supplier;
 use Carbon\Carbon;
@@ -32,7 +33,7 @@ class PurchaseController extends Controller
 
     public function create()
     {
-        $products = Product::all();
+        $products = Product::with(['sizes'])->get();
         $suppliers = Supplier::all();
         $accounts = Account::all();
 
@@ -59,7 +60,6 @@ class PurchaseController extends Controller
         DB::beginTransaction();
 
         try {
-            // Create the purchase record
             $purchase = Purchase::create([
                 'supplier_id' => $validated['supplier_id'],
                 'payment_method' => $validated['payment_method'],
@@ -68,10 +68,11 @@ class PurchaseController extends Controller
                 'account_id' => $validated['payment_method'] === PaymentMethodEnum::ACCOUNT->value ? $validated['account_id'] : null,
             ]);
 
-            // Update due date for credit payment methods
-            if ($validated['payment_method'] === PaymentMethodEnum::CREDIT->value ||
-                $validated['payment_method'] === PaymentMethodEnum::HALF_ACCOUNT_HALF_CREDIT->value ||
-                $validated['payment_method'] === PaymentMethodEnum::HALF_CASH_HALF_CREDIT->value) {
+            if (in_array($validated['payment_method'], [
+                PaymentMethodEnum::CREDIT->value,
+                PaymentMethodEnum::HALF_ACCOUNT_HALF_CREDIT->value,
+                PaymentMethodEnum::HALF_CASH_HALF_CREDIT->value,
+            ])) {
                 $purchase->update([
                     'due_date' => $validated['due_date'],
                 ]);
@@ -81,51 +82,48 @@ class PurchaseController extends Controller
 
             foreach ($validated['products'] as $productData) {
                 $product = Product::find($productData['product_id']);
-                $productType = $product->product_type;
-//                $weightPerItem = WeightHelper::toKilos($product->weight_per_item);
+                if (!$product) {
+                    throw new \Exception("Product not found");
+                }
 
-                // Initialize quantities and weights
+                $productType = $product->product_type;
                 $totalQuantity = 0;
                 $totalWeight = 0;
 
-                // Calculate the total quantity from sizes
                 if (isset($productData['sizes'])) {
                     foreach ($productData['sizes'] as $sizeQuantity) {
-                        $totalQuantity += $sizeQuantity; // Aggregate total quantity from all sizes
+                        $totalQuantity += $sizeQuantity;
                     }
                 }
 
-                // For weight products, calculate weight and total price
                 if ($productType === ProductTypeEnum::WEIGHT->value) {
-                    $totalWeight = $productData['weight']; // Total weight being purchased
-                    $totalPrice += ($productData['purchase_price'] * $totalWeight); // Total price for this purchase based on weight
+                    $totalWeight = $productData['weight'];
+                    $totalPrice += ($productData['purchase_price'] * $totalWeight);
                 } else {
-                    // Calculate total weight based on the standard product quantity and weight per item
-//                    $totalWeight = $totalQuantity * $weightPerItem; // Total weight based on quantity
-                    $totalPrice += ($productData['purchase_price'] * $totalQuantity); // Total price for this purchase based on quantity
+                    $totalPrice += ($productData['purchase_price'] * $totalQuantity);
                 }
 
-                // Attach the product to the purchase with relevant details
                 $purchase->products()->attach($product->id, [
                     'quantity' => $totalQuantity,
-                    'weight' => WeightHelper::toGrams($totalWeight), // Store weight in grams
-                    'purchase_price' => $productData['purchase_price'], // The price for this item
+                    'weight' => WeightHelper::toGrams($totalWeight),
+                    'purchase_price' => $productData['purchase_price'],
                 ]);
 
-                // Update the product's quantities and weights
-                $product->increment('quantity', $totalQuantity); // Update quantity in products table
-                $product->increment('weight', WeightHelper::toGrams($totalWeight)); // Update weight in products table
+                $product->increment('quantity', $totalQuantity);
+                $product->increment('weight', WeightHelper::toGrams($totalWeight));
 
-                // Update the sizes quantity if sizes are being used
                 if (isset($productData['sizes'])) {
                     foreach ($productData['sizes'] as $sizeId => $sizeQuantity) {
-                        // Update the sizes field in products table
-                        $currentSizes = json_decode($product->sizes, true);
-                        $currentSizes[$sizeId] = ($currentSizes[$sizeId] ?? 0) + $sizeQuantity; // Increment the size quantity
-                        $product->sizes = json_encode($currentSizes); // Encode back to JSON
+                        $productSize = ProductSize::where('id', $sizeId)->where('product_id', $product->id)->first();
+
+                        if ($productSize) {
+                            $productSize->increment('quantity', $sizeQuantity);
+                        }
                     }
-                    $product->save(); // Save the updated product with sizes
                 }
+
+                dd($product);
+
             }
 
             // Update the total price of the purchase
@@ -143,12 +141,14 @@ class PurchaseController extends Controller
                         'remaining_balance' => 0,
                     ]);
                     break;
+
                 case PaymentMethodEnum::CREDIT->value:
                     $purchase->update([
                         'amount_paid' => $totalPrice,
                         'remaining_balance' => $totalPrice,
                     ]);
                     break;
+
                 case PaymentMethodEnum::HALF_ACCOUNT_HALF_CREDIT->value:
                 case PaymentMethodEnum::HALF_CASH_HALF_CREDIT->value:
                     $purchase->update([
@@ -169,6 +169,7 @@ class PurchaseController extends Controller
             return redirect()->route('purchases.index')->with('error', 'Failed to add purchase. Please try again.');
         }
     }
+
 
 
     public function edit(Purchase $purchase)

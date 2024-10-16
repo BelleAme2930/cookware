@@ -4,6 +4,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import ShadowBox from "@/Components/ShadowBox.jsx";
 
 const Show = ({product}) => {
+    console.log(product)
     return (
         <AuthenticatedLayout
             header={
@@ -13,12 +14,12 @@ const Show = ({product}) => {
             }
         >
             <Head title={`Product: ${product.name}`}/>
-            <div className="max-w-[900px] mx-auto p-4">
+            <div className="max-w-[90%] w-full mx-auto p-4">
                 <ShadowBox>
                     <div className="mb-4">
                         <h3 className="text-xl font-semibold text-gray-700 mb-4 text-center">{product.name}</h3>
                         <div>
-                            <h4 className="text-lg font-semibold text-gray-700 mb-2">Product Details</h4>
+                            <h4 className="text-lg font-semibold text-gray-700 mb-2">Product & Stock Details</h4>
                             <div className='bg-white shadow-sm p-4 rounded-lg border border-gray-200 flex'>
                                 <div className='w-full md:w-1/2'>
                                     <div className="text-gray-600 mb-2">
@@ -32,21 +33,17 @@ const Show = ({product}) => {
                                             Type:</strong> {product.product_type === 'weight' ? 'Per KG' : 'Per Item'}
                                     </div>
                                     <div className="text-gray-600">
-                                        <strong>Available Sizes:</strong> {product.sizes.length > 0 ? product.sizes.map(size => size.size).join(', ') : 'No sizes available'}
+                                        <strong>Available
+                                            Sizes:</strong> {product.sizes.length > 0 ? product.sizes.map(size => size.size).join(', ') : 'No sizes available'}
                                     </div>
                                 </div>
                                 <div className='w-full md:w-1/2'>
-                                        <div className="text-gray-600 mb-2">
-                                            <strong>Total Available Weight:</strong> {product.weight} KG
-                                        </div>
+                                    <div className="text-gray-600 mb-2">
+                                        <strong>Total Available Weight:</strong> {product.weight} KG
+                                    </div>
                                     {product.product_type === 'weight' && (
                                         <div className="text-gray-600 mb-2">
                                             <strong>Total Available Quantity:</strong> {product.quantity} Pcs
-                                        </div>
-                                    )}
-                                    {product.product_type === 'weight' && (
-                                        <div className="text-gray-600">
-                                            <strong>Weight Per Item:</strong> {product.weight_per_item} KG
                                         </div>
                                     )}
                                 </div>
@@ -56,7 +53,7 @@ const Show = ({product}) => {
 
                     {product.sizes.length > 0 && (
                         <div className="mb-4">
-                            <h4 className="text-lg font-semibold text-gray-700 mb-2">Size & Price Details</h4>
+                            <h4 className="text-lg font-semibold text-gray-700 mb-2">Sizes & Price Details</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {product.sizes.map((sizeObj, index) => (
                                     <div
@@ -66,7 +63,12 @@ const Show = ({product}) => {
                                         <div className="flex justify-between items-center">
                                             <div className='text-md text-gray-700'>
                                                 <div className='mb-1'><strong>Size: </strong>{sizeObj.size}</div>
-                                                <div><strong>Price: </strong>{sizeObj.sale_price} Rs</div>
+                                                <div className='mb-1'><strong>Price: </strong>{sizeObj.sale_price} Rs
+                                                </div>
+                                                {product.product_type === 'weight' &&
+                                                    <div className='mb-1'><strong>Weight: </strong>{sizeObj.weight} KG
+                                                    </div>
+                                                }
                                             </div>
                                         </div>
                                     </div>

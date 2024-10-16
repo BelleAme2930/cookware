@@ -97,9 +97,9 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
             'product_type' => 'required|string',
-            'weight_per_item' => 'nullable|integer',
             'sizes' => 'required|array',
             'sizes.*.size' => 'required|string',
+            'sizes.*.weight' => 'nullable|numeric',
             'sizes.*.sale_price' => 'required|integer|min:0',
         ]);
 
@@ -108,7 +108,6 @@ class ProductController extends Controller
             'supplier_id' => $request->supplier_id,
             'name' => $request->name,
             'product_type' => $request->product_type,
-            'weight_per_item' => WeightHelper::toGrams($request->weight_per_item),
         ]);
 
         $product->sizes()->delete();
@@ -117,11 +116,13 @@ class ProductController extends Controller
             $product->sizes()->create([
                 'size' => $size['size'],
                 'sale_price' => $size['sale_price'],
+                'weight' => $request->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toGrams($size['weight']) : null,
             ]);
         }
 
         return redirect()->route('products.index')->with('success', 'Product updated successfully.');
     }
+
 
 
     public function destroy(Product $product)

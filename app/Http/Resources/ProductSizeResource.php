@@ -15,17 +15,12 @@ class ProductSizeResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $data = [
+        return [
             'id' => $this->id,
             'product_id' => $this->product_id,
             'size' => $this->size,
+            'weight' => isset($this->weight) ? WeightHelper::toKilos($this->weight) : null,
             'sale_price' => $this->sale_price,
         ];
-
-//        if ($this->relationLoaded('product')) {
-//            $data['product'] = ProductResource::make($this->product)->resolve();
-//        }
-
-        return $data;
     }
 }

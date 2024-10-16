@@ -19,9 +19,9 @@ class WeightHelper
      * Convert weight from grams to kilograms.
      *
      * @param int $grams
-     * @return int
+     * @return float|int
      */
-    public static function toKilos(int $grams): int
+    public static function toKilos(int $grams): float|int
     {
         return $grams / 1000;
     }
