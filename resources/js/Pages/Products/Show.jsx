@@ -4,7 +4,7 @@ import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import ShadowBox from "@/Components/ShadowBox.jsx";
 
 const Show = ({product}) => {
-    console.log(product)
+
     return (
         <AuthenticatedLayout
             header={
@@ -66,8 +66,7 @@ const Show = ({product}) => {
                                                 <div className='mb-1'><strong>Price: </strong>{sizeObj.sale_price} Rs
                                                 </div>
                                                 {product.product_type === 'weight' &&
-                                                    <div className='mb-1'><strong>Weight: </strong>{sizeObj.weight} KG
-                                                    </div>
+                                                    <div className='mb-1'><strong>Weight per KG: </strong>{sizeObj.weight} KG</div>
                                                 }
                                             </div>
                                         </div>

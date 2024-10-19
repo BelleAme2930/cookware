@@ -5,8 +5,21 @@ import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
 
 const Invoice = ({ purchase }) => {
-    const isCredit = ['credit', 'half_cash_half_credit', 'half_account_half_credit'].includes(purchase.payment_method);
-    const isAccount = ['account', 'half_cash_half_account', 'half_account_half_credit'].includes(purchase.payment_method);
+    const isCredit = [
+        'credit',
+        'cash_credit',
+        'account_credit',
+        'cash_account_credit',
+        'cash_cheque_credit'
+    ].includes(purchase.payment_method);
+    const isAccount = [
+        'account',
+        'cash_account',
+        'account_cheque',
+        'account_credit',
+        'cash_account_credit',
+        'cash_cheque_account'
+    ].includes(purchase.payment_method);
 
     return (
         <div className="min-h-screen bg-gray-100 p-4">
@@ -23,21 +36,14 @@ const Invoice = ({ purchase }) => {
                 </div>
 
                 <div className="mb-6">
-                    {/* Invoice and Supplier Info */}
                     <p className="text-md text-gray-800">
                         <span className="font-bold">Invoice ID: </span> INV-P-{purchase.id}
                     </p>
                     <p className="text-md text-gray-800">
+                        <span className="font-bold">Purchase Date:</span> {purchase.purchase_date}
+                    </p>
+                    <p className="text-md text-gray-800">
                         <span className="font-bold">Supplier:</span> {purchase.supplier.name}
-                    </p>
-                    <p className="text-md text-gray-800">
-                        <span className="font-bold">Phone:</span> {purchase.supplier.phone}
-                    </p>
-                    <p className="text-md text-gray-800">
-                        <span className="font-bold">Email:</span> {purchase.supplier.email}
-                    </p>
-                    <p className="text-md text-gray-800">
-                        <span className="font-bold">Date:</span> {purchase.purchase_date}
                     </p>
                     <p className="text-md text-gray-800">
                         <span className="font-bold">Payment Method:</span> {purchase.payment_method}
@@ -50,7 +56,7 @@ const Invoice = ({ purchase }) => {
                                 <span className="font-bold">Remaining Balance:</span> {purchase.remaining_balance} Rs
                             </p>
                             <p className="text-md text-gray-800">
-                                <span className="font-bold">Due Date:</span> {purchase.due_date ?? 'N/A'}
+                                <span className="font-bold">Due Date:</span> {purchase.due_date ?? '-'}
                             </p>
                         </>
                     )}
@@ -104,7 +110,7 @@ const Invoice = ({ purchase }) => {
                     <p className="text-md mb-1"><span className="font-semibold">LG Kitchenware Showroom</span></p>
                     <p className="text-md mb-1"><span className="font-semibold">Address:</span> Muslim Road, Opposite
                         Mini Stadium, Gujranwala</p>
-                    <p className="text-md mb-1"><span className="font-semibold">Phone:</span> 055-4441095, 055-4298990
+                    <p className="text-md mb-1"><span className="font-semibold">Phone:</span> 055-4441095
                     </p>
                 </div>
 

@@ -14,6 +14,7 @@ class Purchase extends Model
         'due_date',
         'purchase_date',
         'supplier_id',
+        'cheque_number',
         'payment_method',
         'account_id',
         'total_price',
@@ -37,4 +38,11 @@ class Purchase extends Model
     {
         return $this->belongsTo(Account::class);
     }
+
+    public function productSizes()
+    {
+        return $this->belongsToMany(ProductSize::class, 'purchase_product_size')
+            ->withPivot(['quantity', 'purchase_price']);
+    }
+
 }

@@ -31,12 +31,18 @@ const InputSelect = ({ id, label, options, value, onChange, error, required, err
             ...provided,
             color: '#000000',
         }),
+        menuPortal: (base) => ({
+            ...base,
+            zIndex: 999,
+        }),
     };
 
     return (
         <div className="mb-4 w-full">
             <div className="flex items-center justify-between">
+                {label &&
                 <Label title={label} htmlFor={id} required={required} />
+                }
                 {link && (
                     <div>
                         <Link className='text-primary-500' href={link}>{linkText}</Link>
@@ -49,11 +55,12 @@ const InputSelect = ({ id, label, options, value, onChange, error, required, err
                 onChange={onChange}
                 options={options}
                 isClearable
+                menuPortalTarget={document.body}
                 required={required}
                 className={`${className} react-select ${error ? 'border-red-600' : ''}`}
                 classNamePrefix="react-select"
                 styles={customStyles}
-                placeholder="Select an option"
+                placeholder="Select an option" menuPlacement='auto'
             />
             {error && <div className="text-red-600 text-sm">{errorMsg}</div>}
         </div>

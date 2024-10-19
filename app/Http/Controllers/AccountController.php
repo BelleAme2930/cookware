@@ -28,9 +28,6 @@ class AccountController extends Controller
             'title' => 'required|string|max:255',
             'account_number' => 'required|string|max:255',
             'bank_name' => 'required|string|max:255',
-            'account_type' => 'nullable|string|max:255',
-            'balance' => 'nullable|numeric',
-            'description' => 'nullable|string',
         ]);
 
         Account::create($validated);

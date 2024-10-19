@@ -25,17 +25,16 @@ class StorePurchaseRequest extends FormRequest
         return [
             'supplier_id' => 'required|exists:suppliers,id',
             'products' => 'required|array',
+            'products.*.weight' => 'required|numeric|min:0',
             'products.*.product_id' => 'required|exists:products,id',
             'products.*.product_type' => 'required|string',
-            'products.*.quantity' => 'nullable|integer|min:0',
-            'products.*.weight' => 'nullable|numeric|min:0',
-            'products.*.weight_per_item' => 'nullable|numeric|min:0',
-            'products.*.purchase_price' => 'required|numeric|min:0',
-            'due_date' => 'required|date',
+            'products.*.sizes' => 'nullable|array',
+            'products.*.sizes.*.quantity' => 'required_with:products.*.sizes|integer|min:0',
+            'products.*.sizes.*.purchase_price' => 'required_with:products.*.sizes|numeric|min:0',
+            'due_date' => 'date',
             'payment_method' => 'required|string',
             'account_id' => 'nullable|exists:accounts,id',
-            'amount_paid' => 'nullable|integer|min:0',
-            'products.*.sizes.*' => 'integer|min:0',
+            'amount_paid' => 'nullable|numeric|min:0',
         ];
     }
 }

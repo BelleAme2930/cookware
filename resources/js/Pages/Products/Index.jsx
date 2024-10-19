@@ -9,6 +9,7 @@ import {toast} from "react-toastify";
 import {router} from '@inertiajs/core';
 
 const Index = ({products}) => {
+    console.log(products)
 
     const editRoute = (id) => route('products.edit', id);
     const deleteRoute = (id) => route('products.destroy', id);
@@ -21,13 +22,11 @@ const Index = ({products}) => {
         },
         {
             name: 'Weight',
-            selector: row =>
-                row.product_type === 'item' && row.weight > 0 ? `~${row.weight}` : row.weight,
+            selector: row => row.weight,
         },
         {
             name: 'Quantity',
-            selector: row =>
-                row.product_type === 'weight' && row.quantity > 0 ? `~${row.quantity}` : row.quantity,
+            selector: row => row.quantity,
         },
         {
             name: 'Sizes',

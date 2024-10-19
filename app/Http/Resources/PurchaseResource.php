@@ -35,6 +35,20 @@ class PurchaseResource extends JsonResource
             $data['supplier'] = SupplierResource::make($this->supplier)->resolve();
         }
 
+        if ($this->relationLoaded('productSizes')) {
+            $data['product_sizes'] = $this->productSizes->map(function($productSize) {
+                return [
+                    'id' => $productSize->id,
+                    'quantity' => $productSize->pivot->quantity,
+                    'purchase_price' => $productSize->pivot->purchase_price,
+                    'pivot' => [
+                        'quantity' => $productSize->pivot->quantity,
+                        'purchase_price' => $productSize->pivot->purchase_price,
+                    ],
+                ];
+            });
+        }
+
         if ($this->relationLoaded('products')) {
             $data['products'] = $this->products->map(function($product) {
                 $sizes = json_decode($product->sizes, true);

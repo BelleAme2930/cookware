@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('size');
             $table->unsignedBigInteger('sale_price');
             $table->unsignedBigInteger('weight')->nullable();
+            $table->unsignedBigInteger('quantity')->default(0);
             $table->timestamps();
         });
     }
