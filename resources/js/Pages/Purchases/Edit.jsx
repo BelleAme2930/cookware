@@ -222,7 +222,7 @@ const Create = ({purchase, suppliers, products, accounts}) => {
                                         return (
                                             <div key={size.id} className="mb-4 w-1/2 pr-2">
                                                 <Label title={`Size: ${size.size}`} className='mb-2 text-md'/>
-                                                <div className='size-box bg-white border border-gray-300 bg-gray-50 p-4'>
+                                                <div className='size-box bg-white border border-gray-300 p-4'>
                                                     <div className='mb-2'>
                                                         <Label title="Quantity"/>
                                                         <TextInput
