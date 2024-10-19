@@ -121,45 +121,40 @@ class PurchaseController extends Controller
                         $totalQuantity += $quantity;
                         $totalPrice += $quantity * $purchasePrice;
 
-                        // Update the product size quantity
                         $productSize = ProductSize::where('id', $sizeId)
                             ->where('product_id', $product->id)
                             ->first();
 
-                        if ($productSize) {
+                        if ($productSize && $quantity > 0) {
                             $productSize->increment('quantity', $quantity);
                         }
 
                         $purchase->productSizes()->attach($sizeId, [
+                            'product_id' => $product->id,
                             'quantity' => $quantity,
                             'purchase_price' => $purchasePrice,
                         ]);
                     }
                 }
 
-                // Handle weight-based products
                 if ($productType === ProductTypeEnum::WEIGHT->value && isset($productData['weight'])) {
                     $totalWeight = $productData['weight'];
                 }
 
-                // Attach the product to the purchase with appropriate details
                 $purchase->products()->attach($product->id, [
                     'quantity' => $totalQuantity,
                     'weight' => WeightHelper::toGrams($totalWeight),
-                    'purchase_price' => $totalQuantity > 0 ? $totalPrice / $totalQuantity : 0, // Average price per unit
+                    'purchase_price' => $totalQuantity > 0 ? $totalPrice / $totalQuantity : 0,
                 ]);
 
-                // Update the product's total quantity and weight
                 $product->increment('quantity', $totalQuantity);
                 $product->increment('weight', WeightHelper::toGrams($totalWeight));
             }
 
-            // Update the total price of the purchase
             $purchase->update([
                 'total_price' => $totalPrice,
             ]);
 
-            // Handle payment calculations based on the payment method
             switch ($validated['payment_method']) {
                 case PaymentMethodEnum::CASH->value:
                 case PaymentMethodEnum::ACCOUNT->value:

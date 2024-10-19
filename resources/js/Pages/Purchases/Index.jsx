@@ -16,10 +16,6 @@ const Index = ({ purchases }) => {
 
     const columns = [
         {
-            name: 'Supplier',
-            selector: row => row.supplier.name,
-        },
-        {
             name: 'Total Weight',
             selector: row => row.total_weight.toLocaleString() + ' KG',
         },
@@ -47,7 +43,7 @@ const Index = ({ purchases }) => {
             cell: row => (
                 <div className="flex space-x-2">
                     <IconButton onClick={() => router.visit(viewRoute(row.id))} icon={faEye} />
-                    <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />
+                    {/*<IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />*/}
                     {/*<IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />*/}
                     <IconButton onClick={() => router.visit(route('purchases.invoices.show', row.id))} icon={faPrint} />
                 </div>
@@ -56,7 +52,6 @@ const Index = ({ purchases }) => {
     ];
 
     const filterCriteria = [
-        { selector: row => row.supplier.name },
         { selector: row => row.products.map(product => product.name).join(', ') },
         { selector: row => row.total_price },
         { selector: row => row.created_at },

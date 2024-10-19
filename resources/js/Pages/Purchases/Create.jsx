@@ -24,6 +24,7 @@ const Create = ({suppliers, products, accounts}) => {
         product_id: '',
         product_type: '',
         sizes: {},
+        selectedSizes: {},
         weight: 0,
     }]);
 
@@ -61,7 +62,7 @@ const Create = ({suppliers, products, accounts}) => {
     };
 
     const handleAddProduct = () => {
-        setProductFields([...productFields, {product_id: '', product_type: '', sizes: {}, weight: 0}]);
+        setProductFields([...productFields, {product_id: '', product_type: '', sizes: {}, selectedSizes: {}, weight: 0}]);
     };
 
     const handleRemoveProduct = (index) => {
@@ -102,6 +103,15 @@ const Create = ({suppliers, products, accounts}) => {
         setData('products', updatedFields);
     };
 
+    const handleSizeCheckboxChange = (index, sizeId, checked) => {
+        const updatedFields = [...productFields];
+        updatedFields[index].selectedSizes = {
+            ...updatedFields[index].selectedSizes,
+            [sizeId]: checked
+        };
+        setProductFields(updatedFields);
+    };
+
     const calculateTotalPurchasePrice = (fields) => {
         let total = 0;
         fields.forEach(product => {
@@ -121,6 +131,7 @@ const Create = ({suppliers, products, accounts}) => {
         setTotalPurchasePrice(total);
         calculateRemainingCredit(data.amount_paid, total);
     };
+
 
     const calculateRemainingCredit = (amountPaid, total) => {
         setRemainingCredit(total - amountPaid);
@@ -183,55 +194,74 @@ const Create = ({suppliers, products, accounts}) => {
 
                                 {selectedProduct && selectedProduct.sizes && (
                                     <>
-                                        <Label title='Sizes & Purchase Details'/>
-                                        <div
-                                            className='flex flex-wrap bg-white border border-gray-200 p-4 mb-4 rounded-md'>
-                                            {selectedProduct.sizes.map((size) => (
-                                                <div key={size.id} className="mb-4 w-1/2 pr-2">
-                                                    <Label title={`Size: ${size.size}`} className='mb-2 text-md'/>
-                                                    <div className='border border-gray-300 bg-gray-50 p-4'>
-                                                        <div className='mb-2'>
-                                                            <Label title="Quantity"/>
-                                                            <TextInput
-                                                                type="number"
-                                                                value={product.sizes[size.id]?.quantity || 0}
-                                                                onChange={(e) => {
-                                                                    const updatedSizes = {
-                                                                        ...product.sizes,
-                                                                        [size.id]: {
-                                                                            ...product.sizes[size.id],
-                                                                            quantity: parseInt(e.target.value)
-                                                                        }
-                                                                    };
-                                                                    handleProductChange(index, 'sizes', updatedSizes);
-                                                                }}
-                                                                placeholder="Enter quantity"
-                                                            />
-                                                        </div>
-                                                        <div>
-                                                            <Label title="Purchase Price"/>
-                                                            <TextInput
-                                                                type="number"
-                                                                value={product.sizes[size.id]?.purchase_price || 0}
-                                                                onChange={(e) => {
-                                                                    const updatedSizes = {
-                                                                        ...product.sizes,
-                                                                        [size.id]: {
-                                                                            ...product.sizes[size.id],
-                                                                            purchase_price: parseFloat(e.target.value)
-                                                                        }
-                                                                    };
-                                                                    handleProductChange(index, 'sizes', updatedSizes);
-                                                                }}
-                                                                placeholder="Enter purchase price"
-                                                            />
-                                                        </div>
-                                                    </div>
+                                        <Label title='Select Sizes'/>
+                                        <div className='flex flex-wrap bg-white border border-gray-200 p-4 mb-4 rounded-md'>
+                                            {selectedProduct.sizes.map(size => (
+                                                <div key={size.id} className="mb-2 pr-2 flex items-center border px-4 mr-2">
+                                                    <input
+                                                        type="checkbox"
+                                                        id={`size_checkbox_${size.id}`}
+                                                        checked={!!product.selectedSizes[size.id]}
+                                                        onChange={(e) =>
+                                                            handleSizeCheckboxChange(index, size.id, e.target.checked)
+                                                        }
+                                                    />
+                                                    <Label htmlFor={`size_checkbox_${size.id}`} title={`Size: ${size.size}`} className='ml-2 mt-1'/>
                                                 </div>
                                             ))}
                                         </div>
                                     </>
                                 )}
+
+                                <div className='flex flex-wrap'>
+                                    {selectedProduct && selectedProduct.sizes && Object.entries(product.selectedSizes).map(([sizeId, isSelected]) => {
+                                        if (!isSelected) return null;
+                                        const size = selectedProduct.sizes.find(s => s.id === parseInt(sizeId));
+                                        return (
+                                            <div key={size.id} className="mb-4 w-1/2 pr-2">
+                                                <Label title={`Size: ${size.size}`} className='mb-2 text-md'/>
+                                                <div className='size-box bg-white border border-gray-300 bg-gray-50 p-4'>
+                                                    <div className='mb-2'>
+                                                        <Label title="Quantity"/>
+                                                        <TextInput
+                                                            type="number"
+                                                            value={product.sizes[size.id]?.quantity || 0}
+                                                            onChange={(e) => {
+                                                                const updatedSizes = {
+                                                                    ...product.sizes,
+                                                                    [size.id]: {
+                                                                        ...product.sizes[size.id],
+                                                                        quantity: parseInt(e.target.value)
+                                                                    }
+                                                                };
+                                                                handleProductChange(index, 'sizes', updatedSizes);
+                                                            }}
+                                                            placeholder="Enter quantity"
+                                                        />
+                                                    </div>
+                                                    <div>
+                                                        <Label title="Purchase Price"/>
+                                                        <TextInput
+                                                            type="number"
+                                                            value={product.sizes[size.id]?.purchase_price || 0}
+                                                            onChange={(e) => {
+                                                                const updatedSizes = {
+                                                                    ...product.sizes,
+                                                                    [size.id]: {
+                                                                        ...product.sizes[size.id],
+                                                                        purchase_price: parseFloat(e.target.value)
+                                                                    }
+                                                                };
+                                                                handleProductChange(index, 'sizes', updatedSizes);
+                                                            }}
+                                                            placeholder="Enter purchase price"
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
 
                                 {product.product_type === 'weight' && (
                                     <>

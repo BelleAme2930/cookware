@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('purchase_product_size', function (Blueprint $table) {
             $table->id();
             $table->foreignId('purchase_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_size_id')->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('quantity')->nullable();
             $table->unsignedBigInteger('purchase_price')->nullable();

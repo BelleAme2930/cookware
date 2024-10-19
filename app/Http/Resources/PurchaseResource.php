@@ -41,10 +41,7 @@ class PurchaseResource extends JsonResource
                     'id' => $productSize->id,
                     'quantity' => $productSize->pivot->quantity,
                     'purchase_price' => $productSize->pivot->purchase_price,
-                    'pivot' => [
-                        'quantity' => $productSize->pivot->quantity,
-                        'purchase_price' => $productSize->pivot->purchase_price,
-                    ],
+                    'product_id' => $productSize->product_id,
                 ];
             });
         }

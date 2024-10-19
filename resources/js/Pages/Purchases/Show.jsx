@@ -82,53 +82,49 @@ const Show = ({purchase}) => {
                             <tr className="bg-gray-50">
                                 <th className="px-4 py-2 border">Product Name</th>
                                 <th className="px-4 py-2 border">Sizes</th>
-                                <th className="px-4 py-2 border">Quantity</th>
+                                <th className="px-4 py-2 border">Total Quantity</th>
                                 <th className="px-4 py-2 border">Total Weight</th>
-                                <th className="px-4 py-2 border">Unit Price</th>
                                 <th className="px-4 py-2 border">Total Price</th>
                             </tr>
                             </thead>
                             <tbody>
-                            {purchase.products.map((product, index) => (
-                                <tr key={index} className="text-center">
-                                    <td className="px-4 py-2 border">{product.name}</td>
-                                    <td className="px-4 py-2 border">
-                                        <div className='flex flex-wrap gap-2 justify-center'>
-                                            {product.sizes.map((size) => {
-                                                const purchaseSize = purchase.product_sizes.find(ps => ps.id === size.id);
-                                                return (
-                                                    <div>
-                                                        <div
-                                                            className='font-medium text-gray-700 border-b border-black'>{size.size}</div>
-                                                        <div
-                                                            className='font-medium text-gray-700'>{purchaseSize ? purchaseSize.quantity : 0}</div>
-                                                    </div>
-                                                );
-                                            })}
-                                        </div>
+                            {purchase.products.map((product, index) => {
+                                const totalPrice = product.sizes.reduce((acc, size) => {
+                                    const purchaseSize = purchase.product_sizes.find(ps => ps.product_id === product.id && ps.id === size.id);
+                                    if (purchaseSize && purchaseSize.quantity > 0) {
+                                        return acc + (purchaseSize.quantity * purchaseSize.purchase_price);
+                                    }
+                                    return acc;
+                                }, 0);
 
-                                    </td>
-                                    <td className="px-4 py-2 border">{product.pivot.quantity}</td>
-                                    <td className="px-4 py-2 border">{product.product_type === 'weight' ? product.pivot.weight + ' KG' : '-'}</td>
-                                    <td className="px-4 py-2 border">
-                                        {product.sizes.map((size) => {
-                                            const purchaseSize = purchase.product_sizes.find(ps => ps.id === size.id);
-                                            return (
-                                                <div key={size.id}>
-                                                    <div className="font-medium text-gray-700">
-                                                        Size: {size.size} - {purchaseSize ? purchaseSize.purchase_price.toLocaleString() : 0} Rs
-                                                    </div>
-                                                </div>
-                                            );
-                                        })}
-                                    </td>
-
-                                    <td className="px-4 py-2 border">
-                                        {product.pivot.quantity * product.pivot.purchase_price}
-                                    </td>
-
-                                </tr>
-                            ))}
+                                return (
+                                    <tr key={index} className="text-center">
+                                        <td className="px-4 py-2 border">{product.name}</td>
+                                        <td className="px-4 py-2 border">
+                                            <div className='flex flex-wrap gap-2 justify-center'>
+                                                {product.sizes.map((size) => {
+                                                    const purchaseSize = purchase.product_sizes.find(ps => ps.id === size.id);
+                                                    return (
+                                                        <>
+                                                            {size.size && purchaseSize && purchaseSize.quantity > 0 && (
+                                                                <div key={size.id}>
+                                                                    <div
+                                                                        className='font-medium text-gray-700 border-b border-black'>{size.size}</div>
+                                                                    <div
+                                                                        className='font-medium text-gray-700'>{purchaseSize.quantity}</div>
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    );
+                                                })}
+                                            </div>
+                                        </td>
+                                        <td className="px-4 py-2 border">{product.pivot.quantity}</td>
+                                        <td className="px-4 py-2 border">{product.product_type === 'weight' ? product.pivot.weight + ' KG' : '-'}</td>
+                                        <td className="px-4 py-2 border">{totalPrice.toLocaleString()} Rs</td>
+                                    </tr>
+                                );
+                            })}
                             </tbody>
                         </table>
                     </div>
