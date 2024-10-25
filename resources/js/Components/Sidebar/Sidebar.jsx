@@ -7,14 +7,13 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
     faTachometerAlt,
     faTags,
-    faBox,
-    faUserFriends,
-    faShoppingCart,
-    faFileInvoiceDollar,
-    faDollarSign,
-    faTimes,
-    faBars,
-    faSackDollar
+    faBoxOpen,
+    faUser,
+    faUsers,
+    faShoppingBasket,
+    faFileInvoice,
+    faMoneyBillWave,
+    faFileAlt, faTimes, faBars, faBasketShopping, faHandHoldingDollar
 } from '@fortawesome/free-solid-svg-icons';
 
 const Sidebar = ({ isCollapsed, toggleSidebar }) => {
@@ -38,7 +37,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
         {
             label: "Products",
             dropdown: true,
-            icon: faBox,
+            icon: faBoxOpen,
             subItems: [
                 { label: "Add Product", href: route('products.create') },
                 { label: "Product Listing", href: route('products.index') },
@@ -47,7 +46,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
         {
             label: "Suppliers",
             dropdown: true,
-            icon: faUserFriends,
+            icon: faUsers,
             subItems: [
                 { label: "Add Supplier", href: route('suppliers.create') },
                 { label: "Supplier Listing", href: route('suppliers.index') },
@@ -56,7 +55,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
         {
             label: "Customers",
             dropdown: true,
-            icon: faUserFriends,
+            icon: faUser,
             subItems: [
                 { label: "Add Customer", href: route('customers.create') },
                 { label: "Customer Listing", href: route('customers.index') },
@@ -65,7 +64,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
         {
             label: "Sales",
             dropdown: true,
-            icon: faShoppingCart,
+            icon: faHandHoldingDollar,
             subItems: [
                 { label: "Add Sale", href: route('sales.create') },
                 { label: "Sale Listing", href: route('sales.index') },
@@ -74,7 +73,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
         {
             label: "Purchases",
             dropdown: true,
-            icon: faShoppingCart,
+            icon: faShoppingBasket,
             subItems: [
                 { label: "Add Purchase", href: route('purchases.create') },
                 { label: "Purchase Listing", href: route('purchases.index') },
@@ -83,7 +82,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
         {
             label: "Accounts",
             dropdown: true,
-            icon: faDollarSign,
+            icon: faMoneyBillWave,
             subItems: [
                 { label: "Add Account", href: route('accounts.create') },
                 { label: "Account Listing", href: route('accounts.index') },
@@ -92,7 +91,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
         {
             label: "Invoices",
             dropdown: true,
-            icon: faFileInvoiceDollar,
+            icon: faFileInvoice,
             subItems: [
                 { label: "Sales Invoices", href: route('sales.invoices.index') },
                 { label: "Purchase Invoices", href: route('purchases.invoices.index') },
@@ -101,7 +100,7 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
         {
             label: "Expenses",
             dropdown: true,
-            icon: faSackDollar,
+            icon: faFileAlt,
             subItems: [
                 { label: "Add Expense", href: route('expenses.create') },
                 { label: "Expense Listing", href: route('expenses.index') },

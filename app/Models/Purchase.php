@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Purchase extends Model
 {
@@ -18,31 +19,25 @@ class Purchase extends Model
         'payment_method',
         'account_id',
         'total_price',
-        'semi_credit_amount',
+        'amount_paid',
+        'weight',
+        'quantity',
         'remaining_balance',
     ];
-
-    public function products()
-    {
-        return $this->belongsToMany(Product::class, 'product_purchase')
-            ->withPivot('quantity', 'weight', 'purchase_price')
-            ->withTimestamps();
-    }
 
     public function supplier(): BelongsTo
     {
         return $this->belongsTo(Supplier::class);
     }
 
-    public function account()
+    public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
     }
 
-    public function productSizes()
+    public function productPurchases(): HasMany
     {
-        return $this->belongsToMany(ProductSize::class, 'purchase_product_size')
-            ->withPivot(['quantity', 'purchase_price']);
+        return $this->hasMany(ProductPurchase::class);
     }
 
 }

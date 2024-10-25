@@ -2,7 +2,6 @@
 
 namespace App\Http\Resources;
 
-use App\Enums\ProductTypeEnum;
 use App\Helpers\WeightHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
@@ -19,15 +18,15 @@ class PurchaseResource extends JsonResource
         $data = [
             'id' => $this->id,
             'supplier_id' => $this->supplier_id,
-            'total_price' => $this->total_price,
-            'credit_amount' => $this->credit_amount,
-            'remaining_balance' => $this->remaining_balance,
-            'payment_method' => $this->formatPaymentMethod($this->payment_method),
-            'exact_payment_method' => $this->payment_method,
-            'total_weight' => WeightHelper::toKilos($this->products->sum('pivot.weight')),
-            'total_quantity' => $this->products->sum('pivot.quantity'),
             'account_id' => $this->account_id,
+            'total_price' => $this->total_price,
+            'amount_paid' => $this->amount_paid,
+            'remaining_balance' => $this->remaining_balance,
             'due_date' => $this->due_date,
+            'weight' => WeightHelper::toKilos($this->weight),
+            'quantity' => $this->quantity,
+            'payment_method' => $this->getFormattedPaymentMethod($this->payment_method),
+            'cheque_number' => $this->cheque_number,
             'purchase_date' => $this->purchase_date,
         ];
 
@@ -35,40 +34,70 @@ class PurchaseResource extends JsonResource
             $data['supplier'] = SupplierResource::make($this->supplier)->resolve();
         }
 
-        if ($this->relationLoaded('productSizes')) {
-            $data['product_sizes'] = $this->productSizes->map(function($productSize) {
-                return [
-                    'id' => $productSize->id,
-                    'quantity' => $productSize->pivot->quantity,
-                    'purchase_price' => $productSize->pivot->purchase_price,
-                    'product_id' => $productSize->product_id,
-                ];
-            });
+        if ($this->relationLoaded('account') && $this->account) {
+            $data['account'] = AccountResource::make($this->account)->resolve();
         }
 
-        if ($this->relationLoaded('products')) {
-            $data['products'] = $this->products->map(function($product) {
-                $sizes = json_decode($product->sizes, true);
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'product_type' => $product->product_type,
-                    'pivot' => [
-                        'quantity' => $product->pivot->quantity ?? null,
-                        'weight' => WeightHelper::toKilos($product->pivot->weight) ?? null,
-                        'purchase_price' => $product->pivot->purchase_price,
-                    ],
-                    'sizes' => $sizes,
-                ];
-            });
+        if ($this->relationLoaded('productPurchases')) {
+            $data['product_purchases'] = $this->formatProductPurchases($this->productPurchases);
         }
 
         return $data;
     }
 
-
-    private function formatPaymentMethod(string $paymentMethod): string
+    /**
+     * Format the product purchases to the desired structure.
+     *
+     * @param $productPurchases
+     * @return array
+     */
+    private function formatProductPurchases($productPurchases): array
     {
-        return ucwords(str_replace('_', ' ', $paymentMethod));
+        $formattedPurchases = [];
+
+        foreach ($productPurchases as $productPurchase) {
+            $productId = $productPurchase->product_id;
+            $purchasePrice = $productPurchase->purchase_price;
+
+            if (!isset($formattedPurchases[$productId])) {
+                $product = $productPurchase->product;
+                $formattedPurchases[$productId] = [
+                    'name' => $product ? $product->name : '-',
+                    'total_price' => 0,
+                    'sizes' => [],
+                ];
+            }
+
+            $productSize = $productPurchase->productSize;
+
+            $formattedPurchases[$productId]['total_price'] += $productPurchase->purchase_price * $productPurchase->quantity;
+
+            $formattedPurchases[$productId]['sizes'][] = [
+                'size' => $productSize ? $productSize->size : 'Unknown Size',
+                'quantity' => $productPurchase->quantity,
+            ];
+        }
+
+        return $formattedPurchases;
+    }
+
+    private function getFormattedPaymentMethod(string $paymentMethod): string
+    {
+        $methodMap = [
+            'cash' => 'Cash',
+            'account' => 'Account',
+            'credit' => 'Credit',
+            'cheque' => 'Cheque',
+            'cash_account' => 'Cash & Account',
+            'cash_credit' => 'Cash & Credit',
+            'cash_cheque' => 'Cash & Cheque',
+            'account_cheque' => 'Account & Cheque',
+            'account_credit' => 'Account & Credit',
+            'cash_account_credit' => 'Cash, Account & Credit',
+            'cash_cheque_credit' => 'Cash, Cheque & Credit',
+            'cash_cheque_account' => 'Cash, Cheque & Account',
+        ];
+
+        return $methodMap[$paymentMethod] ?? 'Unknown Payment Method';
     }
 }

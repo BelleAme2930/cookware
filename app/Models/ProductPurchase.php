@@ -5,27 +5,33 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
-class ProductSize extends Model
+class ProductPurchase extends Model
 {
     use HasFactory;
 
     protected $fillable = [
+        'purchase_id',
         'product_id',
-        'size',
-        'sale_price',
-        'weight',
+        'product_size_id',
         'quantity',
+        'weight',
+        'purchase_price',
     ];
+
+    public function purchase(): BelongsTo
+    {
+        return $this->belongsTo(Purchase::class);
+    }
 
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
     }
 
-    public function productPurchases(): HasMany
+    public function productSize(): BelongsTo
     {
-        return $this->hasMany(ProductPurchase::class);
+        return $this->belongsTo(ProductSize::class);
     }
+
 }

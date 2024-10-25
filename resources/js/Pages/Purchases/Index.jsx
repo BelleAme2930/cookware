@@ -2,7 +2,7 @@ import React from 'react';
 import { Head } from '@inertiajs/react';
 import CustomDataTable from "@/Components/CustomDataTable.jsx";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import {faAdd, faEye, faPrint} from "@fortawesome/free-solid-svg-icons";
+import { faAdd, faEye, faPrint } from "@fortawesome/free-solid-svg-icons";
 import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 import IconButton from "@/Components/IconButton.jsx";
 import { toast } from "react-toastify";
@@ -17,34 +17,37 @@ const Index = ({ purchases }) => {
     const columns = [
         {
             name: 'Total Weight',
-            selector: row => row.total_weight.toLocaleString() + ' KG',
+            selector: row => row.weight.toLocaleString() + ' KG',
         },
         {
             name: 'Total Quantity',
-            selector: row => row.total_quantity,
+            selector: row => row.quantity.toLocaleString(),
         },
         {
             name: 'Total Price',
-            selector: row => row.total_price.toLocaleString(),
+            selector: row => row.total_price.toLocaleString() + ' Rs',
         },
         {
             name: 'Purchase Date',
-            selector: row => row.purchase_date,
-        },{
+            selector: row => new Date(row.purchase_date).toLocaleDateString(),
+        },
+        {
             name: 'Payment Method',
             selector: row => row.payment_method,
         },
         {
             name: 'Due Date',
-            selector: row => row.due_date ?? '-',
+            selector: row => row.due_date ? new Date(row.due_date).toLocaleDateString() : '-',
         },
         {
             name: 'Actions',
             cell: row => (
                 <div className="flex space-x-2">
                     <IconButton onClick={() => router.visit(viewRoute(row.id))} icon={faEye} />
-                    {/*<IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />*/}
-                    {/*<IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />*/}
+                    {/* Uncomment the edit button if needed */}
+                    {/* <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} /> */}
+                    {/* Uncomment the delete button if needed */}
+                    {/* <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} /> */}
                     <IconButton onClick={() => router.visit(route('purchases.invoices.show', row.id))} icon={faPrint} />
                 </div>
             )
@@ -52,12 +55,11 @@ const Index = ({ purchases }) => {
     ];
 
     const filterCriteria = [
-        { selector: row => row.products.map(product => product.name).join(', ') },
+        { selector: row => row.supplier?.name ?? 'N/A' },
         { selector: row => row.total_price },
-        { selector: row => row.created_at },
-        { selector: row => row.due_date }
+        { selector: row => new Date(row.purchase_date).toLocaleDateString() },
+        { selector: row => row.due_date ? new Date(row.due_date).toLocaleDateString() : '-' },
     ];
-
 
     const confirmDelete = (id) => {
         if (window.confirm("Are you sure you want to delete this purchase?")) {
