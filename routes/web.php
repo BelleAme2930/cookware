@@ -29,6 +29,11 @@ Route::get('/', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+    Route::get('test', function () {
+        return [
+            'Test' => 'Name',
+        ];
+    });
     Route::resource('categories', CategoryController::class);
     Route::resource('suppliers', SupplierController::class);
     Route::resource('products', ProductController::class);
