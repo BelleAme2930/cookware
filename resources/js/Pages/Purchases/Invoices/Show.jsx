@@ -59,6 +59,9 @@ const Invoice = ({ purchase }) => {
                     {isCredit && (
                         <>
                             <p className="text-md text-gray-800">
+                                <span className="font-bold">Amount Paid:</span> {purchase.amount_paid} Rs
+                            </p>
+                            <p className="text-md text-gray-800">
                                 <span className="font-bold">Remaining Balance:</span> {purchase.remaining_balance} Rs
                             </p>
                             <p className="text-md text-gray-800">

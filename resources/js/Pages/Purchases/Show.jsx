@@ -44,6 +44,7 @@ const Show = ({purchase}) => {
                                     Date:</strong> {new Date(purchase.due_date).toLocaleDateString()}</p>
                             )}
                             <p className='mb-1'><strong>Payment Method:</strong> {purchase.payment_method}</p>
+                            <p className='mb-1'><strong>Amount Paid:</strong> {purchase.amount_paid} Rs</p>
                             <p className='mb-1'><strong>Remaining Balance:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>
                         </div>
 
