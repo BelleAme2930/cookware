@@ -17,6 +17,7 @@ const Create = ({suppliers, products, accounts}) => {
         due_date: new Date().toISOString().split('T')[0], // Default to today's date in 'YYYY-MM-DD' format
         account_id: '',
         amount_paid: 0,
+        account_payment: 0,
         cheque_number: '',
         products: [],
         total_price: 0,
@@ -314,7 +315,8 @@ const Create = ({suppliers, products, accounts}) => {
                                 required
                             />
 
-                            {(data.payment_method === 'credit' ||
+                            {(data.payment_method === 'cheque' ||
+                                data.payment_method === 'credit' ||
                                 data.payment_method === 'cash_credit' ||
                                 data.payment_method === 'cash_cheque' ||
                                 data.payment_method === 'account_cheque' ||
@@ -322,7 +324,14 @@ const Create = ({suppliers, products, accounts}) => {
                                 data.payment_method === 'cash_account_credit' ||
                                 data.payment_method === 'cash_cheque_account') && (
                                 <div className='mb-4 w-full'>
-                                    <Label title="Due Date"/>
+                                    <Label title={
+                                        data.payment_method === 'cheque' ||
+                                        data.payment_method === 'cash_cheque' ||
+                                        data.payment_method === 'account_cheque' ||
+                                        data.payment_method === 'cash_cheque_credit' ||
+                                        data.payment_method === 'cash_cheque_account'
+                                            ? 'Cheque Date' : 'Due Date'
+                                    }/>
                                     <TextInput
                                         type="date"
                                         value={data.due_date}
@@ -378,6 +387,30 @@ const Create = ({suppliers, products, accounts}) => {
                                             data.payment_method === 'account_cheque' ||
                                             data.payment_method === 'cash_account_credit' ||
                                             data.payment_method === 'cash_cheque_account')}
+                                    />
+                                </div>
+                            )}
+
+                            {(data.payment_method === 'account' ||
+                                data.payment_method === 'cash_account' ||
+                                data.payment_method === 'account_cheque' ||
+                                data.payment_method === 'account_credit' ||
+                                data.payment_method === 'cash_cheque_account' ||
+                                data.payment_method === 'cash_account_credit') && (
+                                <div className='mb-4 w-full'>
+                                    <Label title="Account Payment"/>
+                                    <TextInput
+                                        type="number"
+                                        label="Account Payment"
+                                        value={data.account_payment}
+                                        onChange={(e) => setData('account_payment', parseInt(e.target.value))}
+                                        placeholder="Enter account payment"
+                                        required={(data.payment_method === 'account' ||
+                                            data.payment_method === 'cash_account' ||
+                                            data.payment_method === 'account_cheque' ||
+                                            data.payment_method === 'account_credit' ||
+                                            data.payment_method === 'cash_cheque_account' ||
+                                            data.payment_method === 'cash_account_credit')}
                                     />
                                 </div>
                             )}

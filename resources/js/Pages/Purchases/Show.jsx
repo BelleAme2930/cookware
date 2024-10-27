@@ -8,7 +8,7 @@ import BorderButton from "@/Components/BorderButton.jsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 const Show = ({purchase}) => {
-    console.log(purchase);
+    console.log(purchase)
     return (
         <AuthenticatedLayout
             header={
@@ -44,8 +44,7 @@ const Show = ({purchase}) => {
                                     Date:</strong> {new Date(purchase.due_date).toLocaleDateString()}</p>
                             )}
                             <p className='mb-1'><strong>Payment Method:</strong> {purchase.payment_method}</p>
-                            <p className='mb-1'><strong>Remaining
-                                Balance:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>
+                            <p className='mb-1'><strong>Remaining Balance:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>
                         </div>
 
                         {purchase.supplier && (
@@ -70,31 +69,67 @@ const Show = ({purchase}) => {
                     <div className="overflow-x-auto">
                         <table className="min-w-full bg-white border border-gray-200">
                             <thead>
-                            <tr className="bg-gray-50">
-                                <th className="px-4 py-2 border">Product Name</th>
-                                <th className="px-4 py-2 border">Sizes</th>
-                                <th className="px-4 py-2 border">Total Price</th>
-                            </tr>
+                            {purchase.product_purchases[0].product_type === 'item' ? (
+                                <tr className="bg-gray-50">
+                                    <th className="px-4 py-2 border">Product Name</th>
+                                    <th className="px-4 py-2 border">Size</th>
+                                    <th className="px-4 py-2 border">Quantity</th>
+                                    <th className="px-4 py-2 border">Rate</th>
+                                    <th className="px-4 py-2 border">Total Price</th>
+                                </tr>
+                            ) : (
+                                <tr className="bg-gray-50">
+                                    <th className="px-4 py-2 border">Product Name</th>
+                                    <th className="px-4 py-2 border">Sizes</th>
+                                    <th className="px-4 py-2 border">Weight</th>
+                                    <th className="px-4 py-2 border">Rate</th>
+                                    <th className="px-4 py-2 border">Total Price</th>
+                                </tr>
+                            )}
+
                             </thead>
                             <tbody>
-                            {purchase.product_purchases.map((prod, index) => (
-                                <tr key={index} className="text-center">
-                                    <td className="px-4 py-2 border">{prod.name}</td>
-                                    <td className="px-4 py-2 border">
-                                        <div className='flex justify-center items-center gap-3'>
-                                            {prod.sizes.map((size, idx) => (
-                                                <div key={idx}>
-                                                    <div className='border-b border-black px-2'>{size.size}</div>
-                                                    <div>{size.quantity}</div>
+                            {purchase.product_purchases[0].product_type === 'item' ? (
+                                <>
+                                    {purchase.product_purchases.map((prod, index) => {
+                                        return prod.sizes.map((size, idx) => {
+                                            const unitPrice = size.purchase_price * size.quantity;
+                                          return (
+                                              <tr key={`${index}-${idx}`} className="text-center">
+                                                  <td className="px-4 py-2 border">{prod.name}</td>
+                                                  <td className="px-4 py-2 border">{size.size}</td>
+                                                  <td className="px-4 py-2 border">{size.quantity}</td>
+                                                  <td className="px-4 py-2 border">{size.purchase_price.toLocaleString()} Rs</td>
+                                                  <td className="px-4 py-2 border">{unitPrice.toLocaleString()}</td>
+                                              </tr>
+                                          );
+                                      });
+                                  })}
+                              </>
+                            ) : (
+                                <>
+                                    {purchase.product_purchases.map((prod, index) => (
+                                        <tr key={index} className="text-center">
+                                            <td className="px-4 py-2 border">{prod.name}</td>
+                                            <td className="px-4 py-2 border">
+                                                <div className='flex justify-center items-center gap-3'>
+                                                    {prod.sizes.map((size, idx) => (
+                                                        <div key={idx}>
+                                                            <div className='border-b border-black px-2'>{size.size}</div>
+                                                            <div>{size.quantity}</div>
+                                                        </div>
+                                                    ))}
                                                 </div>
-                                            ))}
-                                        </div>
-                                    </td>
-                                    <td className="px-4 py-2 border">
-                                        {prod.total_price.toLocaleString()} Rs
-                                    </td>
-                                </tr>
-                            ))}
+                                            </td>
+                                            <td className="px-4 py-2 border">{purchase.weight} KG</td>
+                                            <td className="px-4 py-2 border">{purchase.product_purchases[0].sizes[0].purchase_price} Rs</td>
+                                            <td className="px-4 py-2 border">
+                                                {(purchase.weight * purchase.product_purchases[0].sizes[0].purchase_price).toLocaleString()} Rs
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </>
+                            )}
                             </tbody>
                         </table>
                     </div>

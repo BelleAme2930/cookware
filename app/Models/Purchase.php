@@ -20,6 +20,7 @@ class Purchase extends Model
         'account_id',
         'total_price',
         'amount_paid',
+        'account_payment',
         'weight',
         'quantity',
         'remaining_balance',

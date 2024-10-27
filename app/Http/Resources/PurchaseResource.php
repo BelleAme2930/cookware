@@ -57,7 +57,6 @@ class PurchaseResource extends JsonResource
 
         foreach ($productPurchases as $productPurchase) {
             $productId = $productPurchase->product_id;
-            $purchasePrice = $productPurchase->purchase_price;
 
             if (!isset($formattedPurchases[$productId])) {
                 $product = $productPurchase->product;
@@ -65,6 +64,7 @@ class PurchaseResource extends JsonResource
                     'name' => $product ? $product->name : '-',
                     'total_price' => 0,
                     'sizes' => [],
+                    'product_type' => $product->product_type,
                 ];
             }
 
@@ -75,6 +75,7 @@ class PurchaseResource extends JsonResource
             $formattedPurchases[$productId]['sizes'][] = [
                 'size' => $productSize ? $productSize->size : 'Unknown Size',
                 'quantity' => $productPurchase->quantity,
+                'purchase_price' => $productPurchase->purchase_price,
             ];
         }
 
