@@ -69,7 +69,7 @@ const Show = ({purchase}) => {
                     <div className="overflow-x-auto">
                         <table className="min-w-full bg-white border border-gray-200">
                             <thead>
-                            {purchase.product_purchases[0].product_type === 'weight' ? (
+                            {purchase.product_purchases[0].product_type === 'item' ? (
                                 <tr className="bg-gray-50">
                                     <th className="px-4 py-2 border">Product Name</th>
                                     <th className="px-4 py-2 border">Size</th>
@@ -89,7 +89,7 @@ const Show = ({purchase}) => {
 
                             </thead>
                             <tbody>
-                            {purchase.product_purchases[0].product_type === 'weight' ? (
+                            {purchase.product_purchases[0].product_type === 'item' ? (
                                 <>
                                     {purchase.product_purchases.map((prod, index) => {
                                         return prod.sizes.map((size, idx) => {
