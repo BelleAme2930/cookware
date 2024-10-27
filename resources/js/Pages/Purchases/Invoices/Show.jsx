@@ -59,7 +59,7 @@ const Invoice = ({ purchase }) => {
                     {isCredit && (
                         <>
                             <p className="text-md text-gray-800">
-                                <span className="font-bold">Amount Paid:</span> {purchase.amount_paid} Rs
+                                <span className="font-bold">Amount Paid:</span> {purchase.amount_paid.toLocaleString()} Rs
                             </p>
                             <p className="text-md text-gray-800">
                                 <span className="font-bold">Remaining Balance:</span> {purchase.remaining_balance} Rs
