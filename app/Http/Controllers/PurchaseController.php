@@ -332,19 +332,35 @@ class PurchaseController extends Controller
 
     public function destroy(Purchase $purchase)
     {
-        foreach ($purchase->products as $existingProduct) {
-            if ($existingProduct->pivot->quantity) {
-                $existingProduct->increment('quantity', $existingProduct->pivot->quantity);
+        try {
+            DB::beginTransaction();
+
+            foreach ($purchase->productPurchases as $productPurchase) {
+                $product = $productPurchase->product;
+
+                // Check if the product exists before incrementing
+                if ($product) {
+                    if ($productPurchase->quantity) {
+                        $product->increment('quantity', $productPurchase->quantity);
+                    }
+                    if ($productPurchase->weight) {
+                        $product->increment('weight', $productPurchase->weight);
+                    }
+                }
             }
-            if ($existingProduct->pivot->weight) {
-                $existingProduct->increment('weight', $existingProduct->pivot->weight);
-            }
+
+            $purchase->delete();
+
+            DB::commit();
+
+            return redirect()->route('purchases.index')->with('success', 'Purchase deleted successfully.');
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            return back()->withErrors(['error' => 'Failed to delete purchase: ' . $e->getMessage()]);
         }
-
-        $purchase->delete();
-
-        return redirect()->route('purchases.index')->with('success', 'Purchase deleted successfully.');
     }
+
 
     private function calculatePurchasePrice($productData, $productType)
     {
