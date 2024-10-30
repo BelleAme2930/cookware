@@ -180,12 +180,22 @@ class PurchaseController extends Controller
 
                     $quantity += $sizeData['quantity'];
 
-                    $purchase->productPurchases()->create([
-                        'product_id' => $product->id,
-                        'product_size_id' => $size->id,
-                        'quantity' => $sizeData['quantity'],
-                        'purchase_price' => $sizeData['purchase_price'],
-                    ]);
+                    if ($product->product_type === ProductTypeEnum::ITEM->value) {
+                        $purchase->productPurchases()->create([
+                            'product_id' => $product->id,
+                            'product_size_id' => $size->id,
+                            'quantity' => $sizeData['quantity'],
+                            'purchase_price' => $sizeData['purchase_price'],
+                        ]);
+                    } else {
+                        $purchase->productPurchases()->create([
+                            'product_id' => $product->id,
+                            'product_size_id' => $size->id,
+                            'quantity' => $sizeData['quantity'],
+                            'purchase_price' => $sizeData['purchase_price'],
+                            'weight' => WeightHelper::toGrams($productData['weight']),
+                        ]);
+                    }
                 }
             }
 

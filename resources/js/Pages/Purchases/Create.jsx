@@ -50,8 +50,8 @@ const Create = ({suppliers, products, accounts}) => {
                     updatedProducts[existingProductIndex].sizes.push({
                         id: size.id,
                         size: size.size,
-                        quantity: 1,
-                        purchase_price: 1,
+                        quantity: 0,
+                        purchase_price: 0,
                     });
                 }
             });
@@ -65,8 +65,8 @@ const Create = ({suppliers, products, accounts}) => {
                     sizes: sizesToAdd.map(size => ({
                         id: size.id,
                         size: size.size,
-                        quantity: 1,
-                        purchase_price: 1,
+                        quantity: 0,
+                        purchase_price: 0,
                     })),
                     weight: 0,
                 },
@@ -96,6 +96,15 @@ const Create = ({suppliers, products, accounts}) => {
         setData('products', updatedProducts);
     };
 
+    const handleWeightPriceChange = (productIndex, price) => {
+        const updatedProducts = [...data.products];
+        updatedProducts[productIndex].purchase_price = parseInt(price) || 0;
+        updatedProducts[productIndex].sizes.forEach(size => {
+            size.purchase_price = parseInt(price) || 0;
+        });
+        setData('products', updatedProducts);
+    };
+
 
     const handleQuantityChange = (productIndex, sizeIndex, value) => {
         const updatedProducts = [...data.products];
@@ -122,12 +131,20 @@ const Create = ({suppliers, products, accounts}) => {
 
     const calculateTotalPrice = () => {
         return data.products.reduce((total, product) => {
-            const productTotal = product.sizes.reduce((sum, size) => {
-                return sum + (size.quantity * size.purchase_price);
-            }, 0);
+            let productTotal = 0;
+
+            if (product.product_type === 'weight') {
+                productTotal = product.weight * (product.purchase_price || 0);
+            } else if (product.product_type === 'item') {
+                productTotal = product.sizes.reduce((sum, size) => {
+                    return sum + (size.quantity * size.purchase_price);
+                }, 0);
+            }
+
             return total + productTotal;
         }, 0);
     };
+
 
     useEffect(() => {
         const totalPrice = calculateTotalPrice();
@@ -152,6 +169,7 @@ const Create = ({suppliers, products, accounts}) => {
         const addedProductIds = data.products.map(prod => prod.product_id);
         return products.filter(prod => !addedProductIds.includes(prod.id));
     };
+
     return (
         <AuthenticatedLayout
             header={<h2 className="text-lg leading-tight text-gray-800">Add New Purchase</h2>}
@@ -251,36 +269,51 @@ const Create = ({suppliers, products, accounts}) => {
                                                                     required
                                                                 />
                                                             </div>
-                                                            <div className='w-full'>
-                                                                <Label title='Purchase Price Per Piece'/>
-                                                                <TextInput
-                                                                    type="number"
-                                                                    value={size.purchase_price}
-                                                                    onChange={(e) => handlePurchasePriceChange(productIndex, sizeIndex, e.target.value)}
-                                                                    placeholder="Purchase Price Per Piece"
-                                                                    className="w-full"
-                                                                    required
-                                                                />
-                                                            </div>
+                                                            {prod.product_type === 'item' && (
+                                                                <div className='w-full'>
+                                                                    <Label title='Purchase Price Per Piece'/>
+                                                                    <TextInput
+                                                                        type="number"
+                                                                        value={size.purchase_price}
+                                                                        onChange={(e) => handlePurchasePriceChange(productIndex, sizeIndex, e.target.value)}
+                                                                        placeholder="Purchase Price Per Piece"
+                                                                        className="w-full"
+                                                                        required
+                                                                    />
+                                                                </div>
+                                                            )}
                                                         </div>
                                                     </div>
                                                 ))}
                                                 {prod.product_type === 'weight' && (
-                                                    <div className="mb-4 w-full">
-                                                        <Label htmlFor={`weight-${productIndex}`} title='Weight' />
-                                                        <TextInput
-                                                            id={`weight-${productIndex}`}
-                                                            type="text"
-                                                            value={prod.weight}
-                                                            onChange={(e) => handleWeightChange(productIndex, e.target.value)}
-                                                            required
-                                                        />
-                                                        {errors && errors[`products.${productIndex}.weight`] && (
-                                                            <div className="text-red-500 text-xs mt-1">
-                                                                {errors[`products.${productIndex}.weight`]}
-                                                            </div>
-                                                        )}
-                                                    </div>
+                                                    <>
+                                                        <div className="mb-4 w-full">
+                                                            <Label htmlFor={`weight-${productIndex}`} title='Weight'/>
+                                                            <TextInput
+                                                                id={`weight-${productIndex}`}
+                                                                type="text"
+                                                                value={prod.weight}
+                                                                onChange={(e) => handleWeightChange(productIndex, e.target.value)}
+                                                                required
+                                                            />
+                                                            {errors && errors[`products.${productIndex}.weight`] && (
+                                                                <div className="text-red-500 text-xs mt-1">
+                                                                    {errors[`products.${productIndex}.weight`]}
+                                                                </div>
+                                                            )}
+                                                        </div>
+
+                                                        <div className='w-full'>
+                                                            <Label title='Purchase Price Per KG'/>
+                                                            <TextInput
+                                                                type="number"
+                                                                value={prod.purchase_price}
+                                                                onChange={(e) => handleWeightPriceChange(productIndex, e.target.value)}
+                                                                className="w-full"
+                                                                required
+                                                            />
+                                                        </div>
+                                                    </>
                                                 )}
 
                                             </div>
@@ -290,7 +323,7 @@ const Create = ({suppliers, products, accounts}) => {
                             )}
 
                             <div className='flex justify-end w-full'>
-                                <div className='text-2xl font-semibold'>Total Price: {data.total_price} Rs</div>
+                                <div className='text-2xl font-semibold'>Total Price: {(data.total_price).toLocaleString()} Rs</div>
                             </div>
 
                             <InputSelect

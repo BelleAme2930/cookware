@@ -41,8 +41,8 @@ class ProductController extends Controller
             'category_id' => 'required|exists:categories,id',
             'supplier_id' => 'required|exists:suppliers,id',
             'product_type' => 'required|string',
-            'sizes' => 'required|array',
-            'sizes.*.size' => 'required|string',
+            'sizes' => 'nullable|array',
+            'sizes.*.size' => 'nullable|string',
             'sizes.*.weight' => 'nullable|numeric',
             'sizes.*.sale_price' => 'required|integer|min:0',
         ]);
@@ -56,13 +56,14 @@ class ProductController extends Controller
             'product_type' => $request->product_type,
         ]);
 
-        foreach ($request->sizes as $size) {
+        foreach ($request->sizes ?? [] as $size) {
             $product->sizes()->create([
-                'size' => $size['size'],
+                'size' => $size['size'] ?? null,
                 'sale_price' => $size['sale_price'],
                 'weight' => $request->product_type === ProductTypeEnum::WEIGHT->value ? WeightHelper::toGrams($size['weight']) : null,
             ]);
         }
+
 
         return redirect()->route('products.index')->with('success', 'Product created successfully.');
     }

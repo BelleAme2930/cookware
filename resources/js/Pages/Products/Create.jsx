@@ -34,28 +34,27 @@ const Create = ({ categories, suppliers }) => {
     }));
 
     const addSize = () => {
-        if (newSize.trim() === '' || newSalePrice.trim() === '') {
-            toast.error('Size and sale price cannot be empty');
-            return;
-        }
-
-        if (data.product_type === 'weight' && newWeight.trim() === '') {
-            toast.error('Weight cannot be empty for a weight-based product');
-            return;
-        }
-
-        if (data.sizes.some(size => size.size === newSize)) {
-            toast.error('Size already exists');
-            return;
+        if (data.product_type === 'item') {
+            if (newSalePrice.trim() === '') {
+                toast.error('Sale price is required');
+                return;
+            }
+        } else if (data.product_type === 'weight') {
+            if (newWeight.trim() === '' || newSalePrice.trim() === '') {
+                toast.error('Weight and sale price cannot be empty for weight-based products');
+                return;
+            }
         }
 
         const newSizeData = {
-            size: newSize,
+            size: newSize || null,
             sale_price: newSalePrice,
+            weight: data.product_type === 'weight' ? newWeight : null,
         };
 
-        if (data.product_type === 'weight') {
-            newSizeData.weight = newWeight;
+        if (data.product_type === 'item' && data.sizes.some(size => size.size === newSize)) {
+            toast.error('Size already exists for this product');
+            return;
         }
 
         setData('sizes', [...data.sizes, newSizeData]);
@@ -63,6 +62,7 @@ const Create = ({ categories, suppliers }) => {
         setNewWeight('');
         setNewSalePrice('');
     };
+
 
     const removeSize = (sizeToRemove) => {
         const updatedSizes = data.sizes.filter(sizeObj => sizeObj.size !== sizeToRemove);

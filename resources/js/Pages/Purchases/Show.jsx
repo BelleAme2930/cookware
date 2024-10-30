@@ -35,22 +35,24 @@ const Show = ({purchase}) => {
                     <div className="flex bg-gray-100 p-4 rounded">
                         <div className='w-full md:w-1/2'>
                             <h3 className="text-xl font-semibold mb-2">Purchase Information</h3>
-                            <p className='mb-1'><strong>Total Price:</strong> {purchase.total_price.toLocaleString()} Rs
-                            </p>
                             <p className='mb-1'><strong>Purchase
                                 Date:</strong> {new Date(purchase.purchase_date).toLocaleDateString()}</p>
+                            <p className='mb-1'><strong>Payment Method:</strong> {purchase.payment_method}</p>
+                            <p className='mb-1'><strong>Total Price:</strong> {purchase.total_price.toLocaleString()} Rs
+                            </p>
+                            <p className='mb-1'><strong>Amount Paid:</strong> {purchase.amount_paid.toLocaleString()} Rs
+                            </p>
+                            <p className='mb-1'><strong>Remaining
+                                Balance:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>
                             {purchase.due_date && (
                                 <p className='mb-1'><strong>Due
                                     Date:</strong> {new Date(purchase.due_date).toLocaleDateString()}</p>
                             )}
-                            <p className='mb-1'><strong>Payment Method:</strong> {purchase.payment_method}</p>
-                            <p className='mb-1'><strong>Amount Paid:</strong> {purchase.amount_paid.toLocaleString()} Rs</p>
-                            <p className='mb-1'><strong>Remaining Balance:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>
                         </div>
 
                         {purchase.supplier && (
                             <div>
-                                <h3 className="text-xl font-semibold mb-2">Supplier Details</h3>
+                            <h3 className="text-xl font-semibold mb-2">Supplier Details</h3>
                                 <p className='mb-1'><strong>Name:</strong> {purchase.supplier.name}</p>
                                 {purchase.supplier.phone && (
                                     <p className='mb-1'><strong>Email:</strong> {purchase.supplier.phone}</p>
@@ -122,7 +124,7 @@ const Show = ({purchase}) => {
                                                     ))}
                                                 </div>
                                             </td>
-                                            <td className="px-4 py-2 border">{purchase.weight} KG</td>
+                                            <td className="px-4 py-2 border">{prod.weight} KG</td>
                                             <td className="px-4 py-2 border">{purchase.product_purchases[0].sizes[0].purchase_price} Rs</td>
                                             <td className="px-4 py-2 border">
                                                 {(purchase.weight * purchase.product_purchases[0].sizes[0].purchase_price).toLocaleString()} Rs
