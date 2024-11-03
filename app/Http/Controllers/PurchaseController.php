@@ -58,10 +58,12 @@ class PurchaseController extends Controller
     {
         $validatedData = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
-            'payment_method' => 'required|string',
+            'payment_method' => 'required|array|max:3',
+            'payment_method.*' => 'required|string',
             'due_date' => 'nullable|date',
             'account_id' => 'nullable|exists:accounts,id',
-            'total_price' => 'required|int|min:0',
+            'account_payment' => 'nullable|numeric|min:0',
+            'total_price' => 'required|numeric|min:0',
             'amount_paid' => 'nullable|numeric|min:0',
             'cheque_number' => 'nullable|string',
             'products' => 'required|array|min:1',
@@ -89,85 +91,34 @@ class PurchaseController extends Controller
                 'quantity' => 0,
                 'cheque_number' => null,
                 'purchase_date' => Carbon::today(),
-                'payment_method' => $validatedData['payment_method'],
+                'payment_method' => json_encode($validatedData['payment_method']),
+                'account_payment' => $validatedData['account_payment'] ?? null,
             ]);
 
-            if (in_array($validatedData['payment_method'], [
-                PaymentMethodEnum::CREDIT->value,
-                PaymentMethodEnum::CASH_CREDIT->value,
-                PaymentMethodEnum::ACCOUNT_CREDIT->value,
-                PaymentMethodEnum::CASH_ACCOUNT_CREDIT->value,
-                PaymentMethodEnum::CASH_CHEQUE->value,
-                PaymentMethodEnum::ACCOUNT_CHEQUE->value,
-                PaymentMethodEnum::CASH_CHEQUE_ACCOUNT->value,
-            ])) {
-                $purchase->update([
-                    'due_date' => $validatedData['due_date'],
-                ]);
+            if (in_array('credit', $validatedData['payment_method'])) {
+                $purchase->update(['due_date' => $validatedData['due_date']]);
             }
 
-            if (in_array($validatedData['payment_method'] , [
-                PaymentMethodEnum::CHEQUE->value,
-                PaymentMethodEnum::CASH_CHEQUE->value,
-                PaymentMethodEnum::ACCOUNT_CHEQUE->value,
-                PaymentMethodEnum::CASH_CHEQUE_ACCOUNT->value,
-            ])) {
-                $purchase->update([
-                    'cheque_number' => $validatedData['cheque_number'],
-                ]);
+            if (in_array('cheque', $validatedData['payment_method'])) {
+                $purchase->update(['cheque_number' => $validatedData['cheque_number']]);
             }
 
-            if (in_array($validatedData['payment_method'], [
-                PaymentMethodEnum::ACCOUNT->value,
-                PaymentMethodEnum::CASH_ACCOUNT->value,
-                PaymentMethodEnum::ACCOUNT_CHEQUE->value,
-                PaymentMethodEnum::ACCOUNT_CREDIT->value,
-                PaymentMethodEnum::CASH_ACCOUNT_CREDIT->value,
-                PaymentMethodEnum::CASH_CHEQUE_ACCOUNT->value,
-            ])) {
-                $purchase->update([
-                    'account_id' => $validatedData['account_id'],
-                ]);
+            if (in_array('account', $validatedData['payment_method'])) {
+                $purchase->update(['account_id' => $validatedData['account_id']]);
             }
 
-            if (in_array($validatedData['payment_method'], [
-                PaymentMethodEnum::CASH->value,
-                PaymentMethodEnum::ACCOUNT->value,
-                PaymentMethodEnum::CASH_ACCOUNT->value,
-            ])) {
-                $purchase->update([
-                    'amount_paid' => $validatedData['total_price'],
-                    'remaining_balance' => 0,
-                ]);
-            }
+            $amountPaid = $validatedData['amount_paid'] ?? 0;
+            $remainingBalance = $validatedData['total_price'] - $amountPaid;
 
-            if (in_array($validatedData['payment_method'], [
-                PaymentMethodEnum::CREDIT->value,
-                PaymentMethodEnum::CHEQUE->value,
-            ])) {
-                $purchase->update([
-                    'amount_paid' => 0,
-                    'remaining_balance' => $validatedData['total_price'],
-                ]);
-            }
-
-            if (in_array($validatedData['payment_method'], [
-                PaymentMethodEnum::CASH_CREDIT->value,
-                PaymentMethodEnum::ACCOUNT_CREDIT->value,
-                PaymentMethodEnum::CASH_ACCOUNT_CREDIT->value,
-                PaymentMethodEnum::CASH_CHEQUE->value,
-                PaymentMethodEnum::ACCOUNT_CHEQUE->value,
-                PaymentMethodEnum::CASH_CHEQUE_ACCOUNT->value,
-            ])) {
-                $purchase->update([
-                    'amount_paid' => $validatedData['amount_paid'],
-                    'remaining_balance' => $validatedData['total_price'] - $validatedData['amount_paid'],
-                ]);
-            }
+            $purchase->update([
+                'amount_paid' => $amountPaid,
+                'remaining_balance' => $remainingBalance,
+            ]);
 
             $weight = 0;
             $quantity = 0;
 
+            // Processing products
             foreach ($validatedData['products'] as $productData) {
                 $product = Product::find($productData['product_id']);
 
@@ -177,25 +128,17 @@ class PurchaseController extends Controller
 
                 foreach ($productData['sizes'] as $sizeData) {
                     $size = ProductSize::find($sizeData['id']);
-
                     $quantity += $sizeData['quantity'];
 
-                    if ($product->product_type === ProductTypeEnum::ITEM->value) {
-                        $purchase->productPurchases()->create([
-                            'product_id' => $product->id,
-                            'product_size_id' => $size->id,
-                            'quantity' => $sizeData['quantity'],
-                            'purchase_price' => $sizeData['purchase_price'],
-                        ]);
-                    } else {
-                        $purchase->productPurchases()->create([
-                            'product_id' => $product->id,
-                            'product_size_id' => $size->id,
-                            'quantity' => $sizeData['quantity'],
-                            'purchase_price' => $sizeData['purchase_price'],
-                            'weight' => WeightHelper::toGrams($productData['weight']),
-                        ]);
-                    }
+                    $purchase->productPurchases()->create([
+                        'product_id' => $product->id,
+                        'product_size_id' => $size->id,
+                        'quantity' => $sizeData['quantity'],
+                        'purchase_price' => $sizeData['purchase_price'],
+                        'weight' => $product->product_type === ProductTypeEnum::WEIGHT->value
+                            ? WeightHelper::toGrams($productData['weight'])
+                            : null,
+                    ]);
                 }
             }
 
@@ -208,12 +151,11 @@ class PurchaseController extends Controller
 
             return redirect()->route('purchases.index')->with('success', 'Purchase created successfully.');
         } catch (\Exception $e) {
-
             DB::rollback();
-
             return back()->withErrors(['error' => 'Failed to create purchase: ' . $e->getMessage()]);
         }
     }
+
 
 
     public function edit(Purchase $purchase)

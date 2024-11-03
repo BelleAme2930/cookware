@@ -3,7 +3,7 @@ import Label from "@/Components/Label.jsx";
 import { Link } from "@inertiajs/react";
 import Select from 'react-select';
 
-const InputSelect = ({ id, label, options, value, onChange, error, required, errorMsg, link, linkText, className }) => {
+const InputSelect = ({ id, label, options, value, onChange, error, required, errorMsg, link, linkText, className, isMulti = false }) => {
 
     const customStyles = {
         control: (provided, state) => ({
@@ -50,7 +50,7 @@ const InputSelect = ({ id, label, options, value, onChange, error, required, err
                 )}
             </div>
             <Select
-                id={id}
+                id={id} isMulti={isMulti}
                 value={options.find(option => option.value === value)}
                 onChange={onChange}
                 options={options}

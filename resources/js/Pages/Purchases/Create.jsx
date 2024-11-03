@@ -13,7 +13,7 @@ import {faTrash} from "@fortawesome/free-solid-svg-icons";
 const Create = ({suppliers, products, accounts}) => {
     const {data, setData, post, errors, processing, reset} = useForm({
         supplier_id: '',
-        payment_method: '',
+        payment_method: [],
         due_date: new Date().toISOString().split('T')[0], // Default to today's date in 'YYYY-MM-DD' format
         account_id: '',
         amount_paid: 0,
@@ -96,15 +96,6 @@ const Create = ({suppliers, products, accounts}) => {
         setData('products', updatedProducts);
     };
 
-    const handleWeightPriceChange = (productIndex, price) => {
-        const updatedProducts = [...data.products];
-        updatedProducts[productIndex].purchase_price = parseInt(price) || 0;
-        updatedProducts[productIndex].sizes.forEach(size => {
-            size.purchase_price = parseInt(price) || 0;
-        });
-        setData('products', updatedProducts);
-    };
-
 
     const handleQuantityChange = (productIndex, sizeIndex, value) => {
         const updatedProducts = [...data.products];
@@ -131,20 +122,12 @@ const Create = ({suppliers, products, accounts}) => {
 
     const calculateTotalPrice = () => {
         return data.products.reduce((total, product) => {
-            let productTotal = 0;
-
-            if (product.product_type === 'weight') {
-                productTotal = product.weight * (product.purchase_price || 0);
-            } else if (product.product_type === 'item') {
-                productTotal = product.sizes.reduce((sum, size) => {
-                    return sum + (size.quantity * size.purchase_price);
-                }, 0);
-            }
-
+            const productTotal = product.sizes.reduce((sum, size) => {
+                return sum + (size.quantity * size.purchase_price);
+            }, 0);
             return total + productTotal;
         }, 0);
     };
-
 
     useEffect(() => {
         const totalPrice = calculateTotalPrice();
@@ -166,8 +149,20 @@ const Create = ({suppliers, products, accounts}) => {
     };
 
     const getAvailableProducts = () => {
-        const addedProductIds = data.products.map(prod => prod.product_id);
-        return products.filter(prod => !addedProductIds.includes(prod.id));
+        return products.filter(product => product.supplier_id === data.supplier_id);
+    };
+
+    const paymentMethodOptions = [
+        { value: 'cash', label: 'Cash' },
+        { value: 'account', label: 'Account' },
+        { value: 'credit', label: 'Credit' },
+        { value: 'cheque', label: 'Cheque' },
+    ];
+
+    const handlePaymentMethodChange = (selectedOptions) => {
+        if (selectedOptions.length <= 3) {
+            setData('payment_method', selectedOptions.map(option => option.value));
+        }
     };
 
     return (
@@ -269,51 +264,36 @@ const Create = ({suppliers, products, accounts}) => {
                                                                     required
                                                                 />
                                                             </div>
-                                                            {prod.product_type === 'item' && (
-                                                                <div className='w-full'>
-                                                                    <Label title='Purchase Price Per Piece'/>
-                                                                    <TextInput
-                                                                        type="number"
-                                                                        value={size.purchase_price}
-                                                                        onChange={(e) => handlePurchasePriceChange(productIndex, sizeIndex, e.target.value)}
-                                                                        placeholder="Purchase Price Per Piece"
-                                                                        className="w-full"
-                                                                        required
-                                                                    />
-                                                                </div>
-                                                            )}
+                                                            <div className='w-full'>
+                                                                <Label title='Purchase Price Per Piece'/>
+                                                                <TextInput
+                                                                    type="number"
+                                                                    value={size.purchase_price}
+                                                                    onChange={(e) => handlePurchasePriceChange(productIndex, sizeIndex, e.target.value)}
+                                                                    placeholder="Purchase Price Per Piece"
+                                                                    className="w-full"
+                                                                    required
+                                                                />
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 ))}
                                                 {prod.product_type === 'weight' && (
-                                                    <>
-                                                        <div className="mb-4 w-full">
-                                                            <Label htmlFor={`weight-${productIndex}`} title='Weight'/>
-                                                            <TextInput
-                                                                id={`weight-${productIndex}`}
-                                                                type="text"
-                                                                value={prod.weight}
-                                                                onChange={(e) => handleWeightChange(productIndex, e.target.value)}
-                                                                required
-                                                            />
-                                                            {errors && errors[`products.${productIndex}.weight`] && (
-                                                                <div className="text-red-500 text-xs mt-1">
-                                                                    {errors[`products.${productIndex}.weight`]}
-                                                                </div>
-                                                            )}
-                                                        </div>
-
-                                                        <div className='w-full'>
-                                                            <Label title='Purchase Price Per KG'/>
-                                                            <TextInput
-                                                                type="number"
-                                                                value={prod.purchase_price}
-                                                                onChange={(e) => handleWeightPriceChange(productIndex, e.target.value)}
-                                                                className="w-full"
-                                                                required
-                                                            />
-                                                        </div>
-                                                    </>
+                                                    <div className="mb-4 w-full">
+                                                        <Label htmlFor={`weight-${productIndex}`} title='Weight' />
+                                                        <TextInput
+                                                            id={`weight-${productIndex}`}
+                                                            type="text"
+                                                            value={prod.weight}
+                                                            onChange={(e) => handleWeightChange(productIndex, e.target.value)}
+                                                            required
+                                                        />
+                                                        {errors && errors[`products.${productIndex}.weight`] && (
+                                                            <div className="text-red-500 text-xs mt-1">
+                                                                {errors[`products.${productIndex}.weight`]}
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                 )}
 
                                             </div>
@@ -323,151 +303,24 @@ const Create = ({suppliers, products, accounts}) => {
                             )}
 
                             <div className='flex justify-end w-full'>
-                                <div className='text-2xl font-semibold'>Total Price: {(data.total_price).toLocaleString()} Rs</div>
+                                <div className='text-2xl font-semibold'>Total Price: {data.total_price} Rs</div>
                             </div>
 
                             <InputSelect
                                 id="payment_method"
-                                label={'Payment Method'}
-                                options={[
-                                    {value: 'cash', label: 'Cash'},
-                                    {value: 'account', label: 'Account'},
-                                    {value: 'credit', label: 'Credit'},
-                                    {value: 'cheque', label: 'Cheque'},
-                                    {value: 'cash_account', label: 'Cash + Account'},
-                                    {value: 'cash_credit', label: 'Cash + Credit'},
-                                    {value: 'cash_cheque', label: 'Cash + Cheque'},
-                                    {value: 'account_cheque', label: 'Account + Cheque'},
-                                    {value: 'account_credit', label: 'Account + Credit'},
-                                    {value: 'cash_account_credit', label: 'Cash + Account + Credit'},
-                                    {value: 'cash_cheque_credit', label: 'Cash + Cheque + Credit'},
-                                    {value: 'cash_cheque_account', label: 'Cash + Cheque + Account'},
-                                ]}
-                                onChange={(option) => setData('payment_method', option.value)}
-                                value={data.payment_method}
+                                label="Payment Method"
+                                options={paymentMethodOptions}
+                                isMulti={true}
+                                value={data.payment_method.map(value =>
+                                    paymentMethodOptions.find(option => option.value === value))}
+                                onChange={handlePaymentMethodChange}
                                 required
                             />
 
-                            {(data.payment_method === 'cheque' ||
-                                data.payment_method === 'credit' ||
-                                data.payment_method === 'cash_credit' ||
-                                data.payment_method === 'cash_cheque' ||
-                                data.payment_method === 'account_cheque' ||
-                                data.payment_method === 'account_credit' ||
-                                data.payment_method === 'cash_account_credit' ||
-                                data.payment_method === 'cash_cheque_account') && (
-                                <div className='mb-4 w-full'>
-                                    <Label title={
-                                        data.payment_method === 'cheque' ||
-                                        data.payment_method === 'cash_cheque' ||
-                                        data.payment_method === 'account_cheque' ||
-                                        data.payment_method === 'cash_cheque_credit' ||
-                                        data.payment_method === 'cash_cheque_account'
-                                            ? 'Cheque Date' : 'Due Date'
-                                    }/>
-                                    <TextInput
-                                        type="date"
-                                        value={data.due_date}
-                                        onChange={(e) => setData('due_date', e.target.value)}
-                                        required={(data.payment_method === 'credit' ||
-                                            data.payment_method === 'cash_credit' ||
-                                            data.payment_method === 'cash_cheque' ||
-                                            data.payment_method === 'account_cheque' ||
-                                            data.payment_method === 'account_credit' ||
-                                            data.payment_method === 'cash_account_credit' ||
-                                            data.payment_method === 'cash_cheque_account')}
-                                        className='w-full'
-                                    />
-                                </div>
-                            )}
-
-                            {(data.payment_method === 'account' ||
-                                data.payment_method === 'cash_account' ||
-                                data.payment_method === 'account_cheque' ||
-                                data.payment_method === 'account_credit' ||
-                                data.payment_method === 'cash_account_credit' ||
-                                data.payment_method === 'cash_cheque_account') && (
-                                <InputSelect
-                                    id="account_id"
-                                    label="Account"
-                                    options={accounts.map(acc => ({value: acc.id, label: acc.title}))}
-                                    value={data.account_id}
-                                    onChange={(option) => setData('account_id', option.value)}
-                                    required={(data.payment_method === 'account' ||
-                                        data.payment_method === 'cash_account' ||
-                                        data.payment_method === 'account_cheque' ||
-                                        data.payment_method === 'account_credit' ||
-                                        data.payment_method === 'cash_account_credit' ||
-                                        data.payment_method === 'cash_cheque_account')}
-                                />
-                            )}
-
-                            {(data.payment_method === 'cash_credit' ||
-                                data.payment_method === 'account_credit' ||
-                                data.payment_method === 'account_cheque' ||
-                                data.payment_method === 'cash_account_credit' ||
-                                data.payment_method === 'cash_cheque_account') && (
-                                <div className='mb-4 w-full'>
-                                    <Label title="Amount Paid"/>
-                                    <TextInput
-                                        type="number"
-                                        label="Amount Paid"
-                                        value={data.amount_paid}
-                                        onChange={(e) => setData('amount_paid', e.target.value)}
-                                        placeholder="Enter amount paid"
-                                        required={(data.payment_method === 'cash_credit' ||
-                                            data.payment_method === 'account_credit' ||
-                                            data.payment_method === 'account_cheque' ||
-                                            data.payment_method === 'cash_account_credit' ||
-                                            data.payment_method === 'cash_cheque_account')}
-                                    />
-                                </div>
-                            )}
-
-                            {(data.payment_method === 'account' ||
-                                data.payment_method === 'cash_account' ||
-                                data.payment_method === 'account_cheque' ||
-                                data.payment_method === 'account_credit' ||
-                                data.payment_method === 'cash_cheque_account' ||
-                                data.payment_method === 'cash_account_credit') && (
-                                <div className='mb-4 w-full'>
-                                    <Label title="Account Payment"/>
-                                    <TextInput
-                                        type="number"
-                                        label="Account Payment"
-                                        value={data.account_payment}
-                                        onChange={(e) => setData('account_payment', parseInt(e.target.value))}
-                                        placeholder="Enter account payment"
-                                        required={(data.payment_method === 'account' ||
-                                            data.payment_method === 'cash_account' ||
-                                            data.payment_method === 'account_cheque' ||
-                                            data.payment_method === 'account_credit' ||
-                                            data.payment_method === 'cash_cheque_account' ||
-                                            data.payment_method === 'cash_account_credit')}
-                                    />
-                                </div>
-                            )}
-
-                            {(data.payment_method === 'cheque' ||
-                                data.payment_method === 'cash_cheque' ||
-                                data.payment_method === 'account_cheque' ||
-                                data.payment_method === 'cash_cheque_account') && (
-                                <div className="mb-4 w-full">
-                                    <Label htmlFor="cheque_number" title="Cheque Number"/>
-                                    <TextInput
-                                        id="cheque_number"
-                                        type="text"
-                                        value={data.cheque_number}
-                                        onChange={(e) => setData('cheque_number', e.target.value)}
-                                        required={
-                                            data.payment_method === 'cheque' ||
-                                            data.payment_method === 'cash_cheque' ||
-                                            data.payment_method === 'account_cheque' ||
-                                            data.payment_method === 'cash_cheque_account'
-                                        }
-                                    />
-                                </div>
-                            )}
+                            <PaymentMethodFields
+                                paymentMethods={data.payment_method}
+                                setData={setData} data={data} accounts={accounts}
+                            />
 
                             <div className='flex justify-center w-full mt-3'>
                                 <Button type="submit" disabled={processing}>
@@ -479,6 +332,72 @@ const Create = ({suppliers, products, accounts}) => {
                 </ShadowBox>
             </div>
         </AuthenticatedLayout>
+    );
+};
+
+const PaymentMethodFields = ({ paymentMethods, setData, data, accounts }) => {
+    return (
+        <div className='w-full'>
+            {paymentMethods.includes('cheque') && (
+                <div className="mb-4 w-full">
+                    <Label htmlFor="cheque_number" title="Cheque Number" />
+                    <TextInput
+                        id="cheque_number"
+                        value={data.cheque_number}
+                        onChange={(e) => setData('cheque_number', e.target.value)}
+                        required
+                    />
+                </div>
+            )}
+            {paymentMethods.includes('credit') && (
+                <div className="mb-4 w-full">
+                    <Label htmlFor="due_date" title="Due Date" />
+                    <TextInput
+                        id="due_date"
+                        type="date"
+                        value={data.due_date}
+                        onChange={(e) => setData('due_date', e.target.value)}
+                        required
+                    />
+                </div>
+            )}
+            {paymentMethods.includes('account') && (
+                <div className="mb-4 w-full">
+                    <InputSelect
+                        id="account_id"
+                        label="Account"
+                        options={accounts.map(acc => ({ value: acc.id, label: acc.title }))}
+                        value={data.account_id}
+                        onChange={(option) => setData('account_id', option.value)}
+                        required
+                    />
+                </div>
+            )}
+            {(paymentMethods.includes('credit') || paymentMethods.includes('account')) && (
+                <div className="mb-4 w-full">
+                    <Label title="Amount Paid" />
+                    <TextInput
+                        type="number"
+                        value={data.amount_paid}
+                        onChange={(e) => setData('amount_paid', e.target.value)}
+                        placeholder="Enter amount paid"
+                        required
+                    />
+                </div>
+            )}
+            {paymentMethods.includes('account') && (
+                <div className="mb-4 w-full">
+                    <Label title="Account Payment" />
+                    <TextInput
+                        type="number"
+                        value={data.account_payment}
+                        onChange={(e) => setData('account_payment', parseInt(e.target.value))}
+                        placeholder="Enter account payment"
+                        required
+                    />
+                </div>
+            )}
+        </div>
     );
 };
 

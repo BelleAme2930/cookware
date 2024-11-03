@@ -24,6 +24,7 @@ return new class extends Migration
             $table->string('cheque_number')->nullable();
             $table->date('purchase_date')->nullable();
             $table->string('payment_method')->nullable();
+            $table->unsignedBigInteger('account_payment')->nullable();
             $table->timestamps();
         });
     }
