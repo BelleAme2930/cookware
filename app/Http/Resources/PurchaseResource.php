@@ -77,8 +77,9 @@ class PurchaseResource extends JsonResource
             $formattedPurchases[$productId]['sizes'][] = [
                 'size' => $productSize ? $productSize->size : 'Unknown Size',
                 'quantity' => $productPurchase->quantity,
-                'weight' => $productPurchase->weight && WeightHelper::toKilos($productPurchase->weight),
+                'weight' => $productPurchase->weight ? WeightHelper::toKilos($productPurchase->weight) : null,
                 'purchase_price' => $productPurchase->purchase_price,
+                'separate_weight' => (bool)$productPurchase->separate_weight,
             ];
 
             if ($productPurchase->weight) {

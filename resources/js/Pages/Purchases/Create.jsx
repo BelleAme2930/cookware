@@ -14,7 +14,7 @@ const Create = ({suppliers, products, accounts}) => {
     const {data, setData, post, errors, processing, reset} = useForm({
         supplier_id: '',
         payment_method: [],
-        due_date: new Date().toISOString().split('T')[0], // Default to today's date in 'YYYY-MM-DD' format
+        due_date: new Date().toISOString().split('T')[0],
         account_id: '',
         amount_paid: 0,
         account_payment: 0,
@@ -165,6 +165,19 @@ const Create = ({suppliers, products, accounts}) => {
         }
     };
 
+    const handleSeparateWeightChange = (productIndex, sizeIndex, isChecked) => {
+        const updatedProducts = [...data.products];
+        updatedProducts[productIndex].sizes[sizeIndex].separateWeight = isChecked;
+        setData('products', updatedProducts);
+    };
+
+    const handleSizeWeightChange = (productIndex, sizeIndex, value) => {
+        const updatedProducts = [...data.products];
+        updatedProducts[productIndex].sizes[sizeIndex].weight = parseFloat(value) || 0;
+        setData('products', updatedProducts);
+    };
+
+
     return (
         <AuthenticatedLayout
             header={<h2 className="text-lg leading-tight text-gray-800">Add New Purchase</h2>}
@@ -242,19 +255,14 @@ const Create = ({suppliers, products, accounts}) => {
                                                                 icon={faTrash}/>
                                                 </div>
                                                 {prod.sizes.map((size, sizeIndex) => (
-                                                    <div key={size.id}
-                                                         className="mb-2 bg-white p-6 border border-gray-200">
+                                                    <div key={size.id} className="mb-2 bg-white p-6 border border-gray-200">
                                                         <div className='flex justify-between mb-3 items-center'>
-                                                            <div
-                                                                className='font-semibold text-center'>Size {size.size}:
-                                                            </div>
-                                                            <IconButton
-                                                                onClick={() => removeSize(productIndex, sizeIndex)}
-                                                                icon={faTrash}/>
+                                                            <div className='font-semibold text-center'>Size {size.size}:</div>
+                                                            <IconButton onClick={() => removeSize(productIndex, sizeIndex)} icon={faTrash} />
                                                         </div>
                                                         <div className='flex items-center gap-2 mb-4'>
                                                             <div className='w-full'>
-                                                                <Label title='Quantity'/>
+                                                                <Label title='Quantity' />
                                                                 <TextInput
                                                                     type="number"
                                                                     value={size.quantity}
@@ -265,7 +273,7 @@ const Create = ({suppliers, products, accounts}) => {
                                                                 />
                                                             </div>
                                                             <div className='w-full'>
-                                                                <Label title='Purchase Price Per Piece'/>
+                                                                <Label title='Purchase Price Per Piece' />
                                                                 <TextInput
                                                                     type="number"
                                                                     value={size.purchase_price}
@@ -276,11 +284,40 @@ const Create = ({suppliers, products, accounts}) => {
                                                                 />
                                                             </div>
                                                         </div>
+
+                                                        {/* Separate Weight Checkbox */}
+                                                        <div className='flex items-center mb-4'>
+                                                            <input
+                                                                type="checkbox"
+                                                                id={`separate-weight-${productIndex}-${sizeIndex}`}
+                                                                checked={size.separateWeight || false}
+                                                                onChange={(e) => handleSeparateWeightChange(productIndex, sizeIndex, e.target.checked)}
+                                                                className='mr-2'
+                                                            />
+                                                            <label htmlFor={`separate-weight-${productIndex}-${sizeIndex}`} className='ml-1'>
+                                                                Separate weight?
+                                                            </label>
+                                                        </div>
+
+                                                        {/* Weight Input Field (only shows if 'Separate weight?' is checked) */}
+                                                        {size.separateWeight && (
+                                                            <div className='w-full'>
+                                                                <Label title='Weight' />
+                                                                <TextInput
+                                                                    type="number"
+                                                                    value={size.weight || ''}
+                                                                    onChange={(e) => handleSizeWeightChange(productIndex, sizeIndex, e.target.value)}
+                                                                    placeholder="Enter weight"
+                                                                    className="w-full"
+                                                                />
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 ))}
+
                                                 {prod.product_type === 'weight' && (
                                                     <div className="mb-4 w-full">
-                                                        <Label htmlFor={`weight-${productIndex}`} title='Weight' />
+                                                        <Label htmlFor={`weight-${productIndex}`} title='Weight (Excluding separate weights)' />
                                                         <TextInput
                                                             id={`weight-${productIndex}`}
                                                             type="text"

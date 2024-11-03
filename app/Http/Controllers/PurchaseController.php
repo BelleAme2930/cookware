@@ -75,6 +75,8 @@ class PurchaseController extends Controller
             'products.*.sizes.*.size' => 'required|string',
             'products.*.sizes.*.quantity' => 'required|integer|min:1',
             'products.*.sizes.*.purchase_price' => 'required|numeric|min:0',
+            'products.*.sizes.*.separateWeight' => 'boolean',
+            'products.*.sizes.*.weight' => 'nullable|int|min:0',
         ]);
 
         try {
@@ -122,7 +124,7 @@ class PurchaseController extends Controller
             foreach ($validatedData['products'] as $productData) {
                 $product = Product::find($productData['product_id']);
 
-                if ($product->product_type === ProductTypeEnum::WEIGHT->value) {
+                if ($productData['weight']) {
                     $weight += $productData['weight'];
                 }
 
@@ -130,14 +132,19 @@ class PurchaseController extends Controller
                     $size = ProductSize::find($sizeData['id']);
                     $quantity += $sizeData['quantity'];
 
+                    $separateWeight = array_key_exists('separateWeight', $sizeData) ? $sizeData['separateWeight'] : false;
+
                     $purchase->productPurchases()->create([
                         'product_id' => $product->id,
                         'product_size_id' => $size->id,
                         'quantity' => $sizeData['quantity'],
                         'purchase_price' => $sizeData['purchase_price'],
-                        'weight' => $product->product_type === ProductTypeEnum::WEIGHT->value
+                        'separate_weight' => $separateWeight,
+                        'weight' => ($separateWeight && $sizeData['weight']) ? WeightHelper::toGrams($sizeData['weight']) : (
+                        $product->product_type === ProductTypeEnum::WEIGHT->value
                             ? WeightHelper::toGrams($productData['weight'])
-                            : null,
+                            : null
+                        ),
                     ]);
                 }
             }
@@ -155,7 +162,6 @@ class PurchaseController extends Controller
             return back()->withErrors(['error' => 'Failed to create purchase: ' . $e->getMessage()]);
         }
     }
-
 
 
     public function edit(Purchase $purchase)

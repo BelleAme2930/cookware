@@ -18,6 +18,7 @@ return new class extends Migration
             $table->foreignId('product_size_id')->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('quantity')->nullable();
             $table->unsignedBigInteger('weight')->nullable();
+            $table->boolean('separate_weight')->default(false);
             $table->unsignedBigInteger('purchase_price');
             $table->timestamps();
         });
