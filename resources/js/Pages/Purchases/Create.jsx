@@ -366,7 +366,7 @@ const PaymentMethodFields = ({ paymentMethods, setData, data, accounts }) => {
                     <InputSelect
                         id="account_id"
                         label="Account"
-                        options={accounts.map(acc => ({ value: acc.id, label: acc.title }))}
+                        options={accounts.map(acc => ({ value: acc.id, label: acc.title + ' - ' + acc.bank_name }))}
                         value={data.account_id}
                         onChange={(option) => setData('account_id', option.value)}
                         required
