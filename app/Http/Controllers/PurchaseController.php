@@ -95,7 +95,7 @@ class PurchaseController extends Controller
                 'account_payment' => $validatedData['account_payment'] ?? null,
             ]);
 
-            if (in_array('credit', $validatedData['payment_method'])) {
+            if ($validatedData['amount_paid']) {
                 $purchase->update(['due_date' => $validatedData['due_date']]);
             }
 

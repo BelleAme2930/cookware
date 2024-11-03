@@ -25,9 +25,10 @@ class PurchaseResource extends JsonResource
             'due_date' => $this->due_date,
             'weight' => WeightHelper::toKilos($this->weight),
             'quantity' => $this->quantity,
-            'payment_method' => $this->getFormattedPaymentMethod($this->payment_method),
+            'payment_method' => $this->getFormattedPaymentMethods($this->payment_method),
             'cheque_number' => $this->cheque_number,
             'purchase_date' => $this->purchase_date,
+            'account_payment' => $this->account_payment,
         ];
 
         if ($this->relationLoaded('supplier')) {
@@ -89,23 +90,22 @@ class PurchaseResource extends JsonResource
         return $formattedPurchases;
     }
 
-    private function getFormattedPaymentMethod(string $paymentMethod): string
+    private function getFormattedPaymentMethods(string $paymentMethodsJson): string
     {
         $methodMap = [
             'cash' => 'Cash',
             'account' => 'Account',
             'credit' => 'Credit',
             'cheque' => 'Cheque',
-            'cash_account' => 'Cash & Account',
-            'cash_credit' => 'Cash & Credit',
-            'cash_cheque' => 'Cash & Cheque',
-            'account_cheque' => 'Account & Cheque',
-            'account_credit' => 'Account & Credit',
-            'cash_account_credit' => 'Cash, Account & Credit',
-            'cash_cheque_credit' => 'Cash, Cheque & Credit',
-            'cash_cheque_account' => 'Cash, Cheque & Account',
         ];
 
-        return $methodMap[$paymentMethod] ?? 'Unknown Payment Method';
+        $paymentMethods = json_decode($paymentMethodsJson, true);
+
+        $formattedMethods = array_map(function ($method) use ($methodMap) {
+            return $methodMap[$method] ?? 'Unknown Payment Method';
+        }, $paymentMethods);
+
+        // Join the formatted payment methods into a single string
+        return implode(', ', $formattedMethods);
     }
 }
