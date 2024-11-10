@@ -4,24 +4,21 @@ import Button from "@/Components/Button.jsx";
 import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
-const Invoice = ({ purchase }) => {
-    const isCredit = [
-        'credit',
-        'cash_credit',
-        'account_credit',
-        'cash_account_credit',
-        'cash_cheque_credit'
-    ].includes(purchase.payment_method);
-    const isAccount = [
-        'account',
-        'cash_account',
-        'account_cheque',
-        'account_credit',
-        'cash_account_credit',
-        'cash_cheque_account'
-    ].includes(purchase.payment_method);
+const Invoice = ({ purchase, products }) => {
+    const paymentMethods = purchase.payment_method;
 
-    const isItemType = purchase.product_purchases.length > 0 && purchase.product_purchases[0].product_type === 'item';
+    const isCredit = paymentMethods.includes('credit') || paymentMethods.includes('cash_credit');
+    const isAccount = paymentMethods.includes('account') || paymentMethods.includes('cash_account');
+
+    const isItemType = purchase.product_items.some(item => {
+        const product = products.find(p => p.id === item.product_id);
+        return product && product.product_type === 'item';
+    });
+
+    const isWeightType = purchase.product_items.some(item => {
+        const product = products.find(p => p.id === item.product_id);
+        return product && product.product_type === 'weight';
+    });
 
     return (
         <div className="min-h-screen bg-gray-100 p-4">
@@ -46,13 +43,13 @@ const Invoice = ({ purchase }) => {
                         <span className="font-bold">Invoice ID: </span> INV-P-{purchase.id}
                     </p>
                     <p className="text-md text-gray-800">
-                        <span className="font-bold">Purchase Date:</span> {purchase.purchase_date}
+                        <span className="font-bold">Purchase Date:</span> {new Date(purchase.purchase_date).toLocaleDateString()}
                     </p>
                     <p className="text-md text-gray-800">
                         <span className="font-bold">Supplier:</span> {purchase.supplier.name}
                     </p>
-                    <p className="text-md text-gray-800">
-                        <span className="font-bold">Payment Method:</span> {purchase.payment_method}
+                    <p className="text-md text-gray-800 capitalize">
+                        <span className="font-bold">Payment Method:</span> {paymentMethods.join(', ')}
                     </p>
 
                     {/* Conditional Payment Info */}
@@ -62,17 +59,17 @@ const Invoice = ({ purchase }) => {
                                 <span className="font-bold">Amount Paid:</span> {purchase.amount_paid.toLocaleString()} Rs
                             </p>
                             <p className="text-md text-gray-800">
-                                <span className="font-bold">Remaining Balance:</span> {purchase.remaining_balance} Rs
+                                <span className="font-bold">Remaining Balance:</span> {purchase.remaining_balance.toLocaleString()} Rs
                             </p>
                             <p className="text-md text-gray-800">
-                                <span className="font-bold">Due Date:</span> {purchase.due_date ?? '-'}
+                                <span className="font-bold">Due Date:</span> {new Date(purchase.due_date).toLocaleDateString() ?? '-'}
                             </p>
                         </>
                     )}
 
                     {isAccount && (
                         <p className="text-md text-gray-800">
-                            <span className="font-bold">Account Title:</span> {purchase.account?.title ?? 'N/A'}
+                            <span className="font-bold">Account:</span> {purchase.account?.title + ' - ' + purchase.account?.bank_name ?? 'N/A'}
                         </p>
                     )}
                 </div>
@@ -80,63 +77,65 @@ const Invoice = ({ purchase }) => {
                 {/* Product Table */}
                 <table className="w-full text-left table-auto border-collapse border">
                     <thead>
-                    {isItemType ? (
-                        <tr className="bg-gray-200">
-                            <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold">Product</th>
-                            <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Size</th>
-                            <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Quantity</th>
-                            <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Rate</th>
-                            <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Total</th>
-                        </tr>
-                    ) : (
-                        <tr className="bg-gray-200">
-                            <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold">Product Name</th>
-                            <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Sizes</th>
-                            <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Weight</th>
-                            <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Rate</th>
-                            <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Total Price</th>
-                        </tr>
-                    )}
+                    <tr className="bg-gray-200">
+                        <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold">Product</th>
+                        <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Size</th>
+                        <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Quantity/Weight</th>
+                        <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Rate</th>
+                        <th className="px-4 py-2 text-gray-700 border border-gray-300 font-semibold text-center">Total Price</th>
+                    </tr>
                     </thead>
                     <tbody>
-                    {isItemType ? (
-                        purchase.product_purchases.map((product, productIndex) =>
-                            product.sizes.map((size, sizeIndex) => (
-                                <tr key={`${productIndex}-${sizeIndex}`} className="border-t">
+                    {purchase.product_items.map((item) => {
+                        const product = products.find(p => p.id === item.product_id);
+
+                        // Item Type Product
+                        if (product && product.product_type === 'item') {
+                            const size = product.sizes.find(s => s.id === item.product_size_id);
+                            const totalPrice = item.purchase_price * item.quantity;
+
+                            return (
+                                <tr key={item.id} className="border-t">
                                     <td className="px-4 py-2 border border-gray-300">{product.name}</td>
-                                    <td className="px-4 py-2 border border-gray-300 text-center">{size.size}</td>
-                                    <td className="px-4 py-2 border border-gray-300 text-center">{size.quantity}</td>
-                                    <td className="px-4 py-2 border border-gray-300 text-center">
-                                        {size.purchase_price.toLocaleString()} Rs
-                                    </td>
-                                    <td className="px-4 py-2 border border-gray-300 text-center">
-                                        {(size.purchase_price * size.quantity).toLocaleString()} Rs
-                                    </td>
+                                    <td className="px-4 py-2 border border-gray-300 text-center">{size ? size.size : '-'}</td>
+                                    <td className="px-4 py-2 border border-gray-300 text-center">{item.quantity} Pcs</td>
+                                    <td className="px-4 py-2 border border-gray-300 text-center">{item.purchase_price.toLocaleString()} Rs</td>
+                                    <td className="px-4 py-2 border border-gray-300 text-center">{totalPrice.toLocaleString()} Rs</td>
                                 </tr>
-                            ))
-                        )
-                    ) : (
-                        purchase.product_purchases.map((product, productIndex) => (
-                            <tr key={productIndex} className="border-t">
-                                <td className="px-4 py-2 border border-gray-300">{product.name}</td>
-                                <td className="px-4 py-2 border border-gray-300 text-center">
-                                    <div className='flex justify-center items-center gap-3'>
-                                        {product.sizes.map((size, sizeIndex) => (
-                                            <div key={sizeIndex}>
-                                                <div className='border-b border-black px-2'>{size.size}</div>
-                                                <div>{size.quantity}</div>
-                                            </div>
-                                        ))}
+                            );
+                        }
+
+                        // Weight Type Product
+                        if (product && product.product_type === 'weight') {
+                            const sizeInfo = product.sizes.map(size => {
+                                const quantity = purchase.product_items.filter(i => i.product_size_id === size.id).reduce((total, i) => total + i.quantity, 0);
+                                return (
+                                    <div key={size.id} className="flex flex-col justify-center items-center gap-1">
+                                        <div className="border-b border-black px-2">{size.size}</div>
+                                        <div>{quantity}</div>
                                     </div>
-                                </td>
-                                <td className='px-4 py-2 border border-gray-300 text-center'>{purchase.weight} KG</td>
-                                <td className='px-4 py-2 border border-gray-300 text-center'>{purchase.product_purchases[0].sizes[0].purchase_price} Rs</td>
-                                <td className="px-4 py-2 border border-gray-300 text-center">
-                                    {(purchase.weight * product.sizes[0].purchase_price).toLocaleString()} Rs
-                                </td>
-                            </tr>
-                        ))
-                    )}
+                                );
+                            });
+
+                            const totalPrice = item.purchase_price * item.weight;
+
+                            return (
+                                <tr key={item.id} className="border-t">
+                                    <td className="px-4 py-2 border border-gray-300">{product.name}</td>
+                                    <td className="px-4 py-2 border border-gray-300">
+                                        <div className="flex justify-center items-center gap-3">
+                                            {sizeInfo}
+                                        </div>
+                                    </td>
+                                    <td className="px-4 py-2 border border-gray-300 text-center">{item.weight} KG</td>
+                                    <td className="px-4 py-2 border border-gray-300 text-center">{item.purchase_price.toLocaleString()} Rs</td>
+                                    <td className="px-4 py-2 border border-gray-300 text-center">{totalPrice.toLocaleString()} Rs</td>
+                                </tr>
+                            );
+                        }
+
+                        return null;
+                    })}
                     </tbody>
                 </table>
 

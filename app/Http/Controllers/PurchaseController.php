@@ -47,8 +47,11 @@ class PurchaseController extends Controller
     {
         $purchase->load(['supplier', 'productPurchases.product', 'productPurchases.productSize', 'account']);
 
+        $products = Product::with(['sizes'])->get();
+
         return Inertia::render('Purchases/Show', [
             'purchase' => PurchaseResource::make($purchase)->resolve(),
+            'products' => ProductResource::collection($products)->resolve(),
         ]);
     }
 
@@ -132,7 +135,7 @@ class PurchaseController extends Controller
                             ]);
 
                             $totalQuantity += $sizeQuantity;
-                            $totalWeight += $sizeWeight ? WeightHelper::toGrams($sizeWeight) : 0;
+                            $totalWeight += $sizeWeight ?: 0;
                         }
                     } else {
                         $purchasePrice = $productData['purchase_price'] ?? 0;
@@ -146,7 +149,7 @@ class PurchaseController extends Controller
                         ]);
 
                         $totalQuantity += $quantity;
-                        $totalWeight += $weight ? WeightHelper::toGrams($weight) : 0;
+                        $totalWeight += $weight ?: 0;
                     }
                 }
             }

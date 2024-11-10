@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Helpers\WeightHelper;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -20,7 +21,7 @@ class ProductPurchaseResource extends JsonResource
             'product_id' => $this->product_id,
             'product_size_id' => $this->product_size_id,
             'quantity' => $this->quantity,
-            'weight' => $this->weight,
+            'weight' => WeightHelper::toKilos($this->weight ?? 0),
             'purchase_price' => $this->purchase_price,
         ];
     }

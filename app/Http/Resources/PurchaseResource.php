@@ -18,20 +18,27 @@ class PurchaseResource extends JsonResource
         $data = [
             'id' => $this->id,
             'supplier_id' => $this->supplier_id,
-            'account_id' => $this->account_id,
+            'account' => new AccountResource($this->whenLoaded('account')),
             'total_price' => $this->total_price,
-            'amount_paid' => $this->amount_paid,
-            'remaining_balance' => $this->remaining_balance,
+            'purchase_date' => $this->purchase_date,
+            'payment_method' => json_decode($this->payment_method),
             'due_date' => $this->due_date,
+            'amount_paid' => $this->amount_paid,
+            'cheque_details' => [
+                'cheque_number' => $this->cheque_number,
+                'cheque_date' => $this->cheque_date,
+                'cheque_bank' => $this->cheque_bank,
+                'cheque_amount' => $this->cheque_amount,
+            ],
+            'account_id' => $this->account_id,
+            'account_payment' => $this->account_payment,
+            'remaining_balance' => $this->remaining_balance,
             'weight' => WeightHelper::toKilos($this->weight),
             'quantity' => $this->quantity,
-            'payment_method' => $this->getFormattedPaymentMethods($this->payment_method),
-            'cheque_number' => $this->cheque_number,
-            'purchase_date' => $this->purchase_date,
-            'account_payment' => $this->account_payment,
+            'product_items' => ProductPurchaseResource::collection($this->whenLoaded('productPurchases'))->resolve(),
         ];
 
-        if ($this->relationLoaded('supplier')) {
+        if ($this->relationLoaded('supplier') && $this->supplier) {
             $data['supplier'] = SupplierResource::make($this->supplier)->resolve();
         }
 
@@ -39,74 +46,8 @@ class PurchaseResource extends JsonResource
             $data['account'] = AccountResource::make($this->account)->resolve();
         }
 
-        if ($this->relationLoaded('productPurchases')) {
-            $data['product_purchases'] = $this->formatProductPurchases($this->productPurchases);
-        }
-
         return $data;
     }
 
-    /**
-     * Format the product purchases to the desired structure.
-     *
-     * @param $productPurchases
-     * @return array
-     */
-    private function formatProductPurchases($productPurchases): array
-    {
-        $formattedPurchases = [];
 
-        foreach ($productPurchases as $productPurchase) {
-            $productId = $productPurchase->product_id;
-
-            if (!isset($formattedPurchases[$productId])) {
-                $product = $productPurchase->product;
-                $formattedPurchases[$productId] = [
-                    'name' => $product ? $product->name : '-',
-                    'total_price' => 0,
-                    'sizes' => [],
-                    'product_type' => $product->product_type,
-                    'weight' => 0,
-                ];
-            }
-
-            $productSize = $productPurchase->productSize;
-
-            $formattedPurchases[$productId]['total_price'] += $productPurchase->purchase_price * $productPurchase->quantity;
-
-            $formattedPurchases[$productId]['sizes'][] = [
-                'size' => $productSize ? $productSize->size : 'Unknown Size',
-                'quantity' => $productPurchase->quantity,
-                'weight' => $productPurchase->weight ? WeightHelper::toKilos($productPurchase->weight) : null,
-                'purchase_price' => $productPurchase->purchase_price,
-                'separate_weight' => (bool)$productPurchase->separate_weight,
-            ];
-
-            if ($productPurchase->weight) {
-                $formattedPurchases[$productId]['weight'] += WeightHelper::toKilos($productPurchase->weight);
-            }
-
-        }
-
-        return $formattedPurchases;
-    }
-
-    private function getFormattedPaymentMethods(string $paymentMethodsJson): string
-    {
-        $methodMap = [
-            'cash' => 'Cash',
-            'account' => 'Account',
-            'credit' => 'Credit',
-            'cheque' => 'Cheque',
-        ];
-
-        $paymentMethods = json_decode($paymentMethodsJson, true);
-
-        $formattedMethods = array_map(function ($method) use ($methodMap) {
-            return $methodMap[$method] ?? 'Unknown Payment Method';
-        }, $paymentMethods);
-
-        // Join the formatted payment methods into a single string
-        return implode(', ', $formattedMethods);
-    }
 }

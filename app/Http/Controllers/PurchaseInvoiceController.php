@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ProductResource;
 use App\Http\Resources\PurchaseResource;
+use App\Models\Product;
 use App\Models\Purchase;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -33,8 +35,11 @@ class PurchaseInvoiceController extends Controller
     {
         $purchase->load(['supplier', 'productPurchases', 'account']);
 
+        $products = Product::with(['sizes'])->get();
+
         return Inertia::render('Purchases/Invoices/Show', [
             'purchase' => PurchaseResource::make($purchase)->resolve(),
+            'products' => ProductResource::collection($products)->resolve(),
         ]);
     }
 }
