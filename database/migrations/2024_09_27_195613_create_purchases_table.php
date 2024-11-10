@@ -22,6 +22,8 @@ return new class extends Migration
             $table->unsignedBigInteger('weight')->nullable();
             $table->unsignedBigInteger('quantity')->nullable();
             $table->string('cheque_number')->nullable();
+            $table->date('cheque_date')->nullable();
+            $table->string('cheque_bank')->nullable();
             $table->date('purchase_date')->nullable();
             $table->string('payment_method')->nullable();
             $table->unsignedBigInteger('account_payment')->nullable();

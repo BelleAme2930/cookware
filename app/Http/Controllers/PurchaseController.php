@@ -62,21 +62,23 @@ class PurchaseController extends Controller
             'payment_method.*' => 'required|string',
             'due_date' => 'nullable|date',
             'account_id' => 'nullable|exists:accounts,id',
-            'account_payment' => 'nullable|numeric|min:0',
-            'total_price' => 'required|numeric|min:0',
             'amount_paid' => 'nullable|numeric|min:0',
+            'account_payment' => 'nullable|numeric|min:0',
             'cheque_number' => 'nullable|string',
-            'products' => 'required|array|min:1',
-            'products.*.weight' => 'nullable|int|min:0',
-            'products.*.product_id' => 'required|exists:products,id',
-            'products.*.product_type' => 'required|string',
-            'products.*.sizes' => 'required|array|min:1',
-            'products.*.sizes.*.id' => 'required|exists:product_sizes,id',
-            'products.*.sizes.*.size' => 'required|string',
-            'products.*.sizes.*.quantity' => 'required|integer|min:1',
-            'products.*.sizes.*.purchase_price' => 'required|numeric|min:0',
-            'products.*.sizes.*.separateWeight' => 'boolean',
-            'products.*.sizes.*.weight' => 'nullable|int|min:0',
+            'cheque_bank' => 'nullable|string',
+            'cheque_amount' => 'nullable|numeric|min:0',
+            'cheque_date' => 'nullable|date',
+            'total_price' => 'required|numeric|min:0',
+            'product_items' => 'required|array|min:1',
+            'product_items.*.product_id' => 'required|exists:products,id',
+            'product_items.*.weight' => 'nullable|numeric|min:0',
+            'product_items.*.quantity' => 'nullable|int|min:0',
+            'product_items.*.purchase_price' => 'nullable|integer|min:0',
+            'product_items.*.sizes' => 'nullable|array|min:1',
+            'product_items.*.sizes.*.value' => 'nullable|int|min:1',
+            'product_items.*.sizes.*.weight' => 'nullable|numeric|min:1',
+            'product_items.*.sizes.*.quantity' => 'nullable|int|min:1',
+            'product_items.*.sizes.*.purchase_price' => 'nullable|integer|min:0',
         ]);
 
         try {
@@ -84,74 +86,95 @@ class PurchaseController extends Controller
 
             $purchase = Purchase::create([
                 'supplier_id' => $validatedData['supplier_id'],
-                'account_id' => null,
                 'total_price' => $validatedData['total_price'],
-                'amount_paid' => 0,
-                'remaining_balance' => 0,
-                'due_date' => null,
-                'weight' => 0,
-                'quantity' => 0,
-                'cheque_number' => null,
+                'account_id' => null,
+                'due_date' => $validatedData['due_date'] ?? null,
+                'amount_paid' => $validatedData['amount_paid'] ?? 0,
+                'cheque_number' => $validatedData['cheque_number'] ?? null,
+                'cheque_date' => $validatedData['cheque_date'] ?? null,
+                'cheque_bank' => $validatedData['cheque_bank'] ?? null,
+                'remaining_balance' => $validatedData['total_price'] - ($validatedData['amount_paid'] ?? 0),
                 'purchase_date' => Carbon::today(),
                 'payment_method' => json_encode($validatedData['payment_method']),
                 'account_payment' => $validatedData['account_payment'] ?? null,
             ]);
 
-            if ($validatedData['amount_paid']) {
-                $purchase->update(['due_date' => $validatedData['due_date']]);
+            if (in_array('account', $validatedData['payment_method'])) {
+                $purchase->update([
+                    'account_id' => $validatedData['account_id'],
+                    'account_payment' => $validatedData['account_payment'],
+                ]);
+            }
+
+            if (in_array('credit', $validatedData['payment_method'])) {
+                $purchase->update([
+                    'amount_paid' => $validatedData['amount_paid'],
+                    'remaining_balance' => $validatedData['total_price'] - ($validatedData['amount_paid'] ?? 0),
+                ]);
             }
 
             if (in_array('cheque', $validatedData['payment_method'])) {
-                $purchase->update(['cheque_number' => $validatedData['cheque_number']]);
+                $purchase->update([
+                    'cheque_number' => $validatedData['cheque_number'],
+                    'cheque_date' => $validatedData['cheque_date'],
+                    'cheque_bank' => $validatedData['cheque_bank'],
+                ]);
             }
 
-            if (in_array('account', $validatedData['payment_method'])) {
-                $purchase->update(['account_id' => $validatedData['account_id']]);
-            }
+            $totalWeight = 0;
+            $totalQuantity = 0;
 
-            $amountPaid = $validatedData['amount_paid'] ?? 0;
-            $remainingBalance = $validatedData['total_price'] - $amountPaid;
-
-            $purchase->update([
-                'amount_paid' => $amountPaid,
-                'remaining_balance' => $remainingBalance,
-            ]);
-
-            $weight = 0;
-            $quantity = 0;
-
-            // Processing products
-            foreach ($validatedData['products'] as $productData) {
+            foreach ($validatedData['product_items'] as $productData) {
                 $product = Product::find($productData['product_id']);
 
-                if ($productData['weight']) {
-                    $weight += $productData['weight'];
-                }
+                if ($product) {
 
-                foreach ($productData['sizes'] as $sizeData) {
-                    $size = ProductSize::find($sizeData['id']);
-                    $quantity += $sizeData['quantity'];
+                    $weight = null;
+                    $quantity = 0;
 
-                    $separateWeight = array_key_exists('separateWeight', $sizeData) ? $sizeData['separateWeight'] : false;
+                    if ($product->product_type === 'weight') {
+                        $weight = $productData['weight'] ?? 0;
+                    }
 
-                    $purchase->productPurchases()->create([
-                        'product_id' => $product->id,
-                        'product_size_id' => $size->id,
-                        'quantity' => $sizeData['quantity'],
-                        'purchase_price' => $sizeData['purchase_price'],
-                        'separate_weight' => $separateWeight,
-                        'weight' => ($separateWeight && $sizeData['weight']) ? WeightHelper::toGrams($sizeData['weight']) : (
-                        $product->product_type === ProductTypeEnum::WEIGHT->value
-                            ? WeightHelper::toGrams($productData['weight'])
-                            : null
-                        ),
-                    ]);
+                    if (!empty($productData['sizes'])) {
+                        foreach ($productData['sizes'] as $sizeData) {
+                            $sizeWeight = $sizeData['weight'] ?? $weight;
+                            $sizeQuantity = $sizeData['quantity'] ?? 1;
+                            $sizePurchasePrice = $sizeData['purchase_price'] ?? 0;
+
+                            $purchase->productPurchases()->create([
+                                'product_id' => $product->id,
+                                'product_size_id' => $sizeData['value'] ?? null,
+                                'quantity' => $sizeQuantity,
+                                'purchase_price' => $sizePurchasePrice,
+                                'weight' => $sizeWeight ? WeightHelper::toGrams($sizeWeight) : null,
+                            ]);
+
+                            $totalQuantity += $sizeQuantity;
+                            $totalWeight += $sizeWeight ? WeightHelper::toGrams($sizeWeight) : 0;
+                        }
+                    } else {
+                        $quantity = $productData['quantity'] ?? 1;
+                        $purchasePrice = $productData['purchase_price'] ?? 0;
+
+                        $purchase->productPurchases()->create([
+                            'product_id' => $product->id,
+                            'product_size_id' => null,
+                            'quantity' => $quantity,
+                            'purchase_price' => $purchasePrice,
+                            'weight' => $weight ? WeightHelper::toGrams($weight) : null,
+                        ]);
+
+                        $totalQuantity += $quantity;
+                        $totalWeight += $weight ? WeightHelper::toGrams($weight) : 0;
+                    }
                 }
             }
 
+
             $purchase->update([
-                'weight' => WeightHelper::toGrams($weight),
-                'quantity' => $quantity,
+                'weight' => WeightHelper::toGrams($totalWeight),
+                'quantity' => $totalQuantity,
             ]);
 
             DB::commit();

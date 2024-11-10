@@ -16,6 +16,8 @@ class Purchase extends Model
         'purchase_date',
         'supplier_id',
         'cheque_number',
+        'cheque_date',
+        'cheque_bank',
         'payment_method',
         'account_id',
         'total_price',
