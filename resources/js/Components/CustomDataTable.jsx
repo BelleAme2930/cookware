@@ -15,8 +15,17 @@ const CustomDataTable = ({ title, data, columns, searchLabel, isLoading, filterC
 
     const updatedColumns = columns.map(column => ({
         ...column,
-        sortable: false
+        sortable: false,
+        cell: row => {
+            const classNames = typeof column.class === 'function' ? column.class(row) : column.class || '';
+            return (
+                <div className={classNames}>
+                    {column.selector ? column.selector(row) : column.cell(row)}
+                </div>
+            );
+        }
     }));
+
 
     const customStyles = {
         headRow: {

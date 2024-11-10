@@ -3,13 +3,13 @@ import {Head, useForm} from "@inertiajs/react";
 import InputSelect from "@/Components/InputSelect.jsx";
 import ShadowBox from "@/Components/ShadowBox.jsx";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import {Label} from "@headlessui/react";
 import TextInput from "@/Components/TextInput.jsx";
+import Label from "@/Components/Label.jsx";
 
 const PurchaseCreate = ({suppliers, products, accounts}) => {
     const {data, setData, post, processing, reset} = useForm({
         supplier_id: "",
-        product_items: [{product_id: "", sizes: [], quantity: 1, weight: "", purchase_price: 1}],
+        product_items: [{product_id: "", sizes: [], quantity: 1, weight: 0, purchase_price: 1}],
         payment_method: [],
         due_date: '',
         cheque_date: '',
@@ -48,6 +48,8 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
             data: {
                 ...data,
                 total_price: totalPrice,
+                amount_paid: parseFloat(data.amount_paid) || 0,
+                cheque_amount: parseFloat(data.cheque_amount) || 0,
             },
             onSuccess: () => reset(),
         });
@@ -63,24 +65,24 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                 if (isWeightBased) {
                     if (hasSizes) {
                         total += item.sizes.reduce((sizeTotal, size) => {
-                            const purchasePrice = parseInt(size.purchase_price) || 0;
+                            const purchasePrice = parseFloat(size.purchase_price) || 0;
                             const weight = parseFloat(size.weight) || 1;
                             return sizeTotal + (purchasePrice * weight);
                         }, 0);
                     } else {
-                        const purchasePrice = parseInt(item.purchase_price) || 0;
+                        const purchasePrice = parseFloat(item.purchase_price) || 0;
                         const weight = parseFloat(item.weight) || 1;
                         total += purchasePrice * weight;
                     }
                 } else {
                     if (hasSizes) {
                         total += item.sizes.reduce((sizeTotal, size) => {
-                            const purchasePrice = parseInt(size.purchase_price) || 0;
+                            const purchasePrice = parseFloat(size.purchase_price) || 0;
                             const quantity = parseFloat(size.quantity) || 1;
                             return sizeTotal + (purchasePrice * quantity);
                         }, 0);
                     } else {
-                        const purchasePrice = parseInt(item.purchase_price) || 0;
+                        const purchasePrice = parseFloat(item.purchase_price) || 0;
                         const quantity = parseFloat(item.quantity) || 1;
                         total += purchasePrice * quantity;
                     }

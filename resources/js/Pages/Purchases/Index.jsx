@@ -19,7 +19,7 @@ const Index = ({ purchases }) => {
     const columns = [
         {
             name: 'Total Weight',
-            selector: row => row.weight.toLocaleString() + ' KG',
+            selector: row => row.weight > 0 ? row.weight.toLocaleString() + ' KG' : '-',
         },
         {
             name: 'Total Quantity',
@@ -35,7 +35,8 @@ const Index = ({ purchases }) => {
         },
         {
             name: 'Payment Method',
-            selector: row => row.payment_method,
+            selector: row => row.payment_method.join(', '),
+            class: 'capitalize'
         },
         {
             name: 'Due Date',
@@ -46,9 +47,7 @@ const Index = ({ purchases }) => {
             cell: row => (
                 <div className="flex space-x-2">
                     <IconButton onClick={() => router.visit(viewRoute(row.id))} icon={faEye} />
-                    {/* Uncomment the edit button if needed */}
                     {/* <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} /> */}
-                    {/* Uncomment the delete button if needed */}
                     <IconButton onClick={() => router.visit(route('purchases.invoices.show', row.id))} icon={faPrint} />
                      <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />
                 </div>
