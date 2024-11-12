@@ -57,7 +57,6 @@ class PurchaseController extends Controller
 
     public function store(Request $request)
     {
-        // Define base validation rules
         $validatedData = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
             'payment_method' => 'required|array|max:3',
@@ -68,7 +67,7 @@ class PurchaseController extends Controller
             'product_items.*.weight' => 'nullable|numeric|min:0',
             'product_items.*.quantity' => 'nullable|int|min:0',
             'product_items.*.purchase_price' => 'nullable|integer|min:0',
-            'product_items.*.sizes' => 'nullable|array|min:1',
+            'product_items.*.sizes' => 'nullable|array|min:0',
             'product_items.*.sizes.*.value' => 'nullable|int|min:1',
             'product_items.*.sizes.*.weight' => 'nullable|numeric|min:1',
             'product_items.*.sizes.*.quantity' => 'nullable|int|min:1',

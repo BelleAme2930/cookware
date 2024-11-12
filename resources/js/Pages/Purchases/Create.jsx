@@ -1,15 +1,22 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {Head, useForm} from "@inertiajs/react";
 import InputSelect from "@/Components/InputSelect.jsx";
 import ShadowBox from "@/Components/ShadowBox.jsx";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import TextInput from "@/Components/TextInput.jsx";
 import Label from "@/Components/Label.jsx";
+import PrimaryButton from "@/Components/PrimaryButton.jsx";
+import BorderButton from "@/Components/BorderButton.jsx";
+import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
+import {Button} from "@headlessui/react";
+import IconButton from "@/Components/IconButton.jsx";
+import {faAdd, faTrash} from "@fortawesome/free-solid-svg-icons";
 
 const PurchaseCreate = ({suppliers, products, accounts}) => {
+
     const {data, setData, post, processing, reset} = useForm({
         supplier_id: "",
-        product_items: [{product_id: "", sizes: [], quantity: 1, weight: 0, purchase_price: 1}],
+        product_items: [{product_id: "", sizes: [], quantity: 1, weight: 0, purchase_price: 1, weight_type: ''}],
         payment_method: [],
         due_date: '',
         cheque_date: '',
@@ -19,13 +26,13 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
         account_payment: '',
         cheque_amount: '',
         cheque_bank: '',
-        total_price: '',
+        total_price: 0,
     });
 
     const addProductItem = () => {
         setData("product_items", [
             ...data.product_items,
-            {product_id: "", sizes: [], quantity: 1, weight: "", purchase_price: 1},
+            {product_id: "", sizes: [], quantity: 1, weight: "", purchase_price: 1, weight_type: ''},
         ]);
     };
 
@@ -40,35 +47,27 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
         calculateTotalPrice();
     };
 
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        const totalPrice = calculateTotalPrice();
-        setData("total_price", totalPrice);
-        post(route('purchases.store'), {
-            data: {
-                ...data,
-                total_price: totalPrice,
-                amount_paid: parseFloat(data.amount_paid) || 0,
-                cheque_amount: parseFloat(data.cheque_amount) || 0,
-            },
-            onSuccess: () => reset(),
-        });
-    };
-
     const calculateTotalPrice = () => {
         return data.product_items.reduce((total, item) => {
             const selectedProduct = products.find(p => p.id === item.product_id);
             const isWeightBased = selectedProduct?.product_type === "weight";
             const hasSizes = item.sizes && item.sizes.length > 0;
+            const weightType = item.weight_type;
 
             if (selectedProduct) {
-                if (isWeightBased) {
+                if (isWeightBased && weightType) {
                     if (hasSizes) {
-                        total += item.sizes.reduce((sizeTotal, size) => {
-                            const purchasePrice = parseFloat(size.purchase_price) || 0;
-                            const weight = parseFloat(size.weight) || 1;
-                            return sizeTotal + (purchasePrice * weight);
-                        }, 0);
+                        if (weightType === 'total') {
+                            const purchasePrice = parseFloat(item.purchase_price) || 0;
+                            const weight = parseFloat(item.weight) || 1;
+                            total += purchasePrice * weight;
+                        } else {
+                            total += item.sizes.reduce((sizeTotal, size) => {
+                                const purchasePrice = parseInt(size.purchase_price) || 0;
+                                const weight = parseFloat(size.weight) || 1;
+                                return sizeTotal + (purchasePrice * weight);
+                            }, 0);
+                        }
                     } else {
                         const purchasePrice = parseFloat(item.purchase_price) || 0;
                         const weight = parseFloat(item.weight) || 1;
@@ -90,6 +89,24 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
             }
             return total;
         }, 0);
+    };
+
+    useEffect(() => {
+        const total = calculateTotalPrice();
+        setData("total_price", total);
+    }, [data.product_items]);
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        post(route('purchases.store'), {
+            data: {
+                ...data,
+                amount_paid: parseFloat(data.amount_paid) || 0,
+                cheque_amount: parseFloat(data.cheque_amount) || 0,
+            },
+            onSuccess: () => reset(),
+        });
     };
 
     const hasPaymentMethod = (method) => data.payment_method.includes(method);
@@ -114,198 +131,340 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                             />
                         </div>
 
-                        {data.product_items.map((item, index) => {
-                            const selectedProduct = products.find(p => p.id === item.product_id);
-                            const hasSizes = selectedProduct?.sizes?.length > 0;
-                            const isWeightBased = selectedProduct?.product_type === "weight";
+                        <div>
+                            {data.product_items.map((item, index) => {
+                                const selectedProduct = products.find(p => p.id === item.product_id);
+                                const hasSizes = selectedProduct?.sizes?.length > 0;
+                                const isWeightBased = selectedProduct?.product_type === "weight";
+                                const weightType = item.weight_type;
 
-                            return (
-                                <div key={index} className="space-y-4 border-b pb-4 mb-4">
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700">Product</label>
-                                        <InputSelect
-                                            options={products.map(product => ({
-                                                value: product.id,
-                                                label: product.name,
-                                            }))}
-                                            value={item.product_id}
-                                            onChange={(selected) => {
-                                                handleProductChange(index, "product_id", selected?.value || "");
-                                                handleProductChange(index, "sizes", []);
-                                            }}
-                                            isClearable
-                                            placeholder="Select Product"
-                                        />
-                                    </div>
-
-                                    {/* Conditionally show fields if product is selected */}
-                                    {item.product_id && (
-                                        <>
-                                            {hasSizes && (
-                                                <div>
-                                                    <label
-                                                        className="block text-sm font-medium text-gray-700">Sizes</label>
-                                                    <InputSelect
-                                                        options={selectedProduct.sizes.map(size => ({
-                                                            value: size.id,
-                                                            label: size.size,
-                                                        }))}
-                                                        value={item.sizes}
-                                                        onChange={(selectedSizes) => handleProductChange(index, "sizes", selectedSizes || [])}
-                                                        isMulti
-                                                        placeholder="Select Sizes"
-                                                    />
-                                                </div>
+                                return (
+                                    <div key={index} className="space-y-4 border-b pb-4 mb-4 bg-gray-100 p-4 relative">
+                                        <div className='absolute top-2 right-2'>
+                                            {index > 0 && (
+                                                <IconButton icon={faTrash} onClick={() => removeProductItem(index)} type='button'/>
                                             )}
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-700">Product</label>
+                                            <InputSelect
+                                                options={products.map(product => ({
+                                                    value: product.id,
+                                                    label: product.name,
+                                                }))}
+                                                value={item.product_id}
+                                                onChange={(selected) => {
+                                                    handleProductChange(index, "product_id", selected?.value || "");
+                                                    handleProductChange(index, "sizes", []);
+                                                }}
+                                                isClearable
+                                                placeholder="Select Product"
+                                            />
+                                        </div>
 
-                                            {item.sizes.map((size, sizeIndex) => {
-                                                const selectedSize = selectedProduct?.sizes.find(s => s.id === size.value);
-                                                return (
-                                                    <div key={sizeIndex} className="space-y-2 bg-gray-100 p-6 rounded-md">
-                                                        <h4 className="text-md font-semibold">Size: {selectedSize.size}</h4>
+                                        {selectedProduct && isWeightBased && (
+                                            <div>
+                                                <label
+                                                    className="block text-sm font-medium text-gray-700">Weight Type</label>
+                                                <InputSelect
+                                                    options={[
+                                                        {value: 'total', label: 'Total'},
+                                                        {value: 'unit', label: 'Per Unit'},
+                                                    ]}
+                                                    value={item.sizes}
+                                                    onChange={(e) => handleProductChange(index, "weight_type", e.value)}
+                                                    placeholder="Select Weight Type"
+                                                />
+                                            </div>
+                                        )}
 
-                                                        <div className='flex gap-3'>
-                                                            <div className={isWeightBased ? 'w-1/3' : 'w-1/2'}>
-                                                                <label
-                                                                    className="block text-sm font-medium text-gray-700">Quantity</label>
-                                                                <input
-                                                                    type="number"
-                                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                    value={size.quantity || 1}
-                                                                    onChange={(e) => {
-                                                                        const updatedSizes = [...item.sizes];
-                                                                        updatedSizes[sizeIndex].quantity = e.target.value;
-                                                                        handleProductChange(index, "sizes", updatedSizes);
-                                                                    }}
-                                                                    min="1"
-                                                                    required
-                                                                />
-                                                            </div>
+                                        {selectedProduct && (
+                                            <>
+                                                {isWeightBased && weightType ? (
+                                                    <>
+                                                        {hasSizes ? (
+                                                            <>
+                                                                <div>
+                                                                    <label
+                                                                        className="block text-sm font-medium text-gray-700">Sizes</label>
+                                                                    <InputSelect
+                                                                        options={selectedProduct.sizes.map(size => ({
+                                                                            value: size.id,
+                                                                            label: size.size,
+                                                                        }))}
+                                                                        value={item.sizes}
+                                                                        onChange={(selectedSizes) => handleProductChange(index, "sizes", selectedSizes || [])}
+                                                                        isMulti
+                                                                        placeholder="Select Sizes"
+                                                                    />
+                                                                    {item.sizes && item.sizes.length > 0 && (
+                                                                        <>
+                                                                            {item.sizes.map((size, sizeIndex) => {
+                                                                                const selectedSize = selectedProduct?.sizes.find(s => s.id === size.value);
+                                                                                return (
+                                                                                    <>
+                                                                                        {weightType === 'unit' ? (
+                                                                                            <div key={sizeIndex}
+                                                                                                 className="space-y-2 bg-gray-100 p-6 rounded-md">
+                                                                                                <h4 className="text-md font-semibold">Size: {selectedSize.size}</h4>
 
-                                                            {isWeightBased && (
-                                                                <div className='w-1/3'>
+                                                                                                <div className='flex gap-3'>
+                                                                                                    <div className='w-1/3'>
+                                                                                                        <label
+                                                                                                            className="block text-sm font-medium text-gray-700">Quantity</label>
+                                                                                                        <input
+                                                                                                            type="number"
+                                                                                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                                                            value={size.quantity || 1}
+                                                                                                            onChange={(e) => {
+                                                                                                                const updatedSizes = [...item.sizes];
+                                                                                                                updatedSizes[sizeIndex].quantity = e.target.value;
+                                                                                                                handleProductChange(index, "sizes", updatedSizes);
+                                                                                                            }}
+                                                                                                            min="1"
+                                                                                                            required
+                                                                                                        />
+                                                                                                    </div>
+
+                                                                                                    <div className='w-1/3'>
+                                                                                                        <label
+                                                                                                            className="block text-sm font-medium text-gray-700">Weight</label>
+                                                                                                        <input
+                                                                                                            type="number"
+                                                                                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                                                            value={size.weight || ""}
+                                                                                                            onChange={(e) => {
+                                                                                                                const updatedSizes = [...item.sizes];
+                                                                                                                updatedSizes[sizeIndex].weight = e.target.value;
+                                                                                                                handleProductChange(index, "sizes", updatedSizes);
+                                                                                                            }}
+                                                                                                            min="0"
+                                                                                                            placeholder="Enter weight"
+                                                                                                            required
+                                                                                                        />
+                                                                                                    </div>
+
+                                                                                                    <div
+                                                                                                        className='w-1/3'>
+                                                                                                        <label
+                                                                                                            className="block text-sm font-medium text-gray-700">Purchase
+                                                                                                            Price</label>
+                                                                                                        <input
+                                                                                                            type="number"
+                                                                                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                                                            value={size.purchase_price ?? 1}
+                                                                                                            onChange={(e) => {
+                                                                                                                const updatedSizes = [...item.sizes];
+                                                                                                                updatedSizes[sizeIndex].purchase_price = e.target.value;
+                                                                                                                handleProductChange(index, "sizes", updatedSizes);
+                                                                                                            }}
+                                                                                                            required
+                                                                                                        />
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        ) : (
+                                                                                            <>
+                                                                                                <div
+                                                                                                    className='w-full p-4 rounded-md bg-gray-100'>
+                                                                                                    <h4 className="text-md font-semibold mb-2">Size: {selectedSize.size}</h4>
+                                                                                                    <label
+                                                                                                        className="block text-sm font-medium text-gray-700">Quantity</label>
+                                                                                                    <input
+                                                                                                        type="number"
+                                                                                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                                                        value={size.quantity || 1}
+                                                                                                        onChange={(e) => {
+                                                                                                            const updatedSizes = [...item.sizes];
+                                                                                                            updatedSizes[sizeIndex].quantity = e.target.value;
+                                                                                                            handleProductChange(index, "sizes", updatedSizes);
+                                                                                                        }}
+                                                                                                        min="1"
+                                                                                                        required
+                                                                                                    />
+                                                                                                </div>
+                                                                                            </>
+                                                                                        )}
+                                                                                    </>
+                                                                                );
+                                                                            })}
+                                                                        </>
+                                                                    )}
+                                                                    {weightType === 'total' && (
+                                                                        <>
+                                                                            <div>
+                                                                                <label
+                                                                                    className="block text-sm font-medium text-gray-700">Weight</label>
+                                                                                <input
+                                                                                    type="number"
+                                                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                                    value={item.weight}
+                                                                                    onChange={(e) => handleProductChange(index, "weight", e.target.value)}
+                                                                                    min="0"
+                                                                                    placeholder="Enter weight"
+                                                                                    required
+                                                                                />
+                                                                            </div>
+                                                                            <div>
+                                                                                <label
+                                                                                    className="block text-sm font-medium text-gray-700">Purchase
+                                                                                    Price</label>
+                                                                                <input
+                                                                                    type="number"
+                                                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                                    value={item.purchase_price}
+                                                                                    onChange={(e) => handleProductChange(index, "purchase_price", e.target.value)}
+                                                                                    min="0"
+                                                                                    placeholder="Purchase Price"
+                                                                                />
+                                                                            </div>
+                                                                        </>
+                                                                    )}
+                                                                </div>
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <div>
                                                                     <label
                                                                         className="block text-sm font-medium text-gray-700">Weight</label>
                                                                     <input
                                                                         type="number"
                                                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                        value={size.weight || ""}
-                                                                        onChange={(e) => {
-                                                                            const updatedSizes = [...item.sizes];
-                                                                            updatedSizes[sizeIndex].weight = e.target.value;
-                                                                            handleProductChange(index, "sizes", updatedSizes);
-                                                                        }}
+                                                                        value={item.weight}
+                                                                        onChange={(e) => handleProductChange(index, "weight", e.target.value)}
                                                                         min="0"
                                                                         placeholder="Enter weight"
                                                                         required
                                                                     />
                                                                 </div>
-                                                            )}
+                                                                <div>
+                                                                    <label
+                                                                        className="block text-sm font-medium text-gray-700">Purchase
+                                                                        Price</label>
+                                                                    <input
+                                                                        type="number"
+                                                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                        value={item.purchase_price}
+                                                                        onChange={(e) => handleProductChange(index, "purchase_price", e.target.value)}
+                                                                        min="0"
+                                                                        placeholder="Purchase Price"
+                                                                    />
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        {hasSizes ? (
+                                                            <>
+                                                                <div>
+                                                                    <label
+                                                                        className="block text-sm font-medium text-gray-700">Sizes</label>
+                                                                    <InputSelect
+                                                                        options={selectedProduct.sizes.map(size => ({
+                                                                            value: size.id,
+                                                                            label: size.size,
+                                                                        }))}
+                                                                        value={item.sizes}
+                                                                        onChange={(selectedSizes) => handleProductChange(index, "sizes", selectedSizes || [])}
+                                                                        isMulti
+                                                                        placeholder="Select Sizes"
+                                                                    />
+                                                                </div>
+                                                                {item.sizes && item.sizes.length > 0 && (
+                                                                    <>
+                                                                        {item.sizes.map((size, sizeIndex) => {
+                                                                            const selectedSize = selectedProduct?.sizes.find(s => s.id === size.value);
+                                                                            return (
+                                                                                <div key={sizeIndex}
+                                                                                     className="space-y-2 bg-gray-100 p-6 rounded-md">
+                                                                                    <h4 className="text-md font-semibold">Size: {selectedSize.size}</h4>
 
-                                                            <div className={isWeightBased ? 'w-1/3' : 'w-1/2'}>
-                                                                <label
-                                                                    className="block text-sm font-medium text-gray-700">Purchase
-                                                                    Price</label>
-                                                                <input
-                                                                    type="number"
-                                                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                    value={size.purchase_price ?? 1}
-                                                                    onChange={(e) => {
-                                                                        const updatedSizes = [...item.sizes];
-                                                                        updatedSizes[sizeIndex].purchase_price = e.target.value;
-                                                                        handleProductChange(index, "sizes", updatedSizes);
-                                                                    }}
-                                                                    required
-                                                                />
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                );
-                                            })}
+                                                                                    <div className='flex gap-3'>
+                                                                                        <div className='w-1/2'>
+                                                                                            <label
+                                                                                                className="block text-sm font-medium text-gray-700">Quantity</label>
+                                                                                            <input
+                                                                                                type="number"
+                                                                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                                                value={size.quantity || 1}
+                                                                                                onChange={(e) => {
+                                                                                                    const updatedSizes = [...item.sizes];
+                                                                                                    updatedSizes[sizeIndex].quantity = e.target.value;
+                                                                                                    handleProductChange(index, "sizes", updatedSizes);
+                                                                                                }}
+                                                                                                min="1"
+                                                                                                required
+                                                                                            />
+                                                                                        </div>
 
-                                            {/* Product without sizes */}
-                                            {!hasSizes && isWeightBased && (
-                                                <>
-                                                    <div>
-                                                        <label
-                                                            className="block text-sm font-medium text-gray-700">Weight</label>
-                                                        <input
-                                                            type="number"
-                                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                            value={item.weight}
-                                                            onChange={(e) => handleProductChange(index, "weight", e.target.value)}
-                                                            min="0"
-                                                            placeholder="Enter weight (e.g., kg)"
-                                                            required
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700">Purchase
-                                                            Price</label>
-                                                        <input
-                                                            type="number"
-                                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                            value={item.purchase_price}
-                                                            onChange={(e) => handleProductChange(index, "purchase_price", e.target.value)}
-                                                            min="0"
-                                                            placeholder="Enter purchase price"
-                                                        />
-                                                    </div>
-                                                </>
-                                            )}
-
-                                            {!hasSizes && !isWeightBased && (
-                                                <>
-                                                    <div>
-                                                        <label
-                                                            className="block text-sm font-medium text-gray-700">Quantity</label>
-                                                        <input
-                                                            type="number"
-                                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                            value={item.quantity}
-                                                            onChange={(e) => handleProductChange(index, "quantity", e.target.value)}
-                                                            min="1"
-                                                            placeholder="Enter quantity"
-                                                        />
-                                                    </div>
-                                                    <div>
-                                                        <label className="block text-sm font-medium text-gray-700">Purchase
-                                                            Price</label>
-                                                        <input
-                                                            type="number"
-                                                            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                            value={item.purchase_price}
-                                                            onChange={(e) => handleProductChange(index, "purchase_price", e.target.value)}
-                                                            min="0"
-                                                            placeholder="Enter purchase price"
-                                                        />
-                                                    </div>
-                                                </>
-                                            )}
-                                        </>
-                                    )}
-
-                                    {index > 0 && (
-                                        <button
-                                            type="button"
-                                            onClick={() => removeProductItem(index)}
-                                            className="text-sm text-red-600 hover:text-red-800"
-                                        >
-                                            Remove Product
-                                        </button>
-                                    )}
-                                </div>
-                            );
-                        })}
+                                                                                        <div
+                                                                                            className='w-1/2'>
+                                                                                            <label
+                                                                                                className="block text-sm font-medium text-gray-700">Purchase
+                                                                                                Price</label>
+                                                                                            <input
+                                                                                                type="number"
+                                                                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                                                value={size.purchase_price ?? 1}
+                                                                                                onChange={(e) => {
+                                                                                                    const updatedSizes = [...item.sizes];
+                                                                                                    updatedSizes[sizeIndex].purchase_price = e.target.value;
+                                                                                                    handleProductChange(index, "sizes", updatedSizes);
+                                                                                                }}
+                                                                                                required
+                                                                                            />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            );
+                                                                        })}
+                                                                    </>
+                                                                )}
+                                                            </>
+                                                        ) : (
+                                                            <>
+                                                                <div>
+                                                                    <label
+                                                                        className="block text-sm font-medium text-gray-700">Quantity</label>
+                                                                    <input
+                                                                        type="number"
+                                                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                        value={item.quantity}
+                                                                        onChange={(e) => handleProductChange(index, "quantity", e.target.value)}
+                                                                        min="0"
+                                                                        placeholder="Enter Quantity"
+                                                                        required
+                                                                    />
+                                                                </div>
+                                                                <div>
+                                                                    <label
+                                                                        className="block text-sm font-medium text-gray-700">Purchase
+                                                                        Price</label>
+                                                                    <input
+                                                                        type="number"
+                                                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                        value={item.purchase_price}
+                                                                        onChange={(e) => handleProductChange(index, "purchase_price", e.target.value)}
+                                                                        min="0"
+                                                                        placeholder="Purchase Price"
+                                                                    />
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                    </>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
 
                         {/* Add Another Product Button */}
-                        <button
-                            type="button"
-                            className="w-full inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                            onClick={addProductItem}
-                        >
-                            Add Another Product
-                        </button>
+                        <div className='w-full flex justify-center'>
+                            <IconButton icon={faAdd} onClick={addProductItem} type="button">Add Product</IconButton>
+                        </div>
 
                         {/* Total Price */}
                         <div className="text-right">
@@ -415,13 +574,18 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                         )}
 
                         {/* Submit Button */}
-                        <button
-                            type="submit"
-                            className="w-full inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
-                            disabled={processing}
-                        >
-                            {processing ? "Submitting..." : "Submit Purchase"}
-                        </button>
+                        <div className='w-full flex justify-center'>
+                            <BorderButton type="submit" disabled={processing}>
+                                {processing ? "Submitting..." : "Submit Purchase"}
+                            </BorderButton>
+                        </div>
+                        {/*<button*/}
+                        {/*    type="submit"*/}
+                        {/*    className="w-full inline-flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"*/}
+                        {/*    disabled={processing}*/}
+                        {/*>*/}
+                        {/*    {processing ? "Submitting..." : "Submit Purchase"}*/}
+                        {/*</button>*/}
                     </form>
                 </ShadowBox>
             </div>

@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('purchase_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_id')->constrained()->onDelete('cascade');
-            $table->foreignId('product_size_id')->constrained()->onDelete('cascade');
+            $table->foreignId('product_size_id')->nullable()->constrained()->onDelete('cascade');
             $table->unsignedBigInteger('quantity')->nullable();
             $table->unsignedBigInteger('weight')->nullable();
             $table->unsignedBigInteger('purchase_price');
