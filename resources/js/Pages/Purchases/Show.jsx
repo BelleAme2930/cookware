@@ -8,7 +8,7 @@ import BorderButton from "@/Components/BorderButton.jsx";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 
 const Show = ({purchase, products}) => {
-    console.log(products)
+    console.log(purchase)
 
     const paymentMethods = purchase.payment_method;
 
@@ -119,167 +119,92 @@ const Show = ({purchase, products}) => {
 
                     <hr className="my-6"/>
 
-                    {/* Product List */}
                     <div className="overflow-x-auto">
-                        {/* Item-Type Table */}
-                        <h3 className="text-xl font-semibold mb-4">Item Base Products:</h3>
-                        {purchase.product_items.some(item => {
-                            const product = products.find(p => p.id === item.product_id);
-                            return product && product.product_type === "item";
-                        }) && (
-                            <table className="min-w-full bg-white border border-gray-200 mb-8">
-                                <thead>
-                                <tr className="bg-gray-100">
-                                    <th className="py-2 px-4 text-center border">Product Name</th>
-                                    <th className="py-2 px-4 text-center border">Size</th>
-                                    <th className="py-2 px-4 text-center border">Quantity</th>
-                                    <th className="py-2 px-4 text-center border">Rate (Rs)</th>
-                                    <th className="py-2 px-4 text-center border">Total Price (Rs)</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {purchase.product_items.map((item) => {
-                                    const product = products.find(p => p.id === item.product_id);
-                                    if (product && product.product_type === "item") {
-                                        // Find the size name based on product_size_id
-                                        const size = product.sizes.find(s => s.id === item.product_size_id);
-                                        const totalPrice = item.purchase_price * item.quantity;
+                        <h3 className="text-xl font-semibold mb-4">Products:</h3>
+                        <table className="min-w-full bg-white border border-gray-200 mb-8">
+                            <thead>
+                            <tr className="bg-gray-100">
+                                <th className="py-2 px-4 text-center border">Product Name</th>
+                                <th className="py-2 px-4 text-center border">Size</th>
+                                <th className="py-2 px-4 text-center border">Quantity</th>
+                                <th className="py-2 px-4 text-center border">Weight</th>
+                                <th className="py-2 px-4 text-center border">Rate (Rs)</th>
+                                <th className="py-2 px-4 text-center border">Total Price (Rs)</th>
+                            </tr>
+                            </thead>
+                            <tbody>
 
-                                        return (
-                                            <tr key={item.id} className='text-center'>
-                                                <td className="py-2 px-4 border">{product.name}</td>
-                                                <td className="py-2 px-4 border">{size ? size.size : '-'}</td>
-                                                <td className="py-2 px-4 border">{item.quantity}</td>
-                                                <td className="py-2 px-4 border">{item.purchase_price.toLocaleString()} Rs</td>
-                                                <td className="py-2 px-4 border">{totalPrice.toLocaleString()} Rs</td>
-                                            </tr>
-                                        );
-                                    }
-                                    return null;
+                            {purchase.product_items
+                                .filter(item => {
+                                    const product = products.find(p => p.id === item.product_id);
+                                    return product && product.product_type === 'weight';
+                                })
+                                .map(item => {
+                                    const product = products.find(p => p.id === item.product_id);
+                                    return (
+                                        <tr key={item.id} className="text-center">
+                                            <td className="py-2 px-4 border">{product.name}</td>
+                                            <td className="py-2 px-4 border">
+                                                {product.sizes.find(size => size.id === item.product_size_id)?.size || '-'}
+                                            </td>
+                                            <td className="py-2 px-4 border">{item.quantity}</td>
+                                            <td className="py-2 px-4 border">{item.weight} KG</td>
+                                            <td className="py-2 px-4 border">{item.purchase_price.toLocaleString()} Rs</td>
+                                            <td className="py-2 px-4 border">{(item.quantity * item.purchase_price).toLocaleString()} Rs</td>
+                                        </tr>
+                                    );
                                 })}
-                                </tbody>
-                            </table>
-                        )}
 
-                        <h3 className="text-xl font-semibold mb-4">Weight Base Products:</h3>
-                        {/* Weight-Type Table */}
-                        {purchase.product_items.some(item => {
-                            const product = products.find(p => p.id === item.product_id);
-                            return product && product.product_type === "weight";
-                        }) && (
-                            <table className="min-w-full bg-white border border-gray-200">
-                                <thead>
-                                <tr className="bg-gray-100">
-                                    <th className="py-2 px-4 text-center border">Product Name</th>
-                                    <th className="py-2 px-4 text-center border">Sizes</th>
-                                    <th className="py-2 px-4 text-center border">Weight</th>
-                                    <th className="py-2 px-4 text-center border">Rate (Rs)</th>
-                                    <th className="py-2 px-4 text-center border">Total Price (Rs)</th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                {purchase.product_items.map((item) => {
+                            {/* Render each unique "item" type product as a single row */}
+                            {[...new Set(purchase.product_items
+                                .filter(item => {
                                     const product = products.find(p => p.id === item.product_id);
-                                    if (product && product.product_type === "weight") {
+                                    return product && product.product_type === 'item';
+                                })
+                                .map(item => item.product_id))].map(productId => {
+                                // Group all items by this unique product_id
+                                const groupedItems = purchase.product_items.filter(item => item.product_id === productId);
+                                const product = products.find(p => p.id === productId);
 
-                                        const sizeInfo = product.sizes.map(size => {
-                                            const quantity = purchase.product_items.filter(i => i.product_size_id === size.id).reduce((total, i) => total + i.quantity, 0);
-                                            return (
-                                                <div key={size.id}
-                                                     className='flex flex-col justify-center items-center gap-1'>
-                                                    <div className='border-b border-black px-2'>{size.size}</div>
-                                                    <div>{quantity}</div>
+                                const totalQuantity = groupedItems.reduce((sum, item) => sum + item.quantity, 0);
+                                const totalPrice = groupedItems.reduce((sum, item) => sum + item.quantity * item.purchase_price, 0);
+                                const rate = (totalPrice / totalQuantity);
+
+                                return (
+                                    <tr key={product.id} className="text-center">
+                                        <td className="py-2 px-4 border">{product.name}</td>
+                                        <td className="py-2 px-4 border">
+                                            {product.sizes.length > 0 ? (
+                                                <div className='flex justify-center gap-3'>
+                                                    {groupedItems.map(item => {
+                                                        const size = product.sizes.find(size => size.id === item.product_size_id);
+                                                        return (
+                                                            <>
+                                                                <div className='flex'>
+                                                                    {size && (
+                                                                        <div>
+                                                                            <div
+                                                                                className='border-b border-black'>{size.size}</div>
+                                                                            <div>{item.quantity}</div>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            </>
+                                                        );
+                                                    })}
                                                 </div>
-                                            );
-                                        });
-
-
-                                        const totalPrice = item.purchase_price * item.quantity;
-
-                                        return (
-                                            <tr key={item.id} className='text-center'>
-                                                <td className="py-2 px-4 border">{product.name}</td>
-                                                <td className="py-2 px-4 border">
-                                                    <div className='flex justify-center items-center gap-3'>
-                                                        {sizeInfo}
-                                                    </div>
-                                                </td>
-                                                {/*<td className="py-2 px-4 border">*/}
-                                                {/*    <div className='flex justify-center items-center gap-3'>*/}
-                                                {/*        {product.sizes.map((size, idx) => (*/}
-                                                {/*            <div key={idx}>*/}
-                                                {/*                <div*/}
-                                                {/*                    className='border-b border-black px-2'>{size.size}</div>*/}
-                                                {/*                <div>{size.quantity}</div>*/}
-                                                {/*            </div>*/}
-                                                {/*        ))}*/}
-                                                {/*    </div>*/}
-                                                {/*</td>*/}
-                                                <td className="py-2 px-4 border">{item.weight} KG</td>
-                                                <td className="py-2 px-4 border">{item.purchase_price.toLocaleString()} Rs</td>
-                                                <td className="py-2 px-4 border">{totalPrice.toLocaleString()} Rs</td>
-                                            </tr>
-                                        );
-                                    }
-                                    return null;
-                                })}
-                                {/*{products.map((product) => {*/}
-                                {/*    // Filter the product items that belong to the current product*/}
-                                {/*    const productItemsForCurrentProduct = purchase.product_items.filter(item => item.product_id === product.id);*/}
-
-                                {/*    // Check if the product is of type "weight"*/}
-                                {/*    if (product && product.product_type === "weight") {*/}
-                                {/*        // For each size in the product, calculate the total quantity from all product_items*/}
-                                {/*        const sizeInfo = product.sizes.map(size => {*/}
-                                {/*            const quantity = productItemsForCurrentProduct*/}
-                                {/*                .filter(i => i.product_size_id === size.id)*/}
-                                {/*                .reduce((total, i) => total + i.quantity, 0);*/}
-                                {/*            return { size: size.size, quantity };*/}
-                                {/*        });*/}
-
-                                {/*        // Calculate the total price for the product (sum of all quantities and prices)*/}
-                                {/*        const totalPrice = productItemsForCurrentProduct.reduce(*/}
-                                {/*            (total, item) => total + item.purchase_price * item.quantity,*/}
-                                {/*            0*/}
-                                {/*        );*/}
-
-                                {/*        return (*/}
-                                {/*            <tr key={product.id} className='text-center'>*/}
-                                {/*                <td className="py-2 px-4 border">{product.name}</td>*/}
-                                {/*                <td className="py-2 px-4 border">*/}
-                                {/*                    /!* Display sizes and their quantities in one column *!/*/}
-                                {/*                    <div className='flex justify-center items-center gap-3'>*/}
-                                {/*                        {sizeInfo.map((size, idx) => (*/}
-                                {/*                            <div key={idx} className='flex flex-col justify-center items-center gap-1'>*/}
-                                {/*                                <div className='border-b border-black px-2'>{size.size}</div>*/}
-                                {/*                                <div>{size.quantity}</div>*/}
-                                {/*                            </div>*/}
-                                {/*                        ))}*/}
-                                {/*                    </div>*/}
-                                {/*                </td>*/}
-                                {/*                <td className="py-2 px-4 border">*/}
-                                {/*                    /!* Display total weight (sum of weights for each product item) *!/*/}
-                                {/*                    {productItemsForCurrentProduct.reduce((total, item) => total + item.weight, 0)} KG*/}
-                                {/*                </td>*/}
-                                {/*                <td className="py-2 px-4 border">*/}
-                                {/*                    /!* Display price per unit (first product item price) *!/*/}
-                                {/*                    {productItemsForCurrentProduct[0]?.purchase_price.toLocaleString()} Rs*/}
-                                {/*                </td>*/}
-                                {/*                <td className="py-2 px-4 border">*/}
-                                {/*                    /!* Display total price for all product items *!/*/}
-                                {/*                    {totalPrice.toLocaleString()} Rs*/}
-                                {/*                </td>*/}
-                                {/*            </tr>*/}
-                                {/*        );*/}
-                                {/*    }*/}
-                                {/*    return null;*/}
-                                {/*})}*/}
-
-                                </tbody>
-                            </table>
-                        )}
+                                            ) : '-'}
+                                        </td>
+                                        <td className="py-2 px-4 border">{totalQuantity}</td>
+                                        <td className="py-2 px-4 border">-</td>
+                                        <td className="py-2 px-4 border">{rate} Rs</td>
+                                        <td className="py-2 px-4 border">{totalPrice.toLocaleString()} Rs</td>
+                                    </tr>
+                                );
+                            })}
+                            </tbody>
+                        </table>
                     </div>
-
                 </div>
             </div>
         </AuthenticatedLayout>
