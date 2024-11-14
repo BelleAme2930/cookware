@@ -137,7 +137,7 @@ const Show = ({purchase, products}) => {
                             {purchase.product_items
                                 .filter(item => {
                                     const product = products.find(p => p.id === item.product_id);
-                                    return product && product.product_type === 'weight';
+                                    return product && product.product_type === 'item';
                                 })
                                 .map(item => {
                                     const product = products.find(p => p.id === item.product_id);
@@ -148,7 +148,7 @@ const Show = ({purchase, products}) => {
                                                 {product.sizes.find(size => size.id === item.product_size_id)?.size || '-'}
                                             </td>
                                             <td className="py-2 px-4 border">{item.quantity}</td>
-                                            <td className="py-2 px-4 border">{item.weight} KG</td>
+                                            <td className="py-2 px-4 border">-</td>
                                             <td className="py-2 px-4 border">{item.purchase_price.toLocaleString()} Rs</td>
                                             <td className="py-2 px-4 border">{(item.quantity * item.purchase_price).toLocaleString()} Rs</td>
                                         </tr>
@@ -159,11 +159,12 @@ const Show = ({purchase, products}) => {
                             {[...new Set(purchase.product_items
                                 .filter(item => {
                                     const product = products.find(p => p.id === item.product_id);
-                                    return product && product.product_type === 'item';
+                                    return product && product.product_type === 'weight';
                                 })
                                 .map(item => item.product_id))].map(productId => {
                                 // Group all items by this unique product_id
                                 const groupedItems = purchase.product_items.filter(item => item.product_id === productId);
+                                const totalGroupedWeight = groupedItems.reduce((sum, item) => sum + (item.weight || 0), 0);
                                 const product = products.find(p => p.id === productId);
 
                                 const totalQuantity = groupedItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -196,8 +197,8 @@ const Show = ({purchase, products}) => {
                                             ) : '-'}
                                         </td>
                                         <td className="py-2 px-4 border">{totalQuantity}</td>
-                                        <td className="py-2 px-4 border">-</td>
-                                        <td className="py-2 px-4 border">{rate} Rs</td>
+                                        <td className="py-2 px-4 border">{totalGroupedWeight} KG</td>
+                                        <td className="py-2 px-4 border">{groupedItems[0].purchase_price} Rs</td>
                                         <td className="py-2 px-4 border">{totalPrice.toLocaleString()} Rs</td>
                                     </tr>
                                 );
