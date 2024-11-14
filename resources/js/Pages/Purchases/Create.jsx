@@ -5,10 +5,7 @@ import ShadowBox from "@/Components/ShadowBox.jsx";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import TextInput from "@/Components/TextInput.jsx";
 import Label from "@/Components/Label.jsx";
-import PrimaryButton from "@/Components/PrimaryButton.jsx";
 import BorderButton from "@/Components/BorderButton.jsx";
-import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
-import {Button} from "@headlessui/react";
 import IconButton from "@/Components/IconButton.jsx";
 import {faAdd, faTrash} from "@fortawesome/free-solid-svg-icons";
 
@@ -218,7 +215,7 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                                                                                                             value={size.quantity || 1}
                                                                                                             onChange={(e) => {
                                                                                                                 const updatedSizes = [...item.sizes];
-                                                                                                                updatedSizes[sizeIndex].quantity = e.target.value;
+                                                                                                                updatedSizes[sizeIndex].quantity = parseInt(e.target.value);
                                                                                                                 handleProductChange(index, "sizes", updatedSizes);
                                                                                                             }}
                                                                                                             min="1"
@@ -276,7 +273,7 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                                                                                                         value={size.quantity || 1}
                                                                                                         onChange={(e) => {
                                                                                                             const updatedSizes = [...item.sizes];
-                                                                                                            updatedSizes[sizeIndex].quantity = e.target.value;
+                                                                                                            updatedSizes[sizeIndex].quantity = parseInt(e.target.value);
                                                                                                             handleProductChange(index, "sizes", updatedSizes);
                                                                                                         }}
                                                                                                         min="1"
@@ -390,7 +387,7 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                                                                                                 value={size.quantity || 1}
                                                                                                 onChange={(e) => {
                                                                                                     const updatedSizes = [...item.sizes];
-                                                                                                    updatedSizes[sizeIndex].quantity = e.target.value;
+                                                                                                    updatedSizes[sizeIndex].quantity = parseInt(e.target.value);
                                                                                                     handleProductChange(index, "sizes", updatedSizes);
                                                                                                 }}
                                                                                                 min="1"
@@ -445,7 +442,7 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                                                                         type="number"
                                                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                                                                         value={item.purchase_price}
-                                                                        onChange={(e) => handleProductChange(index, "purchase_price", e.target.value)}
+                                                                        onChange={(e) => handleProductChange(index, "purchase_price", parseInt(e.target.value))}
                                                                         min="0"
                                                                         placeholder="Purchase Price"
                                                                     />

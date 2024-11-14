@@ -66,6 +66,7 @@ class PurchaseController extends Controller
             'product_items.*.product_id' => 'required|exists:products,id',
             'product_items.*.weight' => 'nullable|numeric|min:0',
             'product_items.*.quantity' => 'nullable|int|min:0',
+            'product_items.*.weight_type' => 'nullable|string',
             'product_items.*.purchase_price' => 'nullable|integer|min:0',
             'product_items.*.sizes' => 'nullable|array|min:0',
             'product_items.*.sizes.*.value' => 'nullable|int|min:1',
@@ -111,44 +112,55 @@ class PurchaseController extends Controller
 
             $totalWeight = 0;
             $totalQuantity = 0;
+
             foreach ($validatedData['product_items'] as $productData) {
                 $product = Product::find($productData['product_id']);
+                $productType = $product->product_type;
 
-                if ($product) {
-                    $weight = $productData['weight'] ?? 0;
-                    $quantity = $productData['quantity'] ?? 1;
 
-                    // Handle sizes if provided
+                if ($productType === ProductTypeEnum::ITEM->value) {
                     if (!empty($productData['sizes'])) {
                         foreach ($productData['sizes'] as $sizeData) {
-                            $sizeWeight = $sizeData['weight'] ?? $weight;
-                            $sizeQuantity = $sizeData['quantity'] ?? 1;
-                            $sizePurchasePrice = $sizeData['purchase_price'] ?? 0;
-
                             $purchase->productPurchases()->create([
                                 'product_id' => $product->id,
                                 'product_size_id' => $sizeData['value'] ?? null,
-                                'quantity' => $sizeQuantity,
-                                'purchase_price' => $sizePurchasePrice,
-                                'weight' => $sizeWeight ? WeightHelper::toGrams($sizeWeight) : null,
+                                'quantity' => $sizeData['quantity'],
+                                'purchase_price' => $sizeData['purchase_price'],
+                                'weight' => null,
                             ]);
-
-                            $totalQuantity += $sizeQuantity;
-                            $totalWeight += $sizeWeight ?: 0;
                         }
-                    } else {
-                        $purchasePrice = $productData['purchase_price'] ?? 0;
+                    }
+                }
 
-                        $purchase->productPurchases()->create([
-                            'product_id' => $product->id,
-                            'product_size_id' => null,
-                            'quantity' => $quantity,
-                            'purchase_price' => $purchasePrice,
-                            'weight' => $weight ? WeightHelper::toGrams($weight) : null,
-                        ]);
+                if ($productType === ProductTypeEnum::WEIGHT->value) {
+                    $weightType = $productData['weight_type'] ?? 'total';
 
-                        $totalQuantity += $quantity;
-                        $totalWeight += $weight ?: 0;
+                    if (!empty($productData['sizes'])) {
+                        if ($weightType === 'total') {
+                            $totalWeight += $productData['weight'] ?: 0;
+                            foreach ($productData['sizes'] as $sizeData) {
+                                $purchase->productPurchases()->create([
+                                    'product_id' => $product->id,
+                                    'product_size_id' => $sizeData['value'],
+                                    'quantity' => $sizeData['quantity'],
+                                    'purchase_price' => $productData['purchase_price'],
+                                    'weight' => WeightHelper::toGrams($productData['weight']),
+                                ]);
+                                $totalQuantity += $sizeData['quantity'] ?: 0;
+                            }
+                        } else {
+                            foreach ($productData['sizes'] as $sizeData) {
+                                $purchase->productPurchases()->create([
+                                    'product_id' => $product->id,
+                                    'product_size_id' => $sizeData['value'],
+                                    'quantity' => $sizeData['quantity'],
+                                    'purchase_price' => $sizeData['purchase_price'],
+                                    'weight' => WeightHelper::toGrams($sizeData['weight']),
+                                ]);
+                                $totalWeight += $sizeData['weight'] ?: 0;
+                                $totalQuantity += $sizeData['quantity'] ?: 0;
+                            }
+                        }
                     }
                 }
             }
