@@ -126,12 +126,9 @@ const Invoice = ({ purchase, products }) => {
                             .map(item => item.product_id))].map(productId => {
                             // Group all items by this unique product_id
                             const groupedItems = purchase.product_items.filter(item => item.product_id === productId);
-                            const totalGroupedWeight = groupedItems.reduce((sum, item) => sum + (item.weight || 0), 0);
                             const product = products.find(p => p.id === productId);
 
                             const totalQuantity = groupedItems.reduce((sum, item) => sum + item.quantity, 0);
-                            const totalPrice = groupedItems.reduce((sum, item) => sum + item.quantity * item.purchase_price, 0);
-                            const rate = (totalPrice / totalQuantity);
 
                             return (
                                 <tr key={product.id} className="text-center">
@@ -159,9 +156,9 @@ const Invoice = ({ purchase, products }) => {
                                         ) : '-'}
                                     </td>
                                     <td className="py-2 px-4 border">{totalQuantity}</td>
-                                    <td className="py-2 px-4 border">{totalGroupedWeight} KG</td>
-                                    <td className="py-2 px-4 border">{groupedItems[0].purchase_price} Rs</td>
-                                    <td className="py-2 px-4 border">{totalPrice.toLocaleString()} Rs</td>
+                                    <td className="py-2 px-4 border">{groupedItems[0].weight.toLocaleString()} KG</td>
+                                    <td className="py-2 px-4 border">{groupedItems[0].purchase_price.toLocaleString()} Rs</td>
+                                    <td className="py-2 px-4 border">{groupedItems[0].weight * groupedItems[0].purchase_price.toLocaleString()} Rs</td>
                                 </tr>
                             );
                         })}
