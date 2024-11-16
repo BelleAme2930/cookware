@@ -42,7 +42,7 @@ const Show = ({purchase, products}) => {
                                 Date:</strong> {new Date(purchase.purchase_date).toLocaleDateString()}</p>
                             <p className='mb-1 capitalize'><strong>Payment Method:</strong> {paymentMethods.join(', ')}
                             </p>
-                            <p className='mb-1'><strong>Total Price:</strong> {purchase.total_price.toLocaleString()} Rs
+                            <p className='mb-1'><strong>Total Price:</strong> {purchase.remaining_balance ? (purchase.total_price + purchase.remaining_balance).toLocaleString() : purchase.total_price} Rs
                             </p>
                             {/*{paymentMethods.includes('credit') && (*/}
                             {/*    <>*/}
@@ -110,7 +110,7 @@ const Show = ({purchase, products}) => {
                                             Paid:</strong> {purchase.amount_paid.toLocaleString()} Rs
                                         </p>
                                         <p className='mb-1'><strong>Remaining
-                                            Balance:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>
+                                            Credit Balance:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>
                                         <p className='mb-1'><strong className='text-primary-600'>Existing Balance for {purchase.supplier.name}:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>
                                     </div>
                                 )}
