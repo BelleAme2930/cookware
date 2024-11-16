@@ -6,22 +6,10 @@ import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
 const Invoice = ({ purchase, products }) => {
 
-    console.log(purchase)
-
     const paymentMethods = purchase.payment_method;
 
-    const isCredit = paymentMethods.includes('credit') || paymentMethods.includes('cash_credit');
-    const isAccount = paymentMethods.includes('account') || paymentMethods.includes('cash_account');
-
-    const isItemType = purchase.product_items.some(item => {
-        const product = products.find(p => p.id === item.product_id);
-        return product && product.product_type === 'item';
-    });
-
-    const isWeightType = purchase.product_items.some(item => {
-        const product = products.find(p => p.id === item.product_id);
-        return product && product.product_type === 'weight';
-    });
+    const isCredit = paymentMethods.includes('credit');
+    const isAccount = paymentMethods.includes('account');
 
     return (
         <div className="min-h-screen bg-gray-100 p-4">
@@ -40,51 +28,94 @@ const Invoice = ({ purchase, products }) => {
                         Invoice: INV-P-{purchase.id}
                     </h2>
                 </div>
-
-                <div className="mb-6">
-                    <p className="text-md text-gray-800">
-                        <span className="font-bold">Invoice ID: </span> INV-P-{purchase.id}
-                    </p>
-                    <p className="text-md text-gray-800">
-                        <span
-                            className="font-bold">Purchase Date:</span> {new Date(purchase.purchase_date).toLocaleDateString()}
-                    </p>
-                    <p className="text-md text-gray-800">
-                        <span className="font-bold">Supplier:</span> {purchase.supplier.name}
-                    </p>
-                    <p className="text-md text-gray-800 capitalize">
-                        <span className="font-bold">Payment Method:</span> {paymentMethods.join(', ')}
-                    </p>
-
-                    {/* Conditional Payment Info */}
-                    {isCredit && (
-                        <>
-                            <p className="text-md text-gray-800">
-                                <span
-                                    className="font-bold">Amount Paid:</span> {purchase.amount_paid.toLocaleString()} Rs
-                            </p>
-                            <p className="text-md text-gray-800">
-                                <span
-                                    className="font-bold">Remaining Credit Balance:</span> {purchase.remaining_balance.toLocaleString()} Rs
-                            </p>
-                            <p className="text-md text-gray-800">
-                                <span
-                                    className="font-bold">Due Date:</span> {new Date(purchase.due_date).toLocaleDateString() ?? '-'}
-                            </p>
-                            <p className='mb-1'><strong className='text-primary-600'>Existing Balance
-                                for {purchase.supplier.name}:</strong> {purchase.remaining_balance.toLocaleString()} Rs
-                            </p>
-
-                        </>
-                    )}
-
-                    {isAccount && (
-                        <p className="text-md text-gray-800">
-                            <span
-                                className="font-bold">Account:</span> {purchase.account?.title + ' - ' + purchase.account?.bank_name ?? 'N/A'}
+                <div className="mb-6 p-4 border rounded-lg bg-gray-50">
+                    <h3 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
+                        Invoice Details
+                    </h3>
+                    <div className="grid grid-cols-2 gap-2">
+                        <p>
+                            <span className="font-semibold">Invoice ID:</span> INV-P-{purchase.id}
                         </p>
-                    )}
+                        <p>
+                            <span
+                                className="font-semibold">Purchase Date:</span> {new Date(purchase.purchase_date).toLocaleDateString()}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Supplier:</span> {purchase.supplier.name}
+                        </p>
+                        <p>
+                            <span className="font-semibold">Payment Method:</span> {paymentMethods.join(', ')}
+                        </p>
+                        {isCredit && (
+                            <>
+                                <p>
+                                    <span
+                                        className="font-semibold">Amount Paid:</span> {purchase.amount_paid.toLocaleString()} Rs
+                                </p>
+                                <p>
+                                    <span
+                                        className="font-semibold">Remaining Credit Balance:</span> {purchase.remaining_balance.toLocaleString()} Rs
+                                </p>
+                                <p>
+                                    <span
+                                        className="font-semibold">Due Date:</span> {new Date(purchase.due_date).toLocaleDateString() ?? '-'}
+                                </p>
+                            </>
+                        )}
+                        {isAccount && (
+                            <p>
+                                <span
+                                    className="font-semibold">Account:</span> {purchase.account?.title + ' - ' + purchase.account?.bank_name ?? 'N/A'}
+                            </p>
+                        )}
+                    </div>
                 </div>
+
+
+                {/*<div className="mb-6">*/}
+                {/*    <p className="text-md text-gray-800">*/}
+                {/*        <span className="font-bold">Invoice ID: </span> INV-P-{purchase.id}*/}
+                {/*    </p>*/}
+                {/*    <p className="text-md text-gray-800">*/}
+                {/*        <span*/}
+                {/*            className="font-bold">Purchase Date:</span> {new Date(purchase.purchase_date).toLocaleDateString()}*/}
+                {/*    </p>*/}
+                {/*    <p className="text-md text-gray-800">*/}
+                {/*        <span className="font-bold">Supplier:</span> {purchase.supplier.name}*/}
+                {/*    </p>*/}
+                {/*    <p className="text-md text-gray-800 capitalize">*/}
+                {/*        <span className="font-bold">Payment Method:</span> {paymentMethods.join(', ')}*/}
+                {/*    </p>*/}
+
+                {/*    /!* Conditional Payment Info *!/*/}
+                {/*    {isCredit && (*/}
+                {/*        <>*/}
+                {/*            <p className="text-md text-gray-800">*/}
+                {/*                <span*/}
+                {/*                    className="font-bold">Amount Paid:</span> {purchase.amount_paid.toLocaleString()} Rs*/}
+                {/*            </p>*/}
+                {/*            <p className="text-md text-gray-800">*/}
+                {/*                <span*/}
+                {/*                    className="font-bold">Remaining Credit Balance:</span> {purchase.remaining_balance.toLocaleString()} Rs*/}
+                {/*            </p>*/}
+                {/*            <p className="text-md text-gray-800">*/}
+                {/*                <span*/}
+                {/*                    className="font-bold">Due Date:</span> {new Date(purchase.due_date).toLocaleDateString() ?? '-'}*/}
+                {/*            </p>*/}
+                {/*            <p className='mb-1'><strong className='text-primary-600'>Existing Balance*/}
+                {/*                for {purchase.supplier.name}:</strong> {purchase.remaining_balance.toLocaleString()} Rs*/}
+                {/*            </p>*/}
+
+                {/*        </>*/}
+                {/*    )}*/}
+
+                {/*    {isAccount && (*/}
+                {/*        <p className="text-md text-gray-800">*/}
+                {/*            <span*/}
+                {/*                className="font-bold">Account:</span> {purchase.account?.title + ' - ' + purchase.account?.bank_name ?? 'N/A'}*/}
+                {/*        </p>*/}
+                {/*    )}*/}
+                {/*</div>*/}
 
                 <div className="overflow-x-auto">
                     <table className="w-full text-left table-auto border-collapse border">
@@ -94,8 +125,8 @@ const Invoice = ({ purchase, products }) => {
                             <th className="py-2 px-4 text-center border">Size</th>
                             <th className="py-2 px-4 text-center border">Quantity</th>
                             <th className="py-2 px-4 text-center border">Weight</th>
-                            <th className="py-2 px-4 text-center border">Rate (Rs)</th>
-                            <th className="py-2 px-4 text-center border">Total Price (Rs)</th>
+                            <th className="py-2 px-4 text-center border">Rate</th>
+                            <th className="py-2 px-4 text-center border">Total Price</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -171,9 +202,19 @@ const Invoice = ({ purchase, products }) => {
                 </div>
 
                 {/* Total Price */}
-                <div className="mt-6 text-right">
-                    <p className="text-xl font-bold">Total Price: {(purchase.total_price + purchase.remaining_balance).toLocaleString()} Rs</p>
+                <div className="mt-6 text-right py-4">
+                    <p className="text-lg mb-2">
+                        <span className='font-semibold'>Sub Total: </span><span className="text-gray-900 font-medium">{purchase.total_price.toLocaleString()} Rs</span>
+                    </p>
+                    <p className="text-lg mb-2">
+                        <span className='font-semibold'>Existing Balance: </span><span className="text-gray-900 font-medium">{purchase.remaining_balance.toLocaleString()} Rs</span>
+                    </p>
+                    <div className="border-t border-gray-300 my-2"></div>
+                    <p className="text-xl font-bold text-gray-800">
+                        Total Price: <span className="text-green-600">{(purchase.total_price + purchase.remaining_balance).toLocaleString()} Rs</span>
+                    </p>
                 </div>
+
 
                 {/* Footer */}
                 <div className="mt-12">
