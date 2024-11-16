@@ -45,7 +45,7 @@ class PurchaseController extends Controller
 
     public function show(Purchase $purchase)
     {
-        $purchase->load(['supplier', 'productPurchases.product', 'productPurchases.productSize', 'account']);
+        $purchase->load(['supplier.purchases', 'productPurchases.product', 'productPurchases.productSize', 'account']);
 
         $products = Product::with(['sizes'])->get();
 

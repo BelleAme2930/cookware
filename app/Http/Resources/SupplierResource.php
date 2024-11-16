@@ -14,7 +14,7 @@ class SupplierResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
+        return  [
             'id' => $this->id,
             'name' => $this->name,
             'phone' => $this->phone,
@@ -22,6 +22,9 @@ class SupplierResource extends JsonResource
             'address' => $this->address,
             'created_at' => $this->created_at->format('Y-m-d'),
             'updated_at' => $this->updated_at->format('Y-m-d'),
+            'existing_balance' => $this->whenLoaded('purchases', function () {
+                return $this->purchases->sum('remaining_balance');
+            }),
         ];
     }
 }

@@ -35,10 +35,16 @@ class PurchaseResource extends JsonResource
             'remaining_balance' => $this->remaining_balance,
             'weight' => WeightHelper::toKilos($this->weight),
             'quantity' => $this->quantity,
-            'product_items' => ProductPurchaseResource::collection($this->whenLoaded('productPurchases'))->resolve(),
+            'product_items' => $this->relationLoaded('productPurchases') && $this->productPurchases
+                ? ProductPurchaseResource::collection($this->productPurchases)->resolve()
+                : [],
         ];
 
         if ($this->relationLoaded('supplier') && $this->supplier) {
+            $data['supplier'] = SupplierResource::make($this->supplier)->resolve();
+        }
+
+        if ($this->relationLoaded('productPurchases') && $this->productPurchases) {
             $data['supplier'] = SupplierResource::make($this->supplier)->resolve();
         }
 

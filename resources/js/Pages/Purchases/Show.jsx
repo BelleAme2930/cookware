@@ -44,17 +44,17 @@ const Show = ({purchase, products}) => {
                             </p>
                             <p className='mb-1'><strong>Total Price:</strong> {purchase.total_price.toLocaleString()} Rs
                             </p>
-                            {paymentMethods.includes('credit') && (
-                                <>
-                                    <p className='mb-1'><strong>Amount
-                                        Paid:</strong> {purchase.amount_paid.toLocaleString()} Rs
-                                    </p>
-                                    <p className='mb-1'><strong>Remaining
-                                        Balance:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>
-                                    <p className='mb-1'><strong>Due
-                                        Date:</strong> {new Date(purchase.due_date).toLocaleDateString()}</p>
-                                </>
-                            )}
+                            {/*{paymentMethods.includes('credit') && (*/}
+                            {/*    <>*/}
+                            {/*        <p className='mb-1'><strong>Amount*/}
+                            {/*            Paid:</strong> {purchase.amount_paid.toLocaleString()} Rs*/}
+                            {/*        </p>*/}
+                            {/*        <p className='mb-1'><strong>Remaining*/}
+                            {/*            Balance:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>*/}
+                            {/*        <p className='mb-1'><strong>Due*/}
+                            {/*            Date:</strong> {new Date(purchase.due_date).toLocaleDateString()}</p>*/}
+                            {/*    </>*/}
+                            {/*)}*/}
 
                             {purchase.supplier && (
                                 <div className='mt-8'>
@@ -111,6 +111,7 @@ const Show = ({purchase, products}) => {
                                         </p>
                                         <p className='mb-1'><strong>Remaining
                                             Balance:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>
+                                        <p className='mb-1'><strong className='text-primary-600'>Existing Balance for {purchase.supplier.name}:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>
                                     </div>
                                 )}
                             </div>
