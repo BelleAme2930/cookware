@@ -33,7 +33,7 @@ class PurchaseInvoiceController extends Controller
      */
     public function show(Purchase $purchase)
     {
-        $purchase->load(['supplier', 'productPurchases', 'account']);
+        $purchase->load(['supplier.purchases', 'productPurchases', 'account']);
 
         $products = Product::with(['sizes'])->get();
 

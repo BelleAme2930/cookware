@@ -5,6 +5,7 @@ import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
 
 const Invoice = ({ purchase, products }) => {
+    console.log(purchase)
 
     const paymentMethods = purchase.payment_method;
 
@@ -207,11 +208,11 @@ const Invoice = ({ purchase, products }) => {
                         <span className='font-semibold'>Sub Total: </span><span className="text-gray-900 font-medium">{purchase.total_price.toLocaleString()} Rs</span>
                     </p>
                     <p className="text-lg mb-2">
-                        <span className='font-semibold'>Existing Balance: </span><span className="text-gray-900 font-medium">{purchase.remaining_balance.toLocaleString()} Rs</span>
+                        <span className='font-semibold'>Existing Balance: </span><span className="text-gray-900 font-medium">{purchase.supplier.existing_balance.toLocaleString()} Rs</span>
                     </p>
                     <div className="border-t border-gray-300 my-2"></div>
                     <p className="text-xl font-bold text-gray-800">
-                        Total Price: <span className="text-green-600">{(purchase.total_price + purchase.remaining_balance).toLocaleString()} Rs</span>
+                        Total Price: <span className="text-green-600">{(purchase.total_price + purchase.supplier.existing_balance).toLocaleString()} Rs</span>
                     </p>
                 </div>
 
