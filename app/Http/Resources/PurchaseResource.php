@@ -45,7 +45,7 @@ class PurchaseResource extends JsonResource
         }
 
         if ($this->relationLoaded('productPurchases') && $this->productPurchases) {
-            $data['supplier'] = SupplierResource::make($this->supplier)->resolve();
+            $data['product_items'] = ProductPurchaseResource::collection($this->productPurchases)->resolve();
         }
 
         if ($this->relationLoaded('account') && $this->account) {

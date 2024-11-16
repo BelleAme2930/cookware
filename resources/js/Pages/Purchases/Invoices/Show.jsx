@@ -1,20 +1,21 @@
 import React from 'react';
-import { Head } from "@inertiajs/react";
+import {Head} from "@inertiajs/react";
 import Button from "@/Components/Button.jsx";
 import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
-import { faArrowLeft } from "@fortawesome/free-solid-svg-icons";
+import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
 
-const Invoice = ({ purchase, products }) => {
+const Invoice = ({purchase, products}) => {
     console.log(purchase)
 
     const paymentMethods = purchase.payment_method;
 
     const isCredit = paymentMethods.includes('credit');
     const isAccount = paymentMethods.includes('account');
+    const existingPrice = purchase.supplier.existing_balance - purchase.remaining_balance;
 
     return (
         <div className="min-h-screen bg-gray-100 p-4">
-            <Head title={`Invoice - Purchase #INV-P-${purchase.id}`} />
+            <Head title={`Invoice - Purchase #INV-P-${purchase.id}`}/>
 
             <div className='mb-3 print:hidden'>
                 <PrimaryIconLink href={route('purchases.index')} icon={faArrowLeft}>
@@ -55,7 +56,7 @@ const Invoice = ({ purchase, products }) => {
                                 </p>
                                 <p>
                                     <span
-                                        className="font-semibold">Remaining Credit Balance:</span> {purchase.remaining_balance.toLocaleString()} Rs
+                                        className="font-semibold">Credit Balance:</span> {purchase.remaining_balance.toLocaleString()} Rs
                                 </p>
                                 <p>
                                     <span
@@ -204,15 +205,23 @@ const Invoice = ({ purchase, products }) => {
 
                 {/* Total Price */}
                 <div className="mt-6 text-right py-4">
-                    <p className="text-lg mb-2">
-                        <span className='font-semibold'>Sub Total: </span><span className="text-gray-900 font-medium">{purchase.total_price.toLocaleString()} Rs</span>
-                    </p>
-                    <p className="text-lg mb-2">
-                        <span className='font-semibold'>Existing Balance: </span><span className="text-gray-900 font-medium">{purchase.supplier.existing_balance.toLocaleString()} Rs</span>
-                    </p>
+                    {existingPrice > 0 && (
+                        <>
+                            <p className="text-lg mb-2">
+                                <span className='font-semibold'>Sub Total: </span><span
+                                className="text-gray-900 font-medium">{purchase.total_price.toLocaleString()} Rs</span>
+                            </p>
+                            <p className="text-lg mb-2">
+                                <span className='font-semibold'>Existing Balance: </span><span
+                                className="text-gray-900 font-medium">{existingPrice.toLocaleString()} Rs</span>
+                            </p>
+                        </>
+                    )}
+
                     <div className="border-t border-gray-300 my-2"></div>
                     <p className="text-xl font-bold text-gray-800">
-                        Total Price: <span className="text-green-600">{(purchase.total_price + purchase.supplier.existing_balance).toLocaleString()} Rs</span>
+                        Total Price: <span
+                        className="text-green-600">{(purchase.total_price + existingPrice).toLocaleString()} Rs</span>
                     </p>
                 </div>
 

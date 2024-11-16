@@ -12,6 +12,8 @@ const Show = ({purchase, products}) => {
 
     const paymentMethods = purchase.payment_method;
 
+    const existingPrice = purchase.supplier.existing_balance - purchase.remaining_balance;
+
     return (
         <AuthenticatedLayout
             header={
@@ -42,7 +44,17 @@ const Show = ({purchase, products}) => {
                                 Date:</strong> {new Date(purchase.purchase_date).toLocaleDateString()}</p>
                             <p className='mb-1 capitalize'><strong>Payment Method:</strong> {paymentMethods.join(', ')}
                             </p>
-                            <p className='mb-1'><strong>Total Price:</strong> {purchase.remaining_balance ? (purchase.total_price + purchase.remaining_balance).toLocaleString() : purchase.total_price} Rs
+                            {existingPrice > 0 && (
+                                <>
+                                    <p className='mb-1'><strong>Sub
+                                        Total:</strong> {purchase.total_price.toLocaleString()} Rs
+                                    </p>
+                                    <p className='mb-1'><strong>Existing Balance:</strong> {existingPrice} Rs
+                                    </p>
+                                </>
+                            )}
+                            <p className='mb-1'><strong>Total
+                                Price:</strong> {(purchase.total_price + existingPrice).toLocaleString()} Rs
                             </p>
                             {/*{paymentMethods.includes('credit') && (*/}
                             {/*    <>*/}
@@ -73,45 +85,51 @@ const Show = ({purchase, products}) => {
                             )}
                         </div>
                         <div className='w-full md:w-1/2'>
-                            <div className='mb-6'>
+                            <div>
                                 {paymentMethods.includes('cheque') && (purchase.cheque_details) && (
-                                    <div>
-                                        <h3 className="text-xl font-semibold mb-2">Cheque Details</h3>
-                                        <p className='mb-1'><strong>Cheque
-                                            Number:</strong> {purchase.cheque_details.cheque_number}
-                                        </p>
-                                        <p className='mb-1'><strong>Cheque
-                                            Bank:</strong> {purchase.cheque_details.cheque_bank}
-                                        </p>
-                                        <p className='mb-1'><strong>Cheque
-                                            Date:</strong> {purchase.cheque_details.cheque_date}
-                                        </p>
-                                        <p className='mb-1'><strong>Cheque
-                                            Amount:</strong> {purchase.cheque_details.cheque_amount} Rs
-                                        </p>
+                                    <div className='mb-6'>
+                                        <div>
+                                            <h3 className="text-xl font-semibold mb-2">Cheque Details</h3>
+                                            <p className='mb-1'><strong>Cheque
+                                                Number:</strong> {purchase.cheque_details.cheque_number}
+                                            </p>
+                                            <p className='mb-1'><strong>Cheque
+                                                Bank:</strong> {purchase.cheque_details.cheque_bank}
+                                            </p>
+                                            <p className='mb-1'><strong>Cheque
+                                                Date:</strong> {purchase.cheque_details.cheque_date}
+                                            </p>
+                                            <p className='mb-1'><strong>Cheque
+                                                Amount:</strong> {purchase.cheque_details.cheque_amount} Rs
+                                            </p>
+                                        </div>
                                     </div>
                                 )}
-                            </div>
-                            <div className='mb-6'>
                                 {paymentMethods.includes('account') && (purchase.account) && (
-                                    <div>
-                                        <h3 className="text-xl font-semibold mb-2">Account Details</h3>
-                                        <p className='mb-1'>
-                                            <strong>Account:</strong> {purchase.account.title + ' - ' + purchase.account.bank_name}
-                                        </p>
+                                    <div className='mb-6'>
+                                        <div>
+                                            <h3 className="text-xl font-semibold mb-2">Account Details</h3>
+                                            <p className='mb-1'>
+                                                <strong>Account:</strong> {purchase.account.title + ' - ' + purchase.account.bank_name}
+                                            </p>
+                                        </div>
                                     </div>
                                 )}
-                            </div>
-                            <div className='mb-6'>
                                 {paymentMethods.includes('credit') && (purchase.amount_paid) && (
-                                    <div>
-                                        <h3 className="text-xl font-semibold mb-2">Credit Details</h3>
-                                        <p className='mb-1'><strong>Amount
-                                            Paid:</strong> {purchase.amount_paid.toLocaleString()} Rs
-                                        </p>
-                                        <p className='mb-1'><strong>Remaining
-                                            Credit Balance:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>
-                                        <p className='mb-1'><strong className='text-primary-600'>Existing Balance for {purchase.supplier.name}:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>
+                                    <div className='mb-6'>
+                                        <div>
+                                            <h3 className="text-xl font-semibold mb-2">Credit Details</h3>
+                                            <p className='mb-1'><strong>Amount
+                                                Paid:</strong> {purchase.amount_paid.toLocaleString()} Rs
+                                            </p>
+                                            <p className='mb-1'><strong>Credit
+                                                Balance:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>
+                                            {existingPrice > 0 && (
+                                                <p className='mb-1'><strong className='text-primary-600'>Existing
+                                                    Balance:</strong> {existingPrice.toLocaleString()} Rs
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                             </div>
