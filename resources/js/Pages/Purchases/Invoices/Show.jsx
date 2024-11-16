@@ -65,12 +65,16 @@ const Invoice = ({ purchase, products }) => {
                             </p>
                             <p className="text-md text-gray-800">
                                 <span
-                                    className="font-bold">Remaining Balance:</span> {purchase.remaining_balance.toLocaleString()} Rs
+                                    className="font-bold">Remaining Credit Balance:</span> {purchase.remaining_balance.toLocaleString()} Rs
                             </p>
                             <p className="text-md text-gray-800">
                                 <span
                                     className="font-bold">Due Date:</span> {new Date(purchase.due_date).toLocaleDateString() ?? '-'}
                             </p>
+                            <p className='mb-1'><strong className='text-primary-600'>Existing Balance
+                                for {purchase.supplier.name}:</strong> {purchase.remaining_balance.toLocaleString()} Rs
+                            </p>
+
                         </>
                     )}
 
@@ -168,7 +172,7 @@ const Invoice = ({ purchase, products }) => {
 
                 {/* Total Price */}
                 <div className="mt-6 text-right">
-                    <p className="text-xl font-bold">Total Price: {purchase.total_price.toLocaleString()} Rs</p>
+                    <p className="text-xl font-bold">Total Price: {(purchase.total_price + purchase.remaining_balance).toLocaleString()} Rs</p>
                 </div>
 
                 {/* Footer */}
