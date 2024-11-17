@@ -13,7 +13,7 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
 
     const {data, setData, post, processing, reset} = useForm({
         supplier_id: "",
-        product_items: [{product_id: "", sizes: [], quantity: 1, weight: 0, purchase_price: 1, weight_type: ''}],
+        product_items: [{product_id: "", sizes: [], quantity: 0, weight: 0, purchase_price: 0, weight_type: ''}],
         payment_method: [],
         due_date: '',
         cheque_date: '',
@@ -29,7 +29,7 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
     const addProductItem = () => {
         setData("product_items", [
             ...data.product_items,
-            {product_id: "", sizes: [], quantity: 1, weight: "", purchase_price: 1, weight_type: ''},
+            {product_id: "", sizes: [], quantity: 0, weight: "", purchase_price: 0, weight_type: ''},
         ]);
     };
 
@@ -212,7 +212,7 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                                                                                                         <input
                                                                                                             type="number"
                                                                                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                                                            value={size.quantity || 1}
+                                                                                                            value={size.quantity || ''}
                                                                                                             onChange={(e) => {
                                                                                                                 const updatedSizes = [...item.sizes];
                                                                                                                 updatedSizes[sizeIndex].quantity = parseInt(e.target.value);
@@ -229,7 +229,7 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                                                                                                         <input
                                                                                                             type="number"
                                                                                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                                                            value={size.weight || ""}
+                                                                                                            value={size.weight || ''}
                                                                                                             onChange={(e) => {
                                                                                                                 const updatedSizes = [...item.sizes];
                                                                                                                 updatedSizes[sizeIndex].weight = e.target.value;
@@ -249,7 +249,7 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                                                                                                         <input
                                                                                                             type="number"
                                                                                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                                                            value={size.purchase_price ?? 1}
+                                                                                                            value={size.purchase_price ?? ''}
                                                                                                             onChange={(e) => {
                                                                                                                 const updatedSizes = [...item.sizes];
                                                                                                                 updatedSizes[sizeIndex].purchase_price = e.target.value;
@@ -270,7 +270,7 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                                                                                                     <input
                                                                                                         type="number"
                                                                                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                                                        value={size.quantity || 1}
+                                                                                                        value={size.quantity || ''}
                                                                                                         onChange={(e) => {
                                                                                                             const updatedSizes = [...item.sizes];
                                                                                                             updatedSizes[sizeIndex].quantity = parseInt(e.target.value);
@@ -384,7 +384,7 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                                                                                             <input
                                                                                                 type="number"
                                                                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                                                value={size.quantity || 1}
+                                                                                                value={size.quantity || ''}
                                                                                                 onChange={(e) => {
                                                                                                     const updatedSizes = [...item.sizes];
                                                                                                     updatedSizes[sizeIndex].quantity = parseInt(e.target.value);
@@ -403,7 +403,7 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                                                                                             <input
                                                                                                 type="number"
                                                                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                                                value={size.purchase_price ?? 1}
+                                                                                                value={size.purchase_price ?? ''}
                                                                                                 onChange={(e) => {
                                                                                                     const updatedSizes = [...item.sizes];
                                                                                                     updatedSizes[sizeIndex].purchase_price = e.target.value;
