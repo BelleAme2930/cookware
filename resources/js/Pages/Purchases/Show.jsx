@@ -174,42 +174,36 @@ const Show = ({purchase, products}) => {
                                     );
                                 })}
 
-
                             {[...new Set(purchase.product_items
                                 .filter(item => {
                                     const product = products.find(p => p.id === item.product_id);
                                     return product && product.product_type === 'weight';
                                 })
-                                .map(item => item.product_id))].map(productId => {
+                                .map(item => item.batch_id))].map(batchId => {
 
-                                const groupedItems = purchase.product_items.filter(item => item.product_id === productId);
-                                // const totalGroupedWeight = groupedItems.reduce((sum, item) => sum + (item.weight || 0), 0);
-                                const product = products.find(p => p.id === productId);
+                                const groupedItems = purchase.product_items.filter(item => item.batch_id === batchId);
+                                const product = products.find(p => p.id === groupedItems[0].product_id);
 
                                 const totalQuantity = groupedItems.reduce((sum, item) => sum + item.quantity, 0);
                                 const totalPrice = groupedItems.reduce((sum, item) => sum + item.quantity * item.purchase_price, 0);
-                                const rate = (totalPrice / totalQuantity);
 
                                 return (
-                                    <tr key={product.id} className="text-center">
+                                    <tr key={batchId} className="text-center">
                                         <td className="py-2 px-4 border">{product.name}</td>
                                         <td className="py-2 px-4 border">
                                             {product.sizes.length > 0 ? (
-                                                <div className='flex justify-center gap-3'>
+                                                <div className="flex justify-center gap-3">
                                                     {groupedItems.map(item => {
                                                         const size = product.sizes.find(size => size.id === item.product_size_id);
                                                         return (
-                                                            <>
-                                                                <div className='flex'>
-                                                                    {size && (
-                                                                        <div>
-                                                                            <div
-                                                                                className='border-b border-black'>{size.size}</div>
-                                                                            <div>{item.quantity}</div>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </>
+                                                            <div key={item.id} className="flex">
+                                                                {size && (
+                                                                    <div>
+                                                                        <div className="border-b border-black">{size.size}</div>
+                                                                        <div>{item.quantity}</div>
+                                                                    </div>
+                                                                )}
+                                                            </div>
                                                         );
                                                     })}
                                                 </div>
@@ -218,7 +212,7 @@ const Show = ({purchase, products}) => {
                                         <td className="py-2 px-4 border">{totalQuantity}</td>
                                         <td className="py-2 px-4 border">{groupedItems[0].weight.toLocaleString()} KG</td>
                                         <td className="py-2 px-4 border">{groupedItems[0].purchase_price.toLocaleString()} Rs</td>
-                                        <td className="py-2 px-4 border">{groupedItems[0].weight * groupedItems[0].purchase_price.toLocaleString()} Rs</td>
+                                        <td className="py-2 px-4 border">{(groupedItems[0].weight * groupedItems[0].purchase_price).toLocaleString()} Rs</td>
                                     </tr>
                                 );
                             })}

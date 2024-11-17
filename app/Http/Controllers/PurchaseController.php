@@ -17,6 +17,7 @@ use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class PurchaseController extends Controller
@@ -114,6 +115,7 @@ class PurchaseController extends Controller
             $totalQuantity = 0;
 
             foreach ($validatedData['product_items'] as $productData) {
+                $batchId = (string) Str::uuid();
                 $product = Product::find($productData['product_id']);
                 $productType = $product->product_type;
 
@@ -127,6 +129,7 @@ class PurchaseController extends Controller
                                 'quantity' => $sizeData['quantity'],
                                 'purchase_price' => $sizeData['purchase_price'],
                                 'weight' => null,
+                                'batch_id' => $batchId,
                             ]);
                         }
                     }
@@ -145,6 +148,7 @@ class PurchaseController extends Controller
                                     'quantity' => $sizeData['quantity'],
                                     'purchase_price' => $productData['purchase_price'],
                                     'weight' => WeightHelper::toGrams($productData['weight']),
+                                    'batch_id' => $batchId,
                                 ]);
                                 $totalQuantity += $sizeData['quantity'] ?: 0;
                             }
@@ -156,6 +160,7 @@ class PurchaseController extends Controller
                                     'quantity' => $sizeData['quantity'],
                                     'purchase_price' => $sizeData['purchase_price'],
                                     'weight' => WeightHelper::toGrams($sizeData['weight']),
+                                    'batch_id' => $batchId,
                                 ]);
                                 $totalWeight += $sizeData['weight'] ?: 0;
                                 $totalQuantity += $sizeData['quantity'] ?: 0;

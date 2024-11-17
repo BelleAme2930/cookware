@@ -18,6 +18,7 @@ class ProductPurchase extends Model
         'weight',
         'purchase_price',
         'separate_weight',
+        'batch_id',
     ];
 
     public function purchase(): BelongsTo

@@ -23,6 +23,7 @@ class ProductPurchaseResource extends JsonResource
             'quantity' => $this->quantity,
             'weight' => WeightHelper::toKilos($this->weight ?? 0),
             'purchase_price' => $this->purchase_price,
+            'batch_id' => $this->batch_id,
         ];
     }
 }
