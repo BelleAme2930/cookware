@@ -32,7 +32,7 @@ const Index = ({products}) => {
             name: 'Sizes',
             selector: row =>
                 row.sizes && row.sizes.length > 0
-                    ? row.sizes.map(size => size.size).join(', ')
+                    ? row.sizes.map(size => size.size).join('+')
                     : '-',
         },
         {
