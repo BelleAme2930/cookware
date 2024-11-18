@@ -208,10 +208,10 @@ const Invoice = ({purchase, products}) => {
                                     <span className='font-semibold'>Sub Total: </span><span
                                     className="text-gray-900 font-medium">{purchase.total_price.toLocaleString()} Rs</span>
                                 </p>
-                                {/*<p className="text-lg mb-2">*/}
-                                {/*    <span className='font-semibold'>Existing Balance: </span><span*/}
-                                {/*    className="text-gray-900 font-medium">{purchase.supplier_old_balance.toLocaleString()} Rs</span>*/}
-                                {/*</p>*/}
+                                <p className="text-lg mb-2">
+                                    <span className='font-semibold'>Existing Balance: </span><span
+                                    className="text-gray-900 font-medium">{purchase.supplier_old_balance.toLocaleString()} Rs</span>
+                                </p>
                             </>
                         )}
                     </>
