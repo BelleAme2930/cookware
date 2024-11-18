@@ -12,7 +12,8 @@ const Show = ({purchase, products}) => {
 
     const paymentMethods = purchase.payment_method;
 
-    const existingPrice = purchase.supplier.existing_balance - purchase.remaining_balance;
+    const isCredit = paymentMethods.includes('credit');
+    const isAccount = paymentMethods.includes('account');
 
     return (
         <AuthenticatedLayout
@@ -36,111 +37,126 @@ const Show = ({purchase, products}) => {
                         </BorderButton>
                     </div>
 
-                    {/* Purchase Information */}
-                    <div className="flex bg-gray-100 p-4 rounded">
-                        <div className='w-full md:w-1/2'>
-                            <h3 className="text-xl font-semibold mb-2">Purchase Information</h3>
-                            <p className='mb-1'><strong>Purchase
-                                Date:</strong> {new Date(purchase.purchase_date).toLocaleDateString()}</p>
-                            <p className='mb-1 capitalize'><strong>Payment Method:</strong> {paymentMethods.join(', ')}
+                    <div className="mb-6 p-4 border rounded-lg bg-gray-50">
+                        <h3 className="text-lg font-bold text-gray-800 mb-4 border-b pb-2">
+                            Purchase Information
+                        </h3>
+                        <div className="grid grid-cols-2 gap-2">
+                            <p>
+                            <span
+                                className="font-semibold">Purchase Date:</span> {new Date(purchase.purchase_date).toLocaleDateString()}
                             </p>
-                            {existingPrice > 0 && (
+                            <p>
+                                <span className="font-semibold">Supplier:</span> {purchase.supplier.name}
+                            </p>
+                            <p className='capitalize'>
+                                <span className="font-semibold">Payment Method:</span> {paymentMethods.join(', ')}
+                            </p>
+                            {isCredit && (
                                 <>
-                                    <p className='mb-1'><strong>Sub
-                                        Total:</strong> {purchase.total_price.toLocaleString()} Rs
+                                    <p>
+                                    <span
+                                        className="font-semibold">Amount Paid:</span> {purchase.amount_paid.toLocaleString()} Rs
                                     </p>
-                                    <p className='mb-1'><strong>Existing Balance:</strong> {existingPrice} Rs
+                                    <p>
+                                    <span
+                                        className="font-semibold">Credit Balance:</span> {purchase.remaining_balance.toLocaleString()} Rs
+                                    </p>
+                                    <p>
+                                    <span
+                                        className="font-semibold">Due Date:</span> {new Date(purchase.due_date).toLocaleDateString() ?? '-'}
                                     </p>
                                 </>
                             )}
-                            <p className='mb-1'><strong>Total
-                                Price:</strong> {(purchase.total_price + existingPrice).toLocaleString()} Rs
-                            </p>
-                            {/*{paymentMethods.includes('credit') && (*/}
-                            {/*    <>*/}
-                            {/*        <p className='mb-1'><strong>Amount*/}
-                            {/*            Paid:</strong> {purchase.amount_paid.toLocaleString()} Rs*/}
-                            {/*        </p>*/}
-                            {/*        <p className='mb-1'><strong>Remaining*/}
-                            {/*            Balance:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>*/}
-                            {/*        <p className='mb-1'><strong>Due*/}
-                            {/*            Date:</strong> {new Date(purchase.due_date).toLocaleDateString()}</p>*/}
-                            {/*    </>*/}
-                            {/*)}*/}
-
-                            {purchase.supplier && (
-                                <div className='mt-8'>
-                                    <h3 className="text-xl font-semibold mb-2">Supplier Details</h3>
-                                    <p className='mb-1'><strong>Name:</strong> {purchase.supplier.name}</p>
-                                    {purchase.supplier.phone && (
-                                        <p className='mb-1'><strong>Phone:</strong> {purchase.supplier.phone}</p>
-                                    )}
-                                    {purchase.supplier.email && (
-                                        <p className='mb-1'><strong>Email:</strong> {purchase.supplier.email}</p>
-                                    )}
-                                    {purchase.supplier.email && (
-                                        <p className='mb-1'><strong>Address:</strong> {purchase.supplier.address}</p>
-                                    )}
-                                </div>
+                            {isAccount && (
+                                <p>
+                                <span
+                                    className="font-semibold">Account:</span> {purchase.account?.title + ' - ' + purchase.account?.bank_name ?? 'N/A'}
+                                </p>
                             )}
-                        </div>
-                        <div className='w-full md:w-1/2'>
-                            <div>
-                                {paymentMethods.includes('cheque') && (purchase.cheque_details) && (
-                                    <div className='mb-6'>
-                                        <div>
-                                            <h3 className="text-xl font-semibold mb-2">Cheque Details</h3>
-                                            <p className='mb-1'><strong>Cheque
-                                                Number:</strong> {purchase.cheque_details.cheque_number}
-                                            </p>
-                                            <p className='mb-1'><strong>Cheque
-                                                Bank:</strong> {purchase.cheque_details.cheque_bank}
-                                            </p>
-                                            <p className='mb-1'><strong>Cheque
-                                                Date:</strong> {purchase.cheque_details.cheque_date}
-                                            </p>
-                                            <p className='mb-1'><strong>Cheque
-                                                Amount:</strong> {purchase.cheque_details.cheque_amount} Rs
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
-                                {paymentMethods.includes('account') && (purchase.account) && (
-                                    <div className='mb-6'>
-                                        <div>
-                                            <h3 className="text-xl font-semibold mb-2">Account Details</h3>
-                                            <p className='mb-1'>
-                                                <strong>Account:</strong> {purchase.account.title + ' - ' + purchase.account.bank_name}
-                                            </p>
-                                        </div>
-                                    </div>
-                                )}
-                                {paymentMethods.includes('credit') && (purchase.amount_paid) && (
-                                    <div className='mb-6'>
-                                        <div>
-                                            <h3 className="text-xl font-semibold mb-2">Credit Details</h3>
-                                            <p className='mb-1'><strong>Amount
-                                                Paid:</strong> {purchase.amount_paid.toLocaleString()} Rs
-                                            </p>
-                                            <p className='mb-1'><strong>Credit
-                                                Balance:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>
-                                            {existingPrice > 0 && (
-                                                <p className='mb-1'><strong className='text-primary-600'>Existing
-                                                    Balance:</strong> {existingPrice.toLocaleString()} Rs
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
                         </div>
                     </div>
 
-                    <hr className="my-6"/>
+                    {/* Purchase Information */}
+                    {/*<div className="flex bg-gray-100 p-4 rounded">*/}
+                    {/*    <div className='w-full md:w-1/2'>*/}
+                    {/*        <h3 className="text-xl font-semibold mb-2">Purchase Information</h3>*/}
+                    {/*        <p className='mb-1'><strong>Purchase*/}
+                    {/*            Date:</strong> {new Date(purchase.purchase_date).toLocaleDateString()}</p>*/}
+                    {/*        <p className='mb-1 capitalize'><strong>Payment Method:</strong> {paymentMethods.join(', ')}*/}
+                    {/*        </p>*/}
+
+                    {/*        {purchase.supplier && (*/}
+                    {/*            <div className='mt-8'>*/}
+                    {/*                <h3 className="text-xl font-semibold mb-2">Supplier Details</h3>*/}
+                    {/*                <p className='mb-1'><strong>Name:</strong> {purchase.supplier.name}</p>*/}
+                    {/*                {purchase.supplier.phone && (*/}
+                    {/*                    <p className='mb-1'><strong>Phone:</strong> {purchase.supplier.phone}</p>*/}
+                    {/*                )}*/}
+                    {/*                {purchase.supplier.email && (*/}
+                    {/*                    <p className='mb-1'><strong>Email:</strong> {purchase.supplier.email}</p>*/}
+                    {/*                )}*/}
+                    {/*                {purchase.supplier.email && (*/}
+                    {/*                    <p className='mb-1'><strong>Address:</strong> {purchase.supplier.address}</p>*/}
+                    {/*                )}*/}
+                    {/*            </div>*/}
+                    {/*        )}*/}
+                    {/*    </div>*/}
+                    {/*    <div className='w-full md:w-1/2'>*/}
+                    {/*        <div>*/}
+                    {/*            {paymentMethods.includes('cheque') && (purchase.cheque_details) && (*/}
+                    {/*                <div className='mb-6'>*/}
+                    {/*                    <div>*/}
+                    {/*                        <h3 className="text-xl font-semibold mb-2">Cheque Details</h3>*/}
+                    {/*                        <p className='mb-1'><strong>Cheque*/}
+                    {/*                            Number:</strong> {purchase.cheque_details.cheque_number}*/}
+                    {/*                        </p>*/}
+                    {/*                        <p className='mb-1'><strong>Cheque*/}
+                    {/*                            Bank:</strong> {purchase.cheque_details.cheque_bank}*/}
+                    {/*                        </p>*/}
+                    {/*                        <p className='mb-1'><strong>Cheque*/}
+                    {/*                            Date:</strong> {purchase.cheque_details.cheque_date}*/}
+                    {/*                        </p>*/}
+                    {/*                        <p className='mb-1'><strong>Cheque*/}
+                    {/*                            Amount:</strong> {purchase.cheque_details.cheque_amount} Rs*/}
+                    {/*                        </p>*/}
+                    {/*                    </div>*/}
+                    {/*                </div>*/}
+                    {/*            )}*/}
+                    {/*            {paymentMethods.includes('account') && (purchase.account) && (*/}
+                    {/*                <div className='mb-6'>*/}
+                    {/*                    <div>*/}
+                    {/*                        <h3 className="text-xl font-semibold mb-2">Account Details</h3>*/}
+                    {/*                        <p className='mb-1'>*/}
+                    {/*                            <strong>Account:</strong> {purchase.account.title + ' - ' + purchase.account.bank_name}*/}
+                    {/*                        </p>*/}
+                    {/*                    </div>*/}
+                    {/*                </div>*/}
+                    {/*            )}*/}
+                    {/*            {paymentMethods.includes('credit') && (purchase.amount_paid) && (*/}
+                    {/*                <div className='mb-6'>*/}
+                    {/*                    <div>*/}
+                    {/*                        <h3 className="text-xl font-semibold mb-2">Credit Details</h3>*/}
+                    {/*                        <p className='mb-1'><strong>Amount*/}
+                    {/*                            Paid:</strong> {purchase.amount_paid.toLocaleString()} Rs*/}
+                    {/*                        </p>*/}
+                    {/*                        <p className='mb-1'><strong>Credit*/}
+                    {/*                            Balance:</strong> {purchase.remaining_balance.toLocaleString()} Rs</p>*/}
+                    {/*                        {existingPrice > 0 && (*/}
+                    {/*                            <p className='mb-1'><strong className='text-primary-600'>Existing*/}
+                    {/*                                Balance:</strong> {existingPrice.toLocaleString()} Rs*/}
+                    {/*                            </p>*/}
+                    {/*                        )}*/}
+                    {/*                    </div>*/}
+                    {/*                </div>*/}
+                    {/*            )}*/}
+                    {/*        </div>*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
 
                     <div className="overflow-x-auto">
                         <h3 className="text-xl font-semibold mb-4">Products:</h3>
-                        <table className="min-w-full bg-white border border-gray-200 mb-8">
+                        <table className="min-w-full bg-white border border-gray-200">
                             <thead>
                             <tr className="bg-gray-100">
                                 <th className="py-2 px-4 text-center border">Product Name</th>
@@ -199,7 +215,8 @@ const Show = ({purchase, products}) => {
                                                             <div key={item.id} className="flex">
                                                                 {size && (
                                                                     <div>
-                                                                        <div className="border-b border-black">{size.size}</div>
+                                                                        <div
+                                                                            className="border-b border-black">{size.size}</div>
                                                                         <div>{item.quantity}</div>
                                                                     </div>
                                                                 )}
@@ -218,6 +235,26 @@ const Show = ({purchase, products}) => {
                             })}
                             </tbody>
                         </table>
+                    </div>
+                    <div className='mt-4 text-right py-4'>
+                        {purchase.supplier_old_balance && (
+                            <>
+                                <p className="text-lg mb-2">
+                                    <span className='font-semibold'>Sub Total: </span><span
+                                    className="text-gray-900 font-medium">{purchase.total_price.toLocaleString()} Rs</span>
+                                </p>
+                                <p className="text-lg mb-2">
+                                    <span className='font-semibold'>Existing Balance: </span><span
+                                    className="text-gray-900 font-medium">{purchase.supplier_old_balance.toLocaleString()} Rs</span>
+                                </p>
+                            </>
+                        )}
+                        <div className="border-t border-gray-300 my-2"></div>
+                        <p className="text-xl font-bold text-gray-800">
+                            Total Price: <span
+                            className="text-green-600">{(purchase.total_price).toLocaleString()} Rs</span>
+                        </p>
+
                     </div>
                 </div>
             </div>

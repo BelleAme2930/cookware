@@ -11,7 +11,6 @@ const Invoice = ({purchase, products}) => {
 
     const isCredit = paymentMethods.includes('credit');
     const isAccount = paymentMethods.includes('account');
-    const existingPrice = purchase.supplier.existing_balance - purchase.remaining_balance;
 
     return (
         <div className="min-h-screen bg-gray-100 p-4">
@@ -178,7 +177,8 @@ const Invoice = ({purchase, products}) => {
                                                         <div key={item.id} className="flex">
                                                             {size && (
                                                                 <div>
-                                                                    <div className="border-b border-black">{size.size}</div>
+                                                                    <div
+                                                                        className="border-b border-black">{size.size}</div>
                                                                     <div>{item.quantity}</div>
                                                                 </div>
                                                             )}
@@ -200,8 +200,8 @@ const Invoice = ({purchase, products}) => {
                 </div>
 
                 {/* Total Price */}
-                <div className="mt-6 text-right py-4">
-                    {existingPrice > 0 && (
+                <div className='mt-4 text-right py-4'>
+                    {purchase.supplier_old_balance && (
                         <>
                             <p className="text-lg mb-2">
                                 <span className='font-semibold'>Sub Total: </span><span
@@ -209,16 +209,16 @@ const Invoice = ({purchase, products}) => {
                             </p>
                             <p className="text-lg mb-2">
                                 <span className='font-semibold'>Existing Balance: </span><span
-                                className="text-gray-900 font-medium">{existingPrice.toLocaleString()} Rs</span>
+                                className="text-gray-900 font-medium">{purchase.supplier_old_balance.toLocaleString()} Rs</span>
                             </p>
                         </>
                     )}
-
                     <div className="border-t border-gray-300 my-2"></div>
                     <p className="text-xl font-bold text-gray-800">
                         Total Price: <span
-                        className="text-green-600">{(purchase.total_price + existingPrice).toLocaleString()} Rs</span>
+                        className="text-green-600">{(purchase.total_price).toLocaleString()} Rs</span>
                     </p>
+
                 </div>
 
 

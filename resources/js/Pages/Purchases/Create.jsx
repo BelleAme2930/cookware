@@ -52,7 +52,7 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
             const weightType = item.weight_type;
 
             if (selectedProduct) {
-                if (isWeightBased && weightType) {
+                if (isWeightBased) {
                     if (hasSizes) {
                         if (weightType === 'total') {
                             const purchasePrice = parseFloat(item.purchase_price) || 0;
@@ -477,7 +477,7 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                                                             <input
                                                                 type="number"
                                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                value={item.weight}
+                                                                value={item.quantity}
                                                                 onChange={(e) => handleProductChange(index, "quantity", e.target.value)}
                                                                 min="0"
                                                                 placeholder="Enter quantity"

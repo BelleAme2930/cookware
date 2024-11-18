@@ -15,9 +15,13 @@ class PurchaseResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
+        $supplierOldBalance = $this->calculateSupplierOldBalance();
+
         $data = [
             'id' => $this->id,
             'supplier_id' => $this->supplier_id,
+            'supplier_old_balance' => $supplierOldBalance,
             'account' => new AccountResource($this->whenLoaded('account')),
             'total_price' => $this->total_price,
             'purchase_date' => $this->purchase_date,
@@ -53,6 +57,20 @@ class PurchaseResource extends JsonResource
         }
 
         return $data;
+    }
+
+    private function calculateSupplierOldBalance(): float|int
+    {
+        if (!$this->relationLoaded('supplier') || !$this->supplier) {
+            return 0;
+        }
+
+        $supplierPurchases = $this->supplier->purchases()
+            ->where('id', '!=', $this->id)
+            ->where('remaining_balance', '>', 0)
+            ->get();
+
+        return $supplierPurchases->sum('remaining_balance');
     }
 
 

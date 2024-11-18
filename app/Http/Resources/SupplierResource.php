@@ -22,9 +22,6 @@ class SupplierResource extends JsonResource
             'address' => $this->address,
             'created_at' => $this->created_at->format('Y-m-d'),
             'updated_at' => $this->updated_at->format('Y-m-d'),
-            'existing_balance' => $this->whenLoaded('purchases', function () {
-                return $this->purchases->sum('remaining_balance');
-            }),
         ];
     }
 }

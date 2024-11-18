@@ -58,7 +58,6 @@ class PurchaseController extends Controller
 
     public function store(Request $request)
     {
-//        dd($request->all());
         $validatedData = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
             'payment_method' => 'required|array|max:3',
