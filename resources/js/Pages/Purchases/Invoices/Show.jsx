@@ -201,25 +201,21 @@ const Invoice = ({purchase, products}) => {
 
                 {/* Total Price */}
                 <div className='mt-4 text-right py-4'>
-                    <>
-                        {purchase.supplier_old_balance && purchase.supplier_old_balance > 0 && (
-                            <>
-                                <p className="text-lg mb-2">
-                                    <span className='font-semibold'>Sub Total: </span><span
-                                    className="text-gray-900 font-medium">{purchase.total_price.toLocaleString()} Rs</span>
-                                </p>
-                                <p className="text-lg mb-2">
-                                    <span className='font-semibold'>Existing Balance: </span><span
-                                    className="text-gray-900 font-medium">{purchase.supplier_old_balance.toLocaleString()} Rs</span>
-                                </p>
-                            </>
-                        )}
-                    </>
+                    <div>
+                        <p className="text-lg mb-2">
+                            <span className='font-semibold'>Sub Total: </span><span
+                            className="text-gray-900 font-medium">{purchase.total_price.toLocaleString()} Rs</span>
+                        </p>
+                        <p className="text-lg mb-2">
+                            <span className='font-semibold'>Existing Balance: </span><span
+                            className="text-gray-900 font-medium">{purchase.supplier_old_balance.toLocaleString()} Rs</span>
+                        </p>
+                    </div>
                     <div className="border-t border-gray-300 my-2"></div>
                     <p className="text-xl font-bold text-gray-800">
                         Total Price: <span
                         className="text-green-600">
-                            {purchase.supplier_old_balance && purchase.supplier_old_balance > 0 ? (purchase.total_price + purchase.supplier_old_balance) : purchase.total_price} Rs</span>
+                            {(Number(purchase.total_price) + Number(purchase.supplier_old_balance)).toLocaleString()} Rs</span>
                     </p>
 
                 </div>
