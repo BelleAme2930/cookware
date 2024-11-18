@@ -58,6 +58,7 @@ class PurchaseController extends Controller
 
     public function store(Request $request)
     {
+//        dd($request->all());
         $validatedData = $request->validate([
             'supplier_id' => 'required|exists:suppliers,id',
             'payment_method' => 'required|array|max:3',
@@ -132,6 +133,16 @@ class PurchaseController extends Controller
                                 'batch_id' => $batchId,
                             ]);
                         }
+                    } else {
+                        $purchase->productPurchases()->create([
+                            'product_id' => $product->id,
+                            'product_size_id' => null,
+                            'quantity' => $productData['quantity'],
+                            'purchase_price' => $productData['purchase_price'],
+                            'weight' => null,
+                            'batch_id' => $batchId,
+                        ]);
+                        $totalQuantity += $productData['quantity'] ?: 0;
                     }
                 }
 
@@ -166,6 +177,17 @@ class PurchaseController extends Controller
                                 $totalQuantity += $sizeData['quantity'] ?: 0;
                             }
                         }
+                    } else {
+                        $totalWeight += $productData['weight'] ?: 0;
+                        $purchase->productPurchases()->create([
+                            'product_id' => $product->id,
+                            'product_size_id' => null,
+                            'quantity' => $productData['quantity'],
+                            'purchase_price' => $productData['purchase_price'],
+                            'weight' => WeightHelper::toGrams($productData['weight'] ?? 0) ?? null,
+                            'batch_id' => $batchId,
+                        ]);
+                        $totalQuantity += $productData['quantity'] ?: 0;
                     }
                 }
             }
