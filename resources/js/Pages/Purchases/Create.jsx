@@ -159,7 +159,7 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                                             />
                                         </div>
 
-                                        {selectedProduct && isWeightBased && (
+                                        {selectedProduct && isWeightBased && item.sizes.length > 0 && (
                                             <div>
                                                 <label
                                                     className="block text-sm font-medium text-gray-700">Weight Type</label>
@@ -175,11 +175,11 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                                             </div>
                                         )}
 
-                                        {selectedProduct && (
+                                        {selectedProduct && hasSizes && (
                                             <>
                                                 {isWeightBased && weightType ? (
                                                     <>
-                                                        {hasSizes ? (
+                                                        {hasSizes && (
                                                             <>
                                                                 <div>
                                                                     <label
@@ -319,35 +319,6 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                                                                     )}
                                                                 </div>
                                                             </>
-                                                        ) : (
-                                                            <>
-                                                                <div>
-                                                                    <label
-                                                                        className="block text-sm font-medium text-gray-700">Weight</label>
-                                                                    <input
-                                                                        type="number"
-                                                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                        value={item.weight}
-                                                                        onChange={(e) => handleProductChange(index, "weight", e.target.value)}
-                                                                        min="0"
-                                                                        placeholder="Enter weight"
-                                                                        required
-                                                                    />
-                                                                </div>
-                                                                <div>
-                                                                    <label
-                                                                        className="block text-sm font-medium text-gray-700">Purchase
-                                                                        Price</label>
-                                                                    <input
-                                                                        type="number"
-                                                                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-                                                                        value={item.purchase_price}
-                                                                        onChange={(e) => handleProductChange(index, "purchase_price", e.target.value)}
-                                                                        min="0"
-                                                                        placeholder="Purchase Price"
-                                                                    />
-                                                                </div>
-                                                            </>
                                                         )}
                                                     </>
                                                 ) : (
@@ -449,6 +420,83 @@ const PurchaseCreate = ({suppliers, products, accounts}) => {
                                                                 </div>
                                                             </>
                                                         )}
+                                                    </>
+                                                )}
+                                            </>
+                                        )}
+
+                                        {selectedProduct && !hasSizes && (
+                                            <>
+                                                {isWeightBased ? (
+                                                    <>
+                                                        <div>
+                                                            <label
+                                                                className="block text-sm font-medium text-gray-700">Weight</label>
+                                                            <input
+                                                                type="number"
+                                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                value={item.weight}
+                                                                onChange={(e) => handleProductChange(index, "weight", e.target.value)}
+                                                                min="0"
+                                                                placeholder="Enter weight"
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label
+                                                                className="block text-sm font-medium text-gray-700">Quantity</label>
+                                                            <input
+                                                                type="number"
+                                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                value={item.quantity}
+                                                                onChange={(e) => handleProductChange(index, "quantity", e.target.value)}
+                                                                min="0"
+                                                                placeholder="Enter quantity"
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label
+                                                                className="block text-sm font-medium text-gray-700">Purchase
+                                                                Price</label>
+                                                            <input
+                                                                type="number"
+                                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                value={item.purchase_price}
+                                                                onChange={(e) => handleProductChange(index, "purchase_price", e.target.value)}
+                                                                min="0"
+                                                                placeholder="Purchase Price"
+                                                            />
+                                                        </div>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <div>
+                                                            <label
+                                                                className="block text-sm font-medium text-gray-700">Quantity</label>
+                                                            <input
+                                                                type="number"
+                                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                value={item.weight}
+                                                                onChange={(e) => handleProductChange(index, "quantity", e.target.value)}
+                                                                min="0"
+                                                                placeholder="Enter quantity"
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div>
+                                                            <label
+                                                                className="block text-sm font-medium text-gray-700">Purchase
+                                                                Price</label>
+                                                            <input
+                                                                type="number"
+                                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
+                                                                value={item.purchase_price}
+                                                                onChange={(e) => handleProductChange(index, "purchase_price", e.target.value)}
+                                                                min="0"
+                                                                placeholder="Purchase Price"
+                                                            />
+                                                        </div>
                                                     </>
                                                 )}
                                             </>
