@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\ProductResource;
 use App\Http\Resources\SaleResource;
+use App\Models\Product;
 use App\Models\Sale;
 use Illuminate\Http\RedirectResponse;
 use Inertia\Inertia;
@@ -32,10 +34,12 @@ class SalesInvoiceController extends Controller
      */
     public function show(Sale $sale)
     {
-        $sale->load('customer', 'products');
+        $sale->load(['customer.sales', 'productSales', 'account']);
+        $products = Product::with(['sizes'])->get();
 
         return Inertia::render('Sales/Invoices/Show', [
             'sale' => SaleResource::make($sale)->resolve(),
+            'products' => ProductResource::collection($products)->resolve(),
         ]);
     }
 

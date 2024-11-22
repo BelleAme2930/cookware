@@ -14,13 +14,20 @@ return new class extends Migration
         Schema::create('sales', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
+            $table->foreignId('account_id')->nullable()->constrained()->onDelete('set null');
             $table->unsignedBigInteger('total_price');
             $table->unsignedBigInteger('amount_paid')->default(0);
             $table->unsignedBigInteger('remaining_balance')->default(0);
-            $table->string('payment_method')->nullable();
-            $table->foreignId('account_id')->nullable()->constrained()->onDelete('set null');
             $table->date('due_date')->nullable();
+            $table->unsignedBigInteger('weight')->nullable();
+            $table->unsignedBigInteger('quantity')->nullable();
+            $table->string('cheque_number')->nullable();
+            $table->date('cheque_date')->nullable();
+            $table->string('cheque_bank')->nullable();
             $table->date('sale_date')->nullable();
+            $table->string('payment_method')->nullable();
+            $table->unsignedBigInteger('account_payment')->nullable();
+            $table->unsignedBigInteger('cheque_amount')->nullable();
             $table->timestamps();
         });
     }

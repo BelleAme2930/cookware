@@ -2,7 +2,7 @@ import React from 'react';
 import { Head } from '@inertiajs/react';
 import CustomDataTable from "@/Components/CustomDataTable.jsx";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import { faAdd, faEdit, faEye, faPrint } from "@fortawesome/free-solid-svg-icons";
+import {faAdd, faEdit, faEye, faPrint, faTrash} from "@fortawesome/free-solid-svg-icons";
 import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 import IconButton from "@/Components/IconButton.jsx";
 import { toast } from "react-toastify";
@@ -16,40 +16,38 @@ const Index = ({ sales }) => {
 
     const columns = [
         {
-            name: 'Customer',
-            selector: row => row.customer.name,
-        },
-        {
             name: 'Total Weight',
-            selector: row => row.total_weight.toLocaleString() + ' KG',
+            selector: row => row.weight > 0 ? row.weight.toLocaleString() + ' KG' : '-',
         },
         {
             name: 'Total Quantity',
-            selector: row => row.total_quantity,
+            selector: row => row.quantity.toLocaleString(),
         },
         {
             name: 'Total Price',
-            selector: row => row.total_price.toLocaleString(),
+            selector: row => row.total_price.toLocaleString() + ' Rs',
         },
         {
             name: 'Sale Date',
-            selector: row => row.sale_date,
+            selector: row => new Date(row.sale_date).toLocaleDateString(),
         },
         {
             name: 'Payment Method',
-            selector: row => row.payment_method,
+            selector: row => row.payment_method.join(', '),
+            class: 'capitalize'
         },
         {
             name: 'Due Date',
-            selector: row => row.due_date ?? '-',
+            selector: row => row.due_date ? new Date(row.due_date).toLocaleDateString() : '-',
         },
         {
             name: 'Actions',
             cell: row => (
                 <div className="flex space-x-2">
                     <IconButton onClick={() => router.visit(viewRoute(row.id))} icon={faEye} />
-                    <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} />
+                    {/* <IconButton onClick={() => router.visit(editRoute(row.id))} icon={faEdit} /> */}
                     <IconButton onClick={() => router.visit(route('sales.invoices.show', row.id))} icon={faPrint} />
+                    <IconButton onClick={() => confirmDelete(row.id)} icon={faTrash} />
                 </div>
             )
         },

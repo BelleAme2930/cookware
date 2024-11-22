@@ -15,45 +15,63 @@ class SaleResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+
+        $customerOldBalance = $this->calculateSupplierOldBalance();
+
         $data = [
             'id' => $this->id,
             'customer_id' => $this->customer_id,
+            'customer_old_balance' => $customerOldBalance,
+            'account' => new AccountResource($this->whenLoaded('account')),
             'total_price' => $this->total_price,
-            'amount_paid' => $this->amount_paid,
-            'remaining_balance' => $this->remaining_balance,
-            'payment_method' => $this->formatPaymentMethod($this->payment_method),
-            'exact_payment_method' => $this->payment_method,
-            'total_weight' => WeightHelper::toKilos($this->products->sum('pivot.weight')),
-            'total_quantity' => $this->products->sum('pivot.quantity'),
-            'account_id' => $this->account_id,
-            'due_date' => $this->due_date,
             'sale_date' => $this->sale_date,
+            'payment_method' => json_decode($this->payment_method),
+            'due_date' => $this->due_date,
+            'amount_paid' => $this->amount_paid,
+            'cheque_details' => [
+                'cheque_number' => $this->cheque_number,
+                'cheque_date' => $this->cheque_date,
+                'cheque_bank' => $this->cheque_bank,
+                'cheque_amount' => $this->cheque_amount,
+            ],
+            'account_id' => $this->account_id,
+            'account_payment' => $this->account_payment,
+            'remaining_balance' => $this->remaining_balance,
+            'weight' => WeightHelper::toKilos($this->weight),
+            'quantity' => $this->quantity,
+            'product_items' => $this->relationLoaded('productSales') && $this->productSales
+                ? ProductSaleResource::collection($this->productSales)->resolve()
+                : [],
         ];
 
-        if ($this->relationLoaded('customer')) {
-            $data['customer'] = CustomerResource::make($this->customer)->resolve();
+        if ($this->relationLoaded('customer') && $this->customer) {
+            $data['customer'] = SupplierResource::make($this->customer)->resolve();
         }
 
-        if ($this->relationLoaded('products')) {
-            $data['products'] = $this->products->map(function($product) {
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'product_type' => $product->product_type,
-                    'pivot' => [
-                        'quantity' => $product->pivot->quantity ?? null,
-                        'weight' => WeightHelper::toKilos($product->pivot->weight) ?? null,
-                        'sale_price' => $product->pivot->sale_price,
-                    ],
-                ];
-            });
+        if ($this->relationLoaded('productSales') && $this->productSales) {
+            $data['product_items'] = ProductSaleResource::collection($this->productSales)->resolve();
+        }
+
+        if ($this->relationLoaded('account') && $this->account) {
+            $data['account'] = AccountResource::make($this->account)->resolve();
         }
 
         return $data;
     }
 
-    private function formatPaymentMethod(string $paymentMethod): string
+    private function calculateSupplierOldBalance(): float|int
     {
-        return ucwords(str_replace('_', ' ', $paymentMethod));
+        if (!$this->relationLoaded('customer') || !$this->customer) {
+            return 0;
+        }
+
+        $customerSales = $this->customer->sales()
+            ->where('id', '!=', $this->id)
+            ->where('remaining_balance', '>', 0)
+            ->get();
+
+        return $customerSales->sum('remaining_balance');
     }
+
+
 }
