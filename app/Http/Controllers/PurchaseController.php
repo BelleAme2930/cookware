@@ -123,7 +123,8 @@ class PurchaseController extends Controller
                 if ($productType === ProductTypeEnum::ITEM->value) {
                     if (!empty($productData['sizes'])) {
                         foreach ($productData['sizes'] as $sizeData) {
-                            $purchase->productPurchases()->create([
+                            $totalQuantity += $sizeData['quantity'] ?: 0;
+                            $productPurchase = $purchase->productPurchases()->create([
                                 'product_id' => $product->id,
                                 'product_size_id' => $sizeData['value'] ?? null,
                                 'quantity' => $sizeData['quantity'],
@@ -152,7 +153,7 @@ class PurchaseController extends Controller
                         if ($weightType === 'total') {
                             $totalWeight += $productData['weight'] ?: 0;
                             foreach ($productData['sizes'] as $sizeData) {
-                                $purchase->productPurchases()->create([
+                                $productPurchase = $purchase->productPurchases()->create([
                                     'product_id' => $product->id,
                                     'product_size_id' => $sizeData['value'],
                                     'quantity' => $sizeData['quantity'],
@@ -164,7 +165,7 @@ class PurchaseController extends Controller
                             }
                         } else {
                             foreach ($productData['sizes'] as $sizeData) {
-                                $purchase->productPurchases()->create([
+                                $productPurchase = $purchase->productPurchases()->create([
                                     'product_id' => $product->id,
                                     'product_size_id' => $sizeData['value'],
                                     'quantity' => $sizeData['quantity'],
