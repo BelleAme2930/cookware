@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('email')->unique()->nullable();
             $table->string('phone')->nullable();
             $table->text('address')->nullable();
+            $table->unsignedBigInteger('existing_balance')->nullable();
             $table->timestamps();
         });
     }

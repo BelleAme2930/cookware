@@ -14,6 +14,7 @@ const Create = () => {
         phone: '',
         email: '',
         address: '',
+        existing_balance: 0,
     });
 
     const handleSubmit = (e) => {
@@ -80,6 +81,16 @@ const Create = () => {
                                 value={data.address}
                                 onChange={(e) => setData('address', e.target.value)}
                                 className={`w-full ${errors.address ? 'border-red-600' : ''}`}
+                            />
+                            {errors.address && <div className="text-red-600 text-sm">{errors.address}</div>}
+                        </div>
+                        <div className="mb-4">
+                            <Label title='Existing Balance' htmlFor='existing_balance'/>
+                            <TextInput
+                                id="existing_balance"
+                                value={data.existing_balance}
+                                onChange={(e) => setData('existing_balance', parseInt(e.target.value))}
+                                className={`w-full ${errors.existing_balance ? 'border-red-600' : ''}`}
                             />
                             {errors.address && <div className="text-red-600 text-sm">{errors.address}</div>}
                         </div>
