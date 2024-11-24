@@ -16,6 +16,7 @@ use App\Models\Purchase;
 use App\Models\Sale;
 use App\Models\Product;
 use App\Models\Customer;
+use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -98,6 +99,15 @@ class SaleController extends Controller
             if ($validatedData['total_price'] && $validatedData['amount_paid'] && $validatedData['amount_paid'] > 0) {
                 $sale->update([
                     'remaining_balance' => $validatedData['total_price'] - $validatedData['amount_paid'],
+                ]);
+            }
+
+            $customer = Customer::find($validatedData['customer_id']);
+            $existingCustomerBalance = $customer->existing_balance;
+
+            if ($validatedData['total_price'] && $validatedData['amount_paid'] && $validatedData['amount_paid'] > 0){
+                $customer->update([
+                    'existing_balance' => $existingCustomerBalance + ($validatedData['total_price'] - $validatedData['amount_paid']),
                 ]);
             }
 

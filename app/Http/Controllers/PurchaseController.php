@@ -84,6 +84,9 @@ class PurchaseController extends Controller
             'account_payment' => 'nullable|numeric|min:1',
         ]);
 
+        $supplier = Supplier::find($validatedData['supplier_id']);
+        $existingSupplierBalance = $supplier->existing_balance;
+
         try {
             DB::beginTransaction();
 
@@ -108,6 +111,12 @@ class PurchaseController extends Controller
             if ($validatedData['total_price'] && $validatedData['amount_paid'] && $validatedData['amount_paid'] > 0) {
                 $purchase->update([
                     'remaining_balance' => $validatedData['total_price'] - $validatedData['amount_paid'],
+                ]);
+            }
+
+            if ($validatedData['total_price'] && $validatedData['amount_paid'] && $validatedData['amount_paid'] > 0){
+                $supplier->update([
+                    'existing_balance' => $existingSupplierBalance + ($validatedData['total_price'] - $validatedData['amount_paid']),
                 ]);
             }
 
