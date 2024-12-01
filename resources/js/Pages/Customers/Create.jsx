@@ -88,7 +88,7 @@ const Create = () => {
                             <Label title='Existing Balance' htmlFor='existing_balance'/>
                             <TextInput
                                 id="existing_balance"
-                                value={data.existing_balance}
+                                value={data.existing_balance || 0}
                                 onChange={(e) => setData('existing_balance', parseInt(e.target.value))}
                                 className={`w-full ${errors.existing_balance ? 'border-red-600' : ''}`}
                             />

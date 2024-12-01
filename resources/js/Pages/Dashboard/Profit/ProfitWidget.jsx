@@ -17,7 +17,7 @@ export default function ProfitWidget({ profitData, selectedPeriod }) {
                     className="text-white text-2xl"
                 />
                 <div className="text-2xl font-extrabold text-white">
-                    {isProfitPositive ? '+' : '-'} PKR {Math.abs(profit)}
+                    {isProfitPositive ? '+' : '-'} {Math.abs(profit).toLocaleString() + ' Rs'}
                 </div>
             </div>
 

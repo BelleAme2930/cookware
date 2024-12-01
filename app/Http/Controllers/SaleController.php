@@ -124,7 +124,7 @@ class SaleController extends Controller
                     if (!empty($productData['sizes'])) {
                         foreach ($productData['sizes'] as $sizeData) {
                             $totalQuantity += $sizeData['quantity'] ?: 0;
-                            $sale->productSales()->create([
+                            $productSale = $sale->productSales()->create([
                                 'product_id' => $product->id,
                                 'product_size_id' => $sizeData['value'] ?? null,
                                 'quantity' => $sizeData['quantity'],
@@ -132,6 +132,12 @@ class SaleController extends Controller
                                 'weight' => null,
                                 'batch_id' => $batchId,
                             ]);
+                            if ($productSale->productSize) {
+                                $currentQuantity = $productSale->productSize->quantity;
+                                $productSale->productSize()->update([
+                                    'quantity' => $currentQuantity - $sizeData['quantity'],
+                                ]);
+                            }
                         }
                     } else {
                         $sale->productSales()->create([
@@ -153,7 +159,7 @@ class SaleController extends Controller
                         if ($weightType === 'total') {
                             $totalWeight += $productData['weight'] ?: 0;
                             foreach ($productData['sizes'] as $sizeData) {
-                                $sale->productSales()->create([
+                                $productSale = $sale->productSales()->create([
                                     'product_id' => $product->id,
                                     'product_size_id' => $sizeData['value'],
                                     'quantity' => $sizeData['quantity'],
@@ -162,6 +168,12 @@ class SaleController extends Controller
                                     'batch_id' => $batchId,
                                 ]);
                                 $totalQuantity += $sizeData['quantity'] ?: 0;
+                                if ($productSale->productSize) {
+                                    $currentQuantity = $productSale->productSize->quantity;
+                                    $productSale->productSize()->update([
+                                        'quantity' => $currentQuantity - $sizeData['quantity'],
+                                    ]);
+                                }
                             }
                         } else {
                             foreach ($productData['sizes'] as $sizeData) {

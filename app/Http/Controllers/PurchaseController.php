@@ -141,6 +141,12 @@ class PurchaseController extends Controller
                                 'weight' => null,
                                 'batch_id' => $batchId,
                             ]);
+                            if ($productPurchase->productSize) {
+                                $currentQuantity = $productPurchase->productSize->quantity;
+                                $productPurchase->productSize()->update([
+                                    'quantity' => $currentQuantity + $sizeData['quantity'],
+                                ]);
+                            }
                         }
                     } else {
                         $purchase->productPurchases()->create([
@@ -171,6 +177,12 @@ class PurchaseController extends Controller
                                     'batch_id' => $batchId,
                                 ]);
                                 $totalQuantity += $sizeData['quantity'] ?: 0;
+                                if ($productPurchase->productSize) {
+                                    $currentQuantity = $productPurchase->productSize->quantity;
+                                    $productPurchase->productSize()->update([
+                                        'quantity' => $currentQuantity + $sizeData['quantity'],
+                                    ]);
+                                }
                             }
                         } else {
                             foreach ($productData['sizes'] as $sizeData) {

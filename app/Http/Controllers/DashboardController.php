@@ -2,179 +2,290 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\CategoryResource;
-use App\Models\Category;
-use App\Models\Expense;
 use App\Models\Purchase;
 use App\Models\Sale;
 use Carbon\Carbon;
 use Inertia\Inertia;
-use App\Modules\ProfitCalculator;
 
 class DashboardController extends Controller
 {
-    private $profitCalculator;
-
-    public function __construct()
-    {
-        $this->profitCalculator = new ProfitCalculator();
-    }
-
     public function index()
     {
         $today = Carbon::today();
-        $tomorrow = Carbon::today()->addDay();
-        $dateSevenDaysAgo = Carbon::now()->getDaysFromStartOfWeek();
-        $dateStartOfMonth = Carbon::now()->startOfMonth();
-        $dateStartOfYear = Carbon::now()->startOfYear();
-        $categories = Category::with('products')->get();
+        $startOfWeek = Carbon::now()->startOfWeek();
+        $endOfWeek = Carbon::now()->endOfWeek();
+        $startOfMonth = Carbon::now()->startOfMonth();
+        $endOfMonth = Carbon::now()->endOfMonth();
+        $startOfYear = Carbon::now()->startOfYear();
+        $endOfYear = Carbon::now()->endOfYear();
 
-        // Calculate Profits
-        $dailySales = Sale::whereDate('sale_date', $today)->with('products')->get();
-        $dailyProfit = $this->profitCalculator->calculateProfit($dailySales, [$today]);
+        $daily_purchases_sum = Purchase::whereDate('purchase_date', $today)
+            ->sum('total_price');
 
-        $weeklySales = Sale::whereBetween('sale_date', [$dateSevenDaysAgo, $tomorrow])->with('products')->get();
-        $weeklyProfit = $this->profitCalculator->calculateProfit($weeklySales, [$dateSevenDaysAgo, $tomorrow]);
+        $daily_purchases_cash_sum = Purchase::whereDate('purchase_date', $today)
+            ->whereJsonContains('payment_method', 'cash')
+            ->get()
+            ->sum(fn($purchase) => $purchase->total_price - ($purchase->account_payment ?? 0) - ($purchase->amount_paid ?? 0) - ($purchase->cheque_amount ?? 0));
 
-        $monthlySales = Sale::whereBetween('sale_date', [$dateStartOfMonth, $tomorrow])->with('products')->get();
-        $monthlyProfit = $this->profitCalculator->calculateProfit($monthlySales, [$dateStartOfMonth, $tomorrow]);
+        $daily_purchases_credit_sum = Purchase::whereDate('purchase_date', $today)
+            ->whereJsonContains('payment_method', 'credit')
+            ->sum('remaining_balance');
 
-        $yearlySales = Sale::whereBetween('sale_date', [$dateStartOfYear, $tomorrow])->with('products')->get();
-        $yearlyProfit = $this->profitCalculator->calculateProfit($yearlySales, [$dateStartOfYear, $tomorrow]);
+        $daily_purchases_cheque_sum = Purchase::whereDate('purchase_date', $today)
+            ->whereJsonContains('payment_method', 'cheque')
+            ->sum('cheque_amount');
 
-        // Calculate Sales Totals
-        $dailySalesTotal = $dailySales->sum('total_price');
-        $weeklySalesTotal = Sale::whereBetween('sale_date', [$dateSevenDaysAgo, $tomorrow])->with('products')->sum('total_price');
-        $monthlySalesTotal = Sale::whereBetween('sale_date', [$dateStartOfMonth, $tomorrow])->with('products')->sum('total_price');
-        $yearlySalesTotal = Sale::whereBetween('sale_date', [$dateStartOfYear, $tomorrow])->with('products')->sum('total_price');
+        $daily_purchases_account_sum = Purchase::whereDate('purchase_date', $today)
+            ->whereJsonContains('payment_method', 'account')->get()
+            ->sum('account_payment');
 
-        // Calculate Purchases Totals
-        $dailyPurchases = Purchase::whereDate('purchase_date', $today)->sum('total_price');
-        $weeklyPurchases = Purchase::whereBetween('purchase_date', [$dateSevenDaysAgo, $tomorrow])->sum('total_price');
-        $monthlyPurchases = Purchase::whereBetween('purchase_date', [$dateStartOfMonth, $tomorrow])->sum('total_price');
-        $yearlyPurchases = Purchase::whereBetween('purchase_date', [$dateStartOfYear, $tomorrow])->sum('total_price');
 
-        // Calculate Expenses
-        $dailyExpenses = Expense::whereDate('expense_date', $today)->sum('amount');
-        $weeklyExpenses = Expense::whereBetween('expense_date', [$dateSevenDaysAgo, $tomorrow])->sum('amount');
-        $monthlyExpenses = Expense::whereBetween('expense_date', [$dateStartOfMonth, $tomorrow])->sum('amount');
-        $yearlyExpenses = Expense::whereBetween('expense_date', [$dateStartOfYear, $tomorrow])->sum('amount');
 
-        // Calculate Sales by Payment Method
-        $dailyCashSales = Sale::whereDate('sale_date', $today)->where('payment_method', 'cash')->sum('total_price');
-        $dailyAccountSales = Sale::whereDate('sale_date', $today)->where('payment_method', 'account')->sum('total_price');
-        $dailyCreditSales = Sale::whereDate('sale_date', $today)->where('payment_method', 'credit')->sum('total_price');
-        $dailySemiCreditSales = Sale::whereDate('sale_date', $today)->where('payment_method', 'semi_credit')->sum('total_price');
 
-        $weeklyCashSales = Sale::whereBetween('sale_date', [$dateSevenDaysAgo, $tomorrow])->where('payment_method', 'cash')->sum('total_price');
-        $weeklyAccountSales = Sale::whereBetween('sale_date', [$dateSevenDaysAgo, $tomorrow])->where('payment_method', 'account')->sum('total_price');
-        $weeklyCreditSales = Sale::whereBetween('sale_date', [$dateSevenDaysAgo, $tomorrow])->where('payment_method', 'credit')->sum('total_price');
-        $weeklySemiCreditSales = Sale::whereBetween('sale_date', [$dateSevenDaysAgo, $tomorrow])->where('payment_method', 'semi_credit')->sum('total_price');
+        $daily_sales_sum = Sale::whereDate('sale_date', $today)
+            ->sum('total_price');
 
-        $monthlyCashSales = Sale::whereBetween('sale_date', [$dateStartOfMonth, $tomorrow])->where('payment_method', 'cash')->sum('total_price');
-        $monthlyAccountSales = Sale::whereBetween('sale_date', [$dateStartOfMonth, $tomorrow])->where('payment_method', 'account')->sum('total_price');
-        $monthlyCreditSales = Sale::whereBetween('sale_date', [$dateStartOfMonth, $tomorrow])->where('payment_method', 'credit')->sum('total_price');
-        $monthlySemiCreditSales = Sale::whereBetween('sale_date', [$dateStartOfMonth, $tomorrow])->where('payment_method', 'semi_credit')->sum('total_price');
+        $daily_sales_cash_sum = Sale::whereDate('sale_date', $today)
+            ->whereJsonContains('payment_method', 'cash')
+            ->get()
+            ->sum(fn($sale) => $sale->total_price - ($sale->account_payment ?? 0) - ($sale->amount_paid ?? 0) - ($sale->cheque_amount ?? 0));
 
-        $yearlyCashSales = Sale::whereBetween('sale_date', [$dateStartOfYear, $tomorrow])->where('payment_method', 'cash')->sum('total_price');
-        $yearlyAccountSales = Sale::whereBetween('sale_date', [$dateStartOfYear, $tomorrow])->where('payment_method', 'account')->sum('total_price');
-        $yearlyCreditSales = Sale::whereBetween('sale_date', [$dateStartOfYear, $tomorrow])->where('payment_method', 'credit')->sum('total_price');
-        $yearlySemiCreditSales = Sale::whereBetween('sale_date', [$dateStartOfYear, $tomorrow])->where('payment_method', 'semi_credit')->sum('total_price');
+        $daily_sales_credit_sum = Sale::whereDate('sale_date', $today)
+            ->whereJsonContains('payment_method', 'credit')
+            ->sum('remaining_balance');
 
-        // Calculate Purchases by Payment Method
-        $dailyCashPurchases = Purchase::whereDate('purchase_date', $today)->where('payment_method', 'cash')->sum('total_price');
-        $dailyAccountPurchases = Purchase::whereDate('purchase_date', $today)->where('payment_method', 'account')->sum('total_price');
-        $dailyCreditPurchases = Purchase::whereDate('purchase_date', $today)->where('payment_method', 'credit')->sum('total_price');
-        $dailySemiCreditPurchases = Purchase::whereDate('purchase_date', $today)->where('payment_method', 'semi_credit')->sum('total_price');
+        $daily_sales_cheque_sum = Sale::whereDate('sale_date', $today)
+            ->whereJsonContains('payment_method', 'cheque')
+            ->sum('cheque_amount');
 
-        $weeklyCashPurchases = Purchase::whereBetween('purchase_date', [$dateSevenDaysAgo, $tomorrow])->where('payment_method', 'cash')->sum('total_price');
-        $weeklyAccountPurchases = Purchase::whereBetween('purchase_date', [$dateSevenDaysAgo, $tomorrow])->where('payment_method', 'account')->sum('total_price');
-        $weeklyCreditPurchases = Purchase::whereBetween('purchase_date', [$dateSevenDaysAgo, $tomorrow])->where('payment_method', 'credit')->sum('total_price');
-        $weeklySemiCreditPurchases = Purchase::whereBetween('purchase_date', [$dateSevenDaysAgo, $tomorrow])->where('payment_method', 'semi_credit')->sum('total_price');
+        $daily_sales_account_sum = Sale::whereDate('sale_date', $today)
+            ->whereJsonContains('payment_method', 'account')->get()
+            ->sum('account_payment');
 
-        $monthlyCashPurchases = Purchase::whereBetween('purchase_date', [$dateStartOfMonth, $tomorrow])->where('payment_method', 'cash')->sum('total_price');
-        $monthlyAccountPurchases = Purchase::whereBetween('purchase_date', [$dateStartOfMonth, $tomorrow])->where('payment_method', 'account')->sum('total_price');
-        $monthlyCreditPurchases = Purchase::whereBetween('purchase_date', [$dateStartOfMonth, $tomorrow])->where('payment_method', 'credit')->sum('total_price');
-        $monthlySemiCreditPurchases = Purchase::whereBetween('purchase_date', [$dateStartOfMonth, $tomorrow])->where('payment_method', 'semi_credit')->sum('total_price');
 
-        $yearlyCashPurchases = Purchase::whereBetween('purchase_date', [$dateStartOfYear, $tomorrow])->where('payment_method', 'cash')->sum('total_price');
-        $yearlyAccountPurchases = Purchase::whereBetween('purchase_date', [$dateStartOfYear, $tomorrow])->where('payment_method', 'account')->sum('total_price');
-        $yearlyCreditPurchases = Purchase::whereBetween('purchase_date', [$dateStartOfYear, $tomorrow])->where('payment_method', 'credit')->sum('total_price');
-        $yearlySemiCreditPurchases = Purchase::whereBetween('purchase_date', [$dateStartOfYear, $tomorrow])->where('payment_method', 'semi_credit')->sum('total_price');
+        $weekly_purchases_sum = Purchase::whereBetween('purchase_date', [$startOfWeek, $endOfWeek])
+            ->sum('total_price');
 
-        $todayReceivables = Sale::whereIn('payment_method', ['credit', 'semi_credit'])
-            ->whereDate('due_date', $today)
-            ->with('customer')
-            ->get();
+        $weekly_purchases_cash_sum = Purchase::whereBetween('purchase_date', [$startOfWeek, $endOfWeek])
+            ->whereJsonContains('payment_method', 'cash')
+            ->get()
+            ->sum(fn($purchase) => $purchase->total_price - ($purchase->account_payment ?? 0) - ($purchase->amount_paid ?? 0) - ($purchase->cheque_amount ?? 0));
 
-        $todayPayables = Purchase::whereIn('payment_method', ['credit', 'semi_credit'])
-            ->whereDate('due_date', $today)
-            ->with('supplier')
-            ->get();
+        $weekly_purchases_credit_sum = Purchase::whereBetween('purchase_date', [$startOfWeek, $endOfWeek])
+            ->whereJsonContains('payment_method', 'credit')
+            ->sum('remaining_balance');
+
+        $weekly_purchases_cheque_sum = Purchase::whereBetween('purchase_date', [$startOfWeek, $endOfWeek])
+            ->whereJsonContains('payment_method', 'cheque')
+            ->sum('cheque_amount');
+
+        $weekly_purchases_account_sum = Purchase::whereBetween('purchase_date', [$startOfWeek, $endOfWeek])
+            ->whereJsonContains('payment_method', 'account')
+            ->get()
+            ->sum('account_payment');
+
+        $weekly_sales_sum = Sale::whereBetween('sale_date', [$startOfWeek, $endOfWeek])
+            ->sum('total_price');
+
+        $weekly_sales_cash_sum = Sale::whereBetween('sale_date', [$startOfWeek, $endOfWeek])
+            ->whereJsonContains('payment_method', 'cash')
+            ->get()
+            ->sum(fn($sale) => $sale->total_price - ($sale->account_payment ?? 0) - ($sale->amount_paid ?? 0) - ($sale->cheque_amount ?? 0));
+
+        $weekly_sales_credit_sum = Sale::whereBetween('sale_date', [$startOfWeek, $endOfWeek])
+            ->whereJsonContains('payment_method', 'credit')
+            ->sum('remaining_balance');
+
+        $weekly_sales_cheque_sum = Sale::whereBetween('sale_date', [$startOfWeek, $endOfWeek])
+            ->whereJsonContains('payment_method', 'cheque')
+            ->sum('cheque_amount');
+
+        $weekly_sales_account_sum = Sale::whereBetween('sale_date', [$startOfWeek, $endOfWeek])
+            ->whereJsonContains('payment_method', 'account')
+            ->get()
+            ->sum('account_payment');
+
+
+        $monthly_purchases_sum = Purchase::whereBetween('purchase_date', [$startOfMonth, $endOfMonth])
+            ->sum('total_price');
+
+        $monthly_purchases_cash_sum = Purchase::whereBetween('purchase_date', [$startOfMonth, $endOfMonth])
+            ->whereJsonContains('payment_method', 'cash')
+            ->get()
+            ->sum(fn($purchase) => $purchase->total_price - ($purchase->account_payment ?? 0) - ($purchase->amount_paid ?? 0) - ($purchase->cheque_amount ?? 0));
+
+        $monthly_purchases_credit_sum = Purchase::whereBetween('purchase_date', [$startOfMonth, $endOfMonth])
+            ->whereJsonContains('payment_method', 'credit')
+            ->sum('remaining_balance');
+
+        $monthly_purchases_cheque_sum = Purchase::whereBetween('purchase_date', [$startOfMonth, $endOfMonth])
+            ->whereJsonContains('payment_method', 'cheque')
+            ->sum('cheque_amount');
+
+        $monthly_purchases_account_sum = Purchase::whereBetween('purchase_date', [$startOfMonth, $endOfMonth])
+            ->whereJsonContains('payment_method', 'account')
+            ->get()
+            ->sum('account_payment');
+
+        $monthly_sales_sum = Sale::whereBetween('sale_date', [$startOfMonth, $endOfMonth])
+            ->sum('total_price');
+
+        $monthly_sales_cash_sum = Sale::whereBetween('sale_date', [$startOfMonth, $endOfMonth])
+            ->whereJsonContains('payment_method', 'cash')
+            ->get()
+            ->sum(fn($sale) => $sale->total_price - ($sale->account_payment ?? 0) - ($sale->amount_paid ?? 0) - ($sale->cheque_amount ?? 0));
+
+        $monthly_sales_credit_sum = Sale::whereBetween('sale_date', [$startOfMonth, $endOfMonth])
+            ->whereJsonContains('payment_method', 'credit')
+            ->sum('remaining_balance');
+
+        $monthly_sales_cheque_sum = Sale::whereBetween('sale_date', [$startOfMonth, $endOfMonth])
+            ->whereJsonContains('payment_method', 'cheque')
+            ->sum('cheque_amount');
+
+        $monthly_sales_account_sum = Sale::whereBetween('sale_date', [$startOfMonth, $endOfMonth])
+            ->whereJsonContains('payment_method', 'account')
+            ->get()
+            ->sum('account_payment');
+
+        $yearly_purchases_sum = Purchase::whereBetween('purchase_date', [$startOfYear, $endOfYear])
+            ->sum('total_price');
+
+        $yearly_purchases_cash_sum = Purchase::whereBetween('purchase_date', [$startOfYear, $endOfYear])
+            ->whereJsonContains('payment_method', 'cash')
+            ->get()
+            ->sum(fn($purchase) => $purchase->total_price - ($purchase->account_payment ?? 0) - ($purchase->amount_paid ?? 0) - ($purchase->cheque_amount ?? 0));
+
+        $yearly_purchases_credit_sum = Purchase::whereBetween('purchase_date', [$startOfYear, $endOfYear])
+            ->whereJsonContains('payment_method', 'credit')
+            ->sum('remaining_balance');
+
+        $yearly_purchases_cheque_sum = Purchase::whereBetween('purchase_date', [$startOfYear, $endOfYear])
+            ->whereJsonContains('payment_method', 'cheque')
+            ->sum('cheque_amount');
+
+        $yearly_purchases_account_sum = Purchase::whereBetween('purchase_date', [$startOfYear, $endOfYear])
+            ->whereJsonContains('payment_method', 'account')
+            ->get()
+            ->sum('account_payment');
+
+        $yearly_sales_sum = Sale::whereBetween('sale_date', [$startOfYear, $endOfYear])
+            ->sum('total_price');
+
+        $yearly_sales_cash_sum = Sale::whereBetween('sale_date', [$startOfYear, $endOfYear])
+            ->whereJsonContains('payment_method', 'cash')
+            ->get()
+            ->sum(fn($sale) => $sale->total_price - ($sale->account_payment ?? 0) - ($sale->amount_paid ?? 0) - ($sale->cheque_amount ?? 0));
+
+        $yearly_sales_credit_sum = Sale::whereBetween('sale_date', [$startOfYear, $endOfYear])
+            ->whereJsonContains('payment_method', 'credit')
+            ->sum('remaining_balance');
+
+        $yearly_sales_cheque_sum = Sale::whereBetween('sale_date', [$startOfYear, $endOfYear])
+            ->whereJsonContains('payment_method', 'cheque')
+            ->sum('cheque_amount');
+
+        $yearly_sales_account_sum = Sale::whereBetween('sale_date', [$startOfYear, $endOfYear])
+            ->whereJsonContains('payment_method', 'account')
+            ->get()
+            ->sum('account_payment');
+
+        $daily_sales = Sale::whereDate('sale_date', $today)->get();
+        $daily_profit = $this->calculateProfit($daily_sales);
+
+        $weekly_sales = Sale::whereBetween('sale_date', [$startOfWeek, $endOfWeek])->get();
+        $weekly_profit = $this->calculateProfit($weekly_sales);
+
+        $monthly_sales = Sale::whereBetween('sale_date', [$startOfMonth, $endOfMonth])->get();
+        $monthly_profit = $this->calculateProfit($monthly_sales);
+
+        $yearly_sales = Sale::whereBetween('sale_date', [$startOfYear, $endOfYear])->get();
+        $yearly_profit = $this->calculateProfit($yearly_sales);
+
 
         return Inertia::render('Dashboard/Dashboard', [
-            'dailySales' => $dailySalesTotal,
-            'dailyCashSales' => $dailyCashSales,
-            'dailyAccountSales' => $dailyAccountSales,
-            'dailyCreditSales' => $dailyCreditSales,
-            'dailySemiCreditSales' => $dailySemiCreditSales,
+            'daily_purchases_sum' => $daily_purchases_sum,
+            'daily_purchases_cash_sum' => $daily_purchases_cash_sum,
+            'daily_purchases_credit_sum' => $daily_purchases_credit_sum,
+            'daily_purchases_cheque_sum' => $daily_purchases_cheque_sum,
+            'daily_purchases_account_sum' => $daily_purchases_account_sum,
 
-            'weeklySales' => $weeklySalesTotal,
-            'weeklyCashSales' => $weeklyCashSales,
-            'weeklyAccountSales' => $weeklyAccountSales,
-            'weeklyCreditSales' => $weeklyCreditSales,
-            'weeklySemiCreditSales' => $weeklySemiCreditSales,
+            'daily_sales_sum' => $daily_sales_sum,
+            'daily_sales_cash_sum' => $daily_sales_cash_sum,
+            'daily_sales_credit_sum' => $daily_sales_credit_sum,
+            'daily_sales_cheque_sum' => $daily_sales_cheque_sum,
+            'daily_sales_account_sum' => $daily_sales_account_sum,
 
-            'monthlySales' => $monthlySalesTotal,
-            'monthlyCashSales' => $monthlyCashSales,
-            'monthlyAccountSales' => $monthlyAccountSales,
-            'monthlyCreditSales' => $monthlyCreditSales,
-            'monthlySemiCreditSales' => $monthlySemiCreditSales,
+            'weekly_purchases_sum' => $weekly_purchases_sum,
+            'weekly_purchases_cash_sum' => $weekly_purchases_cash_sum,
+            'weekly_purchases_credit_sum' => $weekly_purchases_credit_sum,
+            'weekly_purchases_cheque_sum' => $weekly_purchases_cheque_sum,
+            'weekly_purchases_account_sum' => $weekly_purchases_account_sum,
 
-            'yearlySales' => $yearlySalesTotal,
-            'yearlyCashSales' => $yearlyCashSales,
-            'yearlyAccountSales' => $yearlyAccountSales,
-            'yearlyCreditSales' => $yearlyCreditSales,
-            'yearlySemiCreditSales' => $yearlySemiCreditSales,
+            'weekly_sales_sum' => $weekly_sales_sum,
+            'weekly_sales_cash_sum' => $weekly_sales_cash_sum,
+            'weekly_sales_credit_sum' => $weekly_sales_credit_sum,
+            'weekly_sales_cheque_sum' => $weekly_sales_cheque_sum,
+            'weekly_sales_account_sum' => $weekly_sales_account_sum,
 
-            'dailyPurchases' => $dailyPurchases,
-            'dailyCashPurchases' => $dailyCashPurchases,
-            'dailyAccountPurchases' => $dailyAccountPurchases,
-            'dailyCreditPurchases' => $dailyCreditPurchases,
-            'dailySemiCreditPurchases' => $dailySemiCreditPurchases,
+            'monthly_purchases_sum' => $monthly_purchases_sum,
+            'monthly_purchases_cash_sum' => $monthly_purchases_cash_sum,
+            'monthly_purchases_credit_sum' => $monthly_purchases_credit_sum,
+            'monthly_purchases_cheque_sum' => $monthly_purchases_cheque_sum,
+            'monthly_purchases_account_sum' => $monthly_purchases_account_sum,
 
-            'weeklyPurchases' => $weeklyPurchases,
-            'weeklyCashPurchases' => $weeklyCashPurchases,
-            'weeklyAccountPurchases' => $weeklyAccountPurchases,
-            'weeklyCreditPurchases' => $weeklyCreditPurchases,
-            'weeklySemiCreditPurchases' => $weeklySemiCreditPurchases,
+            'monthly_sales_sum' => $monthly_sales_sum,
+            'monthly_sales_cash_sum' => $monthly_sales_cash_sum,
+            'monthly_sales_credit_sum' => $monthly_sales_credit_sum,
+            'monthly_sales_cheque_sum' => $monthly_sales_cheque_sum,
+            'monthly_sales_account_sum' => $monthly_sales_account_sum,
 
-            'monthlyPurchases' => $monthlyPurchases,
-            'monthlyCashPurchases' => $monthlyCashPurchases,
-            'monthlyAccountPurchases' => $monthlyAccountPurchases,
-            'monthlyCreditPurchases' => $monthlyCreditPurchases,
-            'monthlySemiCreditPurchases' => $monthlySemiCreditPurchases,
+            'yearly_purchases_sum' => $yearly_purchases_sum,
+            'yearly_purchases_cash_sum' => $yearly_purchases_cash_sum,
+            'yearly_purchases_credit_sum' => $yearly_purchases_credit_sum,
+            'yearly_purchases_cheque_sum' => $yearly_purchases_cheque_sum,
+            'yearly_purchases_account_sum' => $yearly_purchases_account_sum,
 
-            'yearlyPurchases' => $yearlyPurchases,
-            'yearlyCashPurchases' => $yearlyCashPurchases,
-            'yearlyAccountPurchases' => $yearlyAccountPurchases,
-            'yearlyCreditPurchases' => $yearlyCreditPurchases,
-            'yearlySemiCreditPurchases' => $yearlySemiCreditPurchases,
+            'yearly_sales_sum' => $yearly_sales_sum,
+            'yearly_sales_cash_sum' => $yearly_sales_cash_sum,
+            'yearly_sales_credit_sum' => $yearly_sales_credit_sum,
+            'yearly_sales_cheque_sum' => $yearly_sales_cheque_sum,
+            'yearly_sales_account_sum' => $yearly_sales_account_sum,
 
-            'dailyProfit' => $dailyProfit,
-            'weeklyProfit' => $weeklyProfit,
-            'monthlyProfit' => $monthlyProfit,
-            'yearlyProfit' => $yearlyProfit,
-
-            'dailyExpenses' => $dailyExpenses,
-            'weeklyExpenses' => $weeklyExpenses,
-            'monthlyExpenses' => $monthlyExpenses,
-            'yearlyExpenses' => $yearlyExpenses,
-
-            'todayReceivables' => $todayReceivables,
-            'todayPayables' => $todayPayables,
-
-            'categories' => CategoryResource::collection($categories)->resolve(),
+            'daily_profit' => $daily_profit,
+            'weekly_profit' => $weekly_profit,
+            'monthly_profit' => $monthly_profit,
+            'yearly_profit' => $yearly_profit,
         ]);
     }
+
+    private function calculateProfit($sales)
+    {
+        $profit = 0;
+
+        foreach ($sales as $sale) {
+            foreach ($sale->productSales as $productSale) {
+                if ($productSale->productSize) {
+                    $productSize = $productSale->productSize;
+
+                    $productPurchase = $productSize->productPurchases()->latest()->first();
+
+                    if ($productPurchase) {
+                        $profit += ($productSale->sale_price - $productPurchase->purchase_price) * $productSale->quantity;
+                    }
+                } else {
+                    $product = $productSale->product;
+
+                    $productPurchase = $product->productPurchases()->latest()->first();
+
+                    if ($productPurchase) {
+                        $profit += ($productSale->sale_price - $productPurchase->purchase_price) * $productSale->quantity;
+                    }
+                }
+            }
+        }
+
+        return $profit;
+    }
+
 }

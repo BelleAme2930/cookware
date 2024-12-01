@@ -12,7 +12,7 @@ export default function SalesWidget({ salesData, selectedPeriod }) {
             <div className="flex justify-start items-center space-x-4 mb-3">
                 <FontAwesomeIcon icon={faCoins} className="text-white text-2xl" />
                 <div className="text-2xl font-extrabold text-white">
-                    PKR {sales.totalSales}
+                    {parseInt(sales.totalSales).toLocaleString()} Rs
                 </div>
             </div>
 
@@ -21,7 +21,7 @@ export default function SalesWidget({ salesData, selectedPeriod }) {
                     <FontAwesomeIcon icon={faMoneyBillWave} className="text-green-500 text-3xl" />
                     <div className="text-sm font-semibold">
                         <span className="block text-gray-800">Cash Sale</span>
-                        <span className="block text-gray-500">PKR {sales.cashSales}</span>
+                        <span className="block text-gray-500">{parseInt(sales.cashSales).toLocaleString()} Rs</span>
                     </div>
                 </div>
 
@@ -29,7 +29,7 @@ export default function SalesWidget({ salesData, selectedPeriod }) {
                     <FontAwesomeIcon icon={faCreditCard} className="text-blue-500 text-3xl" />
                     <div className="text-sm font-semibold">
                         <span className="block text-gray-800">Account Sale</span>
-                        <span className="block text-gray-500">PKR {sales.accountSales}</span>
+                        <span className="block text-gray-500">{parseInt(sales.accountSales).toLocaleString()} Rs</span>
                     </div>
                 </div>
 
@@ -37,15 +37,15 @@ export default function SalesWidget({ salesData, selectedPeriod }) {
                     <FontAwesomeIcon icon={faHandHoldingUsd} className="text-yellow-500 text-3xl" />
                     <div className="text-sm font-semibold">
                         <span className="block text-gray-800">Credit Sale</span>
-                        <span className="block text-gray-500">PKR {sales.creditSales}</span>
+                        <span className="block text-gray-500">{parseInt(sales.creditSales).toLocaleString()} Rs</span>
                     </div>
                 </div>
 
                 <div className="flex items-center space-x-4 bg-white px-4 py-3 rounded-lg shadow">
                     <FontAwesomeIcon icon={faMoneyBill} className="text-red-500 text-3xl" />
                     <div className="text-sm font-semibold">
-                        <span className="block text-gray-800">Semi Credit Sale</span>
-                        <span className="block text-gray-500">PKR {sales.semiCreditSales}</span>
+                        <span className="block text-gray-800">Cheque Sale</span>
+                        <span className="block text-gray-500">{parseInt(sales.chequeSales).toLocaleString()} Rs</span>
                     </div>
                 </div>
             </div>

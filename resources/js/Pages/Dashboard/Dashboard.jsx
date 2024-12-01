@@ -1,68 +1,61 @@
 import React, {useState} from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.jsx';
 import {Head} from '@inertiajs/react';
-import SalesWidget from "@/Pages/Dashboard/Sales/SalesWidget.jsx";
 import ShadowBox from "@/Components/ShadowBox.jsx";
 import SelectPeriod from "@/Pages/Dashboard/Partials/SelectPeriod.jsx";
 import PurchasesWidget from "@/Pages/Dashboard/Purchases/PurchasesWidget.jsx";
-import Stocks from "@/Pages/Dashboard/Stocks/Stocks.jsx";
+import SalesWidget from "@/Pages/Dashboard/Sales/SalesWidget.jsx";
 import ProfitWidget from "@/Pages/Dashboard/Profit/ProfitWidget.jsx";
-import ExpensesWidget from "@/Pages/Dashboard/Expenses/ExpensesWidget.jsx";
-import Receivables from "@/Pages/Dashboard/Receivables/Receivables.jsx";
-import Payables from "@/Pages/Dashboard/Payables/Payables.jsx";
 
 export default function Dashboard({
-                                      categories,
-                                      dailySales,
-                                      dailyCashSales,
-                                      dailyAccountSales,
-                                      dailyCreditSales,
-                                      weeklySales,
-                                      weeklyCashSales,
-                                      weeklyAccountSales,
-                                      weeklyCreditSales,
-                                      monthlySales,
-                                      monthlyCashSales,
-                                      monthlyAccountSales,
-                                      monthlyCreditSales,
-                                      yearlySales,
-                                      yearlyCashSales,
-                                      yearlyAccountSales,
-                                      yearlyCreditSales,
-                                      dailyPurchases,
-                                      dailyCashPurchases,
-                                      dailyAccountPurchases,
-                                      dailyCreditPurchases,
-                                      weeklyPurchases,
-                                      weeklyCashPurchases,
-                                      weeklyAccountPurchases,
-                                      weeklyCreditPurchases,
-                                      monthlyPurchases,
-                                      monthlyCashPurchases,
-                                      monthlyAccountPurchases,
-                                      monthlyCreditPurchases,
-                                      yearlyPurchases,
-                                      yearlyCashPurchases,
-                                      yearlyAccountPurchases,
-                                      yearlyCreditPurchases,
-                                      dailyProfit,
-                                      weeklyProfit,
-                                      monthlyProfit,
-                                      yearlyProfit,
-                                      dailyExpenses,
-                                      weeklyExpenses,
-                                      monthlyExpenses,
-                                      yearlyExpenses,
-                                      dailySemiCreditSales,
-                                      weeklySemiCreditSales,
-                                      monthlySemiCreditSales,
-                                      yearlySemiCreditSales,
-                                      dailySemiCreditPurchases,
-                                      weeklySemiCreditPurchases,
-                                      monthlySemiCreditPurchases,
-                                      yearlySemiCreditPurchases,
-                                      todayReceivables,
-                                      todayPayables,
+                                      daily_purchases_sum,
+                                      daily_purchases_cash_sum,
+                                      daily_purchases_credit_sum,
+                                      daily_purchases_cheque_sum,
+                                      daily_purchases_account_sum,
+                                      daily_sales_sum,
+                                      daily_sales_cash_sum,
+                                      daily_sales_credit_sum,
+                                      daily_sales_cheque_sum,
+                                      daily_sales_account_sum,
+
+                                      weekly_purchases_sum,
+                                      weekly_purchases_cash_sum,
+                                      weekly_purchases_credit_sum,
+                                      weekly_purchases_cheque_sum,
+                                      weekly_purchases_account_sum,
+                                      weekly_sales_sum,
+                                      weekly_sales_cash_sum,
+                                      weekly_sales_credit_sum,
+                                      weekly_sales_cheque_sum,
+                                      weekly_sales_account_sum,
+
+                                      monthly_purchases_sum,
+                                      monthly_purchases_cash_sum,
+                                      monthly_purchases_credit_sum,
+                                      monthly_purchases_cheque_sum,
+                                      monthly_purchases_account_sum,
+                                      monthly_sales_sum,
+                                      monthly_sales_cash_sum,
+                                      monthly_sales_credit_sum,
+                                      monthly_sales_cheque_sum,
+                                      monthly_sales_account_sum,
+
+                                      yearly_purchases_sum,
+                                      yearly_purchases_cash_sum,
+                                      yearly_purchases_credit_sum,
+                                      yearly_purchases_cheque_sum,
+                                      yearly_purchases_account_sum,
+                                      yearly_sales_sum,
+                                      yearly_sales_cash_sum,
+                                      yearly_sales_credit_sum,
+                                      yearly_sales_cheque_sum,
+                                      yearly_sales_account_sum,
+
+                                      daily_profit,
+                                      weekly_profit,
+                                      monthly_profit,
+                                      yearly_profit
                                   }) {
     const [selectedPeriod, setSelectedPeriod] = useState('daily');
 
@@ -70,81 +63,73 @@ export default function Dashboard({
         setSelectedPeriod(event.target.value);
     };
 
-    const salesData = {
-        daily: {
-            totalSales: dailySales,
-            cashSales: dailyCashSales,
-            accountSales: dailyAccountSales,
-            creditSales: dailyCreditSales,
-            semiCreditSales: dailySemiCreditSales,
-        },
-        weekly: {
-            totalSales: weeklySales,
-            cashSales: weeklyCashSales,
-            accountSales: weeklyAccountSales,
-            creditSales: weeklyCreditSales,
-            semiCreditSales: weeklySemiCreditSales,
-        },
-        monthly: {
-            totalSales: monthlySales,
-            cashSales: monthlyCashSales,
-            accountSales: monthlyAccountSales,
-            creditSales: monthlyCreditSales,
-            semiCreditSales: monthlySemiCreditSales,
-        },
-        yearly: {
-            totalSales: yearlySales,
-            cashSales: yearlyCashSales,
-            accountSales: yearlyAccountSales,
-            creditSales: yearlyCreditSales,
-            semiCreditSales: yearlySemiCreditSales,
-        },
-    };
-
     const purchasesData = {
         daily: {
-            totalPurchases: dailyPurchases,
-            cashPurchases: dailyCashPurchases,
-            accountPurchases: dailyAccountPurchases,
-            creditPurchases: dailyCreditPurchases,
-            semiCreditPurchases: dailySemiCreditPurchases,
+            totalPurchases: daily_purchases_sum,
+            accountPurchases: daily_purchases_account_sum,
+            cashPurchases: daily_purchases_cash_sum,
+            creditPurchases: daily_purchases_credit_sum,
+            chequePurchases: daily_purchases_cheque_sum,
         },
         weekly: {
-            totalPurchases: weeklyPurchases,
-            cashPurchases: weeklyCashPurchases,
-            accountPurchases: weeklyAccountPurchases,
-            creditPurchases: weeklyCreditPurchases,
-            semiCreditPurchases: weeklySemiCreditPurchases,
-
+            totalPurchases: weekly_purchases_sum,
+            accountPurchases: weekly_purchases_account_sum,
+            cashPurchases: weekly_purchases_cash_sum,
+            creditPurchases: weekly_purchases_credit_sum,
+            chequePurchases: weekly_purchases_cheque_sum,
         },
         monthly: {
-            totalPurchases: monthlyPurchases,
-            cashPurchases: monthlyCashPurchases,
-            accountPurchases: monthlyAccountPurchases,
-            creditPurchases: monthlyCreditPurchases,
-            semiCreditPurchases: monthlySemiCreditPurchases,
+            totalPurchases: monthly_purchases_sum,
+            accountPurchases: monthly_purchases_account_sum,
+            cashPurchases: monthly_purchases_cash_sum,
+            creditPurchases: monthly_purchases_credit_sum,
+            chequePurchases: monthly_purchases_cheque_sum,
         },
         yearly: {
-            totalPurchases: yearlyPurchases,
-            cashPurchases: yearlyCashPurchases,
-            accountPurchases: yearlyAccountPurchases,
-            creditPurchases: yearlyCreditPurchases,
-            semiCreditPurchases: yearlySemiCreditPurchases,
+            totalPurchases: yearly_purchases_sum,
+            accountPurchases: yearly_purchases_account_sum,
+            cashPurchases: yearly_purchases_cash_sum,
+            creditPurchases: yearly_purchases_credit_sum,
+            chequePurchases: yearly_purchases_cheque_sum,
+        }
+    };
+
+    const salesData = {
+        daily: {
+            totalSales: daily_sales_sum,
+            accountSales: daily_sales_account_sum,
+            cashSales: daily_sales_cash_sum,
+            creditSales: daily_sales_credit_sum,
+            chequeSales: daily_sales_cheque_sum,
         },
+        weekly: {
+            totalSales: weekly_sales_sum,
+            accountSales: weekly_sales_account_sum,
+            cashSales: weekly_sales_cash_sum,
+            creditSales: weekly_sales_credit_sum,
+            chequeSales: weekly_sales_cheque_sum,
+        },
+        monthly: {
+            totalSales: monthly_sales_sum,
+            accountSales: monthly_sales_account_sum,
+            cashSales: monthly_sales_cash_sum,
+            creditSales: monthly_sales_credit_sum,
+            chequeSales: monthly_sales_cheque_sum,
+        },
+        yearly: {
+            totalSales: yearly_sales_sum,
+            accountSales: yearly_sales_account_sum,
+            cashSales: yearly_sales_cash_sum,
+            creditSales: yearly_sales_credit_sum,
+            chequeSales: yearly_sales_cheque_sum,
+        }
     };
 
     const profitData = {
-        daily: dailyProfit,
-        weekly: weeklyProfit,
-        monthly: monthlyProfit,
-        yearly: yearlyProfit,
-    };
-
-    const expensesData = {
-        daily: dailyExpenses,
-        weekly: weeklyExpenses,
-        monthly: monthlyExpenses,
-        yearly: yearlyExpenses,
+        daily: daily_profit,
+        weekly: weekly_profit,
+        monthly: monthly_profit,
+        yearly: yearly_profit,
     };
 
     return (
@@ -169,17 +154,17 @@ export default function Dashboard({
                         <div className='w-1/3'>
                             <ShadowBox>
                                 <div className='flex justify-between items-center mb-6'>
-                                    <h3 className='font-normal text-gray-700 text-2xl'>Sales</h3>
+                                    <h3 className='font-normal text-gray-700 text-2xl'>Purchases</h3>
                                 </div>
-                                <SalesWidget salesData={salesData} selectedPeriod={selectedPeriod}/>
+                                <PurchasesWidget purchasesData={purchasesData} selectedPeriod={selectedPeriod}/>
                             </ShadowBox>
                         </div>
                         <div className='w-1/3'>
                             <ShadowBox>
                                 <div className='flex justify-between items-center mb-6'>
-                                    <h3 className='font-normal text-gray-700 text-2xl'>Purchases</h3>
+                                    <h3 className='font-normal text-gray-700 text-2xl'>Sales</h3>
                                 </div>
-                                <PurchasesWidget purchasesData={purchasesData} selectedPeriod={selectedPeriod}/>
+                                <SalesWidget salesData={salesData} selectedPeriod={selectedPeriod}/>
                             </ShadowBox>
                         </div>
                         <div className='w-1/3'>
@@ -190,28 +175,10 @@ export default function Dashboard({
                                     </div>
                                     <ProfitWidget profitData={profitData} selectedPeriod={selectedPeriod}/>
                                 </div>
-                                <hr className='mt-7 mb-6 border-red-500'/>
-                                <div>
-                                    <div className="flex justify-between items-center mb-6">
-                                        <h3 className="font-normal text-gray-700 text-2xl">Expenses</h3>
-                                    </div>
-                                    <ExpensesWidget expensesData={expensesData}
-                                                    selectedPeriod={selectedPeriod}/>
-                                </div>
                             </ShadowBox>
                         </div>
                     </div>
                 </div>
-            </div>
-
-            <div className='mx-auto max-w-[98%] p-3'>
-                <Stocks categories={categories}/>
-            </div>
-            <div className='mx-auto max-w-[98%] p-3'>
-                <Receivables receivables={todayReceivables}/>
-            </div>
-            <div className='mx-auto max-w-[98%] p-3'>
-                <Payables payables={todayPayables}/>
             </div>
         </AuthenticatedLayout>
     );
