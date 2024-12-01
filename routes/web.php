@@ -29,6 +29,10 @@ Route::get('/', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->group(function () {
+
+    Route::get('/sales/type/{saleType}', [SaleController::class, 'showSalesByType'])->name('sales.byType');
+    Route::get('/purchases/type/{purchaseType}', [PurchaseController::class, 'showPurchasesByType'])->name('purchases.byType');
+
     Route::resource('categories', CategoryController::class);
     Route::resource('suppliers', SupplierController::class);
     Route::resource('products', ProductController::class);

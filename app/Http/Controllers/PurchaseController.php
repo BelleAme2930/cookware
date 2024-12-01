@@ -9,10 +9,12 @@ use App\Http\Requests\UpdatePurchaseRequest;
 use App\Http\Resources\AccountResource;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\PurchaseResource;
+use App\Http\Resources\SaleResource;
 use App\Http\Resources\SupplierResource;
 use App\Models\Account;
 use App\Models\Product;
 use App\Models\Purchase;
+use App\Models\Sale;
 use App\Models\Supplier;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -382,15 +384,13 @@ class PurchaseController extends Controller
         }
     }
 
-
-    private function calculatePurchasePrice($productData, $productType)
+    public function showPurchasesByType($purchaseType)
     {
-        if ($productType === ProductTypeEnum::ITEM->value) {
-            return ($productData['price'] * $productData['quantity']);
-        } elseif ($productType === ProductTypeEnum::WEIGHT->value) {
-            return ($productData['price'] * $productData['weight']);
-        }
+        $purchases = Purchase::whereJsonContains('payment_method', $purchaseType)->with(['productPurchases', 'supplier'])->get();
 
-        return 0;
+        return Inertia::render('Purchases/PurchaseTypePage', [
+            'purchases' => PurchaseResource::collection($purchases)->resolve(),
+            'purchaseType' => ucfirst($purchaseType),
+        ]);
     }
 }

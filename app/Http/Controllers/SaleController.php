@@ -359,4 +359,14 @@ class SaleController extends Controller
 
         return redirect()->route('sales.index')->with('success', 'Sale deleted successfully.');
     }
+
+    public function showSalesByType($saleType)
+    {
+        $sales = Sale::whereJsonContains('payment_method', $saleType)->with(['productSales', 'customer'])->get();
+
+        return Inertia::render('Sales/SaleTypePage', [
+            'sales' => SaleResource::collection($sales)->resolve(),
+            'saleType' => ucfirst($saleType),
+        ]);
+    }
 }
