@@ -6,6 +6,7 @@ import SelectPeriod from "@/Pages/Dashboard/Partials/SelectPeriod.jsx";
 import PurchasesWidget from "@/Pages/Dashboard/Purchases/PurchasesWidget.jsx";
 import SalesWidget from "@/Pages/Dashboard/Sales/SalesWidget.jsx";
 import ProfitWidget from "@/Pages/Dashboard/Profit/ProfitWidget.jsx";
+import ExpensesWidget from "@/Pages/Dashboard/Expenses/ExpensesWidget.jsx";
 
 export default function Dashboard({
                                       daily_purchases_sum,
@@ -55,7 +56,12 @@ export default function Dashboard({
                                       daily_profit,
                                       weekly_profit,
                                       monthly_profit,
-                                      yearly_profit
+                                      yearly_profit,
+
+                                      daily_expenses_sum,
+                                      weekly_expenses_sum,
+                                      monthly_expenses_sum,
+                                      yearly_expenses_sum,
                                   }) {
     const [selectedPeriod, setSelectedPeriod] = useState('daily');
 
@@ -132,6 +138,13 @@ export default function Dashboard({
         yearly: yearly_profit,
     };
 
+    const expensesData = {
+        daily: daily_expenses_sum,
+        weekly: weekly_expenses_sum,
+        monthly: monthly_expenses_sum,
+        yearly: yearly_expenses_sum,
+    };
+
     return (
         <AuthenticatedLayout
             header={
@@ -175,11 +188,20 @@ export default function Dashboard({
                                     </div>
                                     <ProfitWidget profitData={profitData} selectedPeriod={selectedPeriod}/>
                                 </div>
+                                <hr className='mt-7 mb-6 border-red-500'/>
+                                <div>
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h3 className="font-normal text-gray-700 text-2xl">Expenses</h3>
+                                    </div>
+                                    <ExpensesWidget expensesData={expensesData}
+                                                    selectedPeriod={selectedPeriod}/>
+                                </div>
                             </ShadowBox>
                         </div>
                     </div>
                 </div>
             </div>
         </AuthenticatedLayout>
-    );
+    )
+        ;
 }

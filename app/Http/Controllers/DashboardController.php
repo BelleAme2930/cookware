@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Expense;
 use App\Models\Purchase;
 use App\Models\Sale;
 use Carbon\Carbon;
@@ -202,6 +203,10 @@ class DashboardController extends Controller
         $yearly_sales = Sale::whereBetween('sale_date', [$startOfYear, $endOfYear])->get();
         $yearly_profit = $this->calculateProfit($yearly_sales);
 
+        $daily_expenses_sum = Expense::where('expense_date', $today)->sum('amount');
+        $weekly_expenses_sum = Expense::whereBetween('expense_date', [$startOfWeek, $endOfWeek])->sum('amount');
+        $monthly_expenses_sum = Expense::whereBetween('expense_date', [$startOfMonth, $endOfMonth])->sum('amount');
+        $yearly_expenses_sum = Expense::whereBetween('expense_date', [$startOfYear, $endOfYear])->sum('amount');
 
         return Inertia::render('Dashboard/Dashboard', [
             'daily_purchases_sum' => $daily_purchases_sum,
@@ -256,6 +261,11 @@ class DashboardController extends Controller
             'weekly_profit' => $weekly_profit,
             'monthly_profit' => $monthly_profit,
             'yearly_profit' => $yearly_profit,
+
+            'daily_expenses_sum' => $daily_expenses_sum,
+            'weekly_expenses_sum' => $weekly_expenses_sum,
+            'monthly_expenses_sum' => $monthly_expenses_sum,
+            'yearly_expenses_sum' => $yearly_expenses_sum,
         ]);
     }
 

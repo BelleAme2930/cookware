@@ -17,7 +17,7 @@ export default function ExpensesWidget({ expensesData, selectedPeriod }) {
                     className="text-white text-2xl"
                 />
                 <div className="text-2xl font-extrabold text-white">
-                    {isExpensesPositive ? '-' : '+'} PKR {Math.abs(expenses)}
+                    {isExpensesPositive ? '-' : '+'} {Math.abs(expenses).toLocaleString()} Rs
                 </div>
             </div>
 
