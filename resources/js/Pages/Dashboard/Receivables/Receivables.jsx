@@ -2,7 +2,7 @@ import React from 'react';
 import CustomDataTable from '@/Components/CustomDataTable';
 
 const Receivables = ({ receivables }) => {
-    console.log(receivables)
+
     const columns = [
         { name: 'Invoice Number', selector: row => row.id },
         { name: 'Customer', selector: row => row.customer.name },

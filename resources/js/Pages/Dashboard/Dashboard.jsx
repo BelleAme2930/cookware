@@ -7,6 +7,11 @@ import PurchasesWidget from "@/Pages/Dashboard/Purchases/PurchasesWidget.jsx";
 import SalesWidget from "@/Pages/Dashboard/Sales/SalesWidget.jsx";
 import ProfitWidget from "@/Pages/Dashboard/Profit/ProfitWidget.jsx";
 import ExpensesWidget from "@/Pages/Dashboard/Expenses/ExpensesWidget.jsx";
+import {router} from "@inertiajs/core";
+import {faEye} from "@fortawesome/free-solid-svg-icons";
+import IconButton from "@/Components/IconButton.jsx";
+import SupplierLedger from "@/Pages/Dashboard/SupplierLedger.jsx";
+import CustomerLedger from "@/Pages/Dashboard/CustomerLedger.jsx";
 
 export default function Dashboard({
                                       daily_purchases_sum,
@@ -62,6 +67,12 @@ export default function Dashboard({
                                       weekly_expenses_sum,
                                       monthly_expenses_sum,
                                       yearly_expenses_sum,
+
+                                      todays_receivables,
+                                      todays_payables,
+
+                                      suppliers_ledgers,
+                                      customers_ledgers,
                                   }) {
     const [selectedPeriod, setSelectedPeriod] = useState('daily');
 
@@ -198,6 +209,118 @@ export default function Dashboard({
                                 </div>
                             </ShadowBox>
                         </div>
+                    </div>
+
+                    <div className='flex justify-between gap-3 mt-4 w-full'>
+                        <SupplierLedger suppliers_ledgers={suppliers_ledgers}/>
+                    </div>
+
+                    <div className='flex justify-between gap-3 mt-4 w-full'>
+                        <CustomerLedger customers_ledgers={customers_ledgers}/>
+                    </div>
+
+                    <div className='flex justify-between gap-2 mt-4'>
+                        <div className='w-1/2'>
+                            {todays_receivables.length > 0 ? (
+                                <ShadowBox>
+                                    <div className='flex justify-between items-center mb-6'>
+                                        <h3 className='font-normal text-gray-700 text-xl'>Today's Receivables</h3>
+                                    </div>
+
+                                    <div className='space-y-4'>
+                                        {todays_receivables.map((receivable) => (
+                                            <div key={receivable.id}
+                                                 className='p-4 bg-gray-50 rounded-lg shadow-md'>
+                                                <div className='flex justify-between items-center'>
+                                                    <div>
+                                                        <h4 className='font-semibold text-gray-700'>{receivable.customer.name}</h4>
+                                                    </div>
+                                                    <IconButton
+                                                        onClick={() => router.visit(route('sales.show', receivable.id))}
+                                                        icon={faEye} className='w-7 h-7'
+                                                    />
+                                                </div>
+                                                <div className='flex mt-4 justify-between'>
+                                                    <div className='text-sm text-gray-500 font-medium'><strong>Remaining
+                                                        Balance:</strong> {receivable.remaining_balance} Rs
+                                                    </div>
+                                                    <div className='text-sm text-gray-500 font-medium'><strong>Sale
+                                                        Date:</strong> {receivable.sale_date}</div>
+                                                </div>
+                                                <div className='flex mt-2 justify-between'>
+                                                    <div className='text-sm text-gray-500 font-medium'><strong>Payment
+                                                        Methods:</strong> <span
+                                                        className='capitalize'>{JSON.parse(receivable.payment_method).join(', ')}</span>
+                                                    </div>
+                                                    {receivable.customer.phone && (
+                                                        <div className='text-sm text-gray-500 font-medium'><strong>Customer
+                                                            Phone:</strong> {receivable.customer.phone}</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </ShadowBox>
+                            ) : (
+                                <ShadowBox>
+                                    <div className='flex justify-between items-center mb-6'>
+                                        <h3 className='font-normal text-gray-700 text-xl'>Today's Receivables</h3>
+                                    </div>
+                                    <div className='py-2 text-primary-500 text-center'>No data found</div>
+                                </ShadowBox>
+                            )}
+                        </div>
+                        <div className='w-1/2'>
+                            {todays_payables.length > 0 ? (
+                                <ShadowBox>
+                                    <div className='flex justify-between items-center mb-6'>
+                                        <h3 className='font-normal text-gray-700 text-xl'>Today's Payables</h3>
+                                    </div>
+
+                                    <div className='space-y-4'>
+                                        {todays_payables.map((receivable) => (
+                                            <div key={receivable.id}
+                                                 className='p-4 bg-gray-50 rounded-lg shadow-md'>
+                                                <div className='flex justify-between items-center'>
+                                                    <div>
+                                                        <h4 className='font-semibold text-gray-700'>{receivable.supplier.name}</h4>
+                                                    </div>
+                                                    <IconButton
+                                                        onClick={() => router.visit(route('sales.show', receivable.id))}
+                                                        icon={faEye} className='w-7 h-7'
+                                                    />
+                                                </div>
+                                                <div className='flex mt-4 justify-between'>
+                                                    <div className='text-sm text-gray-500 font-medium'><strong>Remaining
+                                                        Balance:</strong> {receivable.remaining_balance} Rs
+                                                    </div>
+                                                    <div className='text-sm text-gray-500 font-medium'><strong>Sale
+                                                        Date:</strong> {receivable.purchase_date}</div>
+                                                </div>
+                                                <div className='flex mt-2 justify-between'>
+                                                    <div className='text-sm text-gray-500 font-medium'><strong>Payment
+                                                        Methods:</strong> <span
+                                                        className='capitalize'>{JSON.parse(receivable.payment_method).join(', ')}</span>
+                                                    </div>
+                                                    {receivable.supplier.phone && (
+                                                        <div className='text-sm text-gray-500 font-medium'><strong>Supplier
+                                                            Phone:</strong> {receivable.supplier.phone}</div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </ShadowBox>
+                            ) : (
+                                <ShadowBox>
+                                    <div className='flex justify-between items-center mb-6'>
+                                        <h3 className='font-normal text-gray-700 text-xl'>Today's Receivables</h3>
+                                    </div>
+                                    <div className='py-2 text-primary-500 text-center'>No data found</div>
+                                </ShadowBox>
+                            )}
+                        </div>
+
                     </div>
                 </div>
             </div>

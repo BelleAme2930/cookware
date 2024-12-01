@@ -9,7 +9,6 @@ import {toast} from "react-toastify";
 import {router} from '@inertiajs/core';
 
 const Index = ({products}) => {
-    console.log(products)
 
     const editRoute = (id) => route('products.edit', id);
     const deleteRoute = (id) => route('products.destroy', id);

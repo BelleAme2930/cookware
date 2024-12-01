@@ -3,6 +3,7 @@
 use App\Http\Controllers\AccountController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerLedgerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\ProductController;
@@ -12,6 +13,7 @@ use App\Http\Controllers\PurchaseInvoiceController;
 use App\Http\Controllers\SaleController;
 use App\Http\Controllers\SalesInvoiceController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\SupplierLedgerController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -32,6 +34,9 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/sales/type/{saleType}', [SaleController::class, 'showSalesByType'])->name('sales.byType');
     Route::get('/purchases/type/{purchaseType}', [PurchaseController::class, 'showPurchasesByType'])->name('purchases.byType');
+
+    Route::get('/suppliers/{supplier}/ledger', [SupplierLedgerController::class, 'index'])->name('supplier.ledger');
+    Route::get('/customers/{customer}/ledger', [CustomerLedgerController::class, 'index'])->name('supplier.ledger');
 
     Route::resource('categories', CategoryController::class);
     Route::resource('suppliers', SupplierController::class);

@@ -9,7 +9,6 @@ import { toast } from "react-toastify";
 import { router } from '@inertiajs/core';
 
 const Index = ({ purchases }) => {
-    console.log(purchases)
 
     const editRoute = (id) => route('purchases.edit', id);
     const viewRoute = (id) => route('purchases.show', id);

@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Customer;
 use App\Models\Expense;
 use App\Models\Purchase;
 use App\Models\Sale;
+use App\Models\Supplier;
 use Carbon\Carbon;
 use Inertia\Inertia;
 
@@ -39,8 +41,6 @@ class DashboardController extends Controller
         $daily_purchases_account_sum = Purchase::whereDate('purchase_date', $today)
             ->whereJsonContains('payment_method', 'account')->get()
             ->sum('account_payment');
-
-
 
 
         $daily_sales_sum = Sale::whereDate('sale_date', $today)
@@ -208,6 +208,59 @@ class DashboardController extends Controller
         $monthly_expenses_sum = Expense::whereBetween('expense_date', [$startOfMonth, $endOfMonth])->sum('amount');
         $yearly_expenses_sum = Expense::whereBetween('expense_date', [$startOfYear, $endOfYear])->sum('amount');
 
+        $todays_receivables = Sale::whereDate('due_date', $today)
+            ->select(['id', 'customer_id', 'total_price', 'remaining_balance', 'payment_method', 'sale_date'])
+            ->with(['customer:id,name,phone'])
+            ->where('remaining_balance', '>', 0)
+            ->whereJsonContains('payment_method', 'credit')->get();
+
+        $todays_payables = Purchase::whereDate('due_date', $today)
+            ->select(['id', 'supplier_id', 'total_price', 'remaining_balance', 'payment_method', 'purchase_date'])
+            ->with(['supplier:id,name,phone'])
+            ->where('remaining_balance', '>', 0)
+            ->whereJsonContains('payment_method', 'credit')->get();
+
+        $suppliersLedgers = Supplier::with('purchases')
+            ->get()
+            ->flatMap(function ($supplier) {
+                $cumulativeBalance = 0;
+
+                return $supplier->purchases->map(function ($purchase) use (&$cumulativeBalance, $supplier) {
+                    $paidAmount = $purchase->amount_paid + $purchase->account_payment + $purchase->cheque_amount;
+                    $purchaseRemainingBalance = $purchase->total_price - $paidAmount;
+
+                    $cumulativeBalance += $purchaseRemainingBalance;
+
+                    return [
+                        'supplier_name' => $supplier->name,
+                        'purchase_date' => $purchase->purchase_date,
+                        'total_price' => $purchase->total_price,
+                        'paid_amount' => $paidAmount,
+                        'remaining_balance' => $cumulativeBalance,
+                    ];
+                });
+            });
+
+        $customersLedgers = Customer::with('sales')
+            ->get()
+            ->flatMap(function ($customer) {
+                $cumulativeBalance = 0;
+
+                return $customer->sales->map(function ($sale) use (&$cumulativeBalance, $customer) {
+                    $paidAmount = $sale->amount_paid;
+                    $saleRemainingBalance = $sale->total_price - $paidAmount;
+                    $cumulativeBalance += $saleRemainingBalance;
+
+                    return [
+                        'customer_name' => $customer->name,
+                        'sale_date' => $sale->sale_date,
+                        'total_price' => $sale->total_price,
+                        'paid_amount' => $paidAmount,
+                        'remaining_balance' => $cumulativeBalance,
+                    ];
+                });
+            });
+
         return Inertia::render('Dashboard/Dashboard', [
             'daily_purchases_sum' => $daily_purchases_sum,
             'daily_purchases_cash_sum' => $daily_purchases_cash_sum,
@@ -266,6 +319,12 @@ class DashboardController extends Controller
             'weekly_expenses_sum' => $weekly_expenses_sum,
             'monthly_expenses_sum' => $monthly_expenses_sum,
             'yearly_expenses_sum' => $yearly_expenses_sum,
+
+            'todays_receivables' => $todays_receivables,
+            'todays_payables' => $todays_payables,
+
+            'suppliers_ledgers' => $suppliersLedgers,
+            'customers_ledgers' => $customersLedgers,
         ]);
     }
 

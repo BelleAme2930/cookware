@@ -4,7 +4,6 @@ import { Head } from '@inertiajs/react';
 import CustomDataTable from '@/Components/CustomDataTable';
 
 const Show = ({ category }) => {
-    console.log(category)
 
     const columns = [
         { name: 'Product Name', selector: row => row.name },

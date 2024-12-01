@@ -5,7 +5,6 @@ import PrimaryIconLink from "@/Components/PrimaryIconLink.jsx";
 import {faArrowLeft} from "@fortawesome/free-solid-svg-icons";
 
 const Invoice = ({purchase, products}) => {
-    console.log(purchase)
 
     const paymentMethods = purchase.payment_method;
 
