@@ -472,8 +472,8 @@ const SalesCreate = ({customers, products, accounts}) => {
                                                 ) : (
                                                     <>
                                                         <div>
-                                                            <label
-                                                                className="block text-sm font-medium text-gray-700">Quantity</label>
+                                                            <Label title='Quantity' suffix={item.quantity}
+                                                                className="block text-sm font-medium text-gray-700"/>
                                                             <input
                                                                 type="number"
                                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"

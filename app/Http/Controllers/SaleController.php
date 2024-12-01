@@ -202,6 +202,10 @@ class SaleController extends Controller
                         $totalQuantity += $productData['quantity'] ?: 0;
                     }
                 }
+                $product->update([
+                    'quantity' => ($product->quantity ?? 0) - $totalQuantity,
+                    'weight' => ($product->weight ?? 0) - $totalWeight,
+                ]);
             }
 
             $sale->update([
