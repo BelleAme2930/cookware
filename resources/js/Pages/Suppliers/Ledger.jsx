@@ -2,48 +2,38 @@ import React from 'react';
 import CustomDataTable from "@/Components/CustomDataTable.jsx";
 import { Head } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
-import { faEye } from "@fortawesome/free-solid-svg-icons";
-import IconButton from "@/Components/IconButton.jsx";
-import { toast } from "react-toastify";
-import { router } from '@inertiajs/core';
 
-const Ledger = ({ supplier, purchases }) => {
-    const showRoute = (id) => route('sales.show', id);
-
+const SupplierLedger = ({ suppliers_ledgers }) => {
     const columns = [
-        { name: 'Purchase Date', selector: row => row.purchase_date },
-        { name: 'Total Price', selector: row => row.total_price + ' Rs'},
-        { name: 'Paid Amount', selector: row => row.amount_paid + ' Rs'},
-        { name: 'Remaining Balance', selector: row => row.remaining_balance + ' Rs'},
+        { name: 'Supplier Name', selector: row => row.supplier_name },
         {
             name: 'Actions',
             cell: row => (
-                <div className="flex space-x-2">
-                    <IconButton onClick={() => router.visit(showRoute(row.id))} icon={faEye} />
-                </div>
+                <a
+                    href={route('suppliers.ledgers.show', row.id)}
+                    className="text-blue-600 hover:underline"
+                >
+                    View Ledger
+                </a>
             ),
         },
     ];
 
     const filterCriteria = [
-        { selector: row => row.purchase_date },
+        { selector: row => row.supplier_name },
     ];
 
     return (
         <AuthenticatedLayout
             header={
-                <div className="flex items-center justify-between">
-                    <h2 className="text-lg leading-tight text-gray-800">
-                        Supplier Ledger for: {supplier.name}
-                    </h2>
-                </div>
+                <h2 className="text-lg leading-tight text-gray-800">All Supplier Ledgers</h2>
             }
         >
-            <Head title="Supplier Ledger" />
+            <Head title="Supplier Ledgers" />
             <div className="mx-auto max-w-[96%] py-6">
                 <CustomDataTable
-                    title="Supplier Ledger"
-                    data={purchases}
+                    title="Supplier Ledgers"
+                    data={suppliers_ledgers}
                     columns={columns}
                     filterCriteria={filterCriteria}
                 />
@@ -52,4 +42,4 @@ const Ledger = ({ supplier, purchases }) => {
     );
 };
 
-export default Ledger;
+export default SupplierLedger;
