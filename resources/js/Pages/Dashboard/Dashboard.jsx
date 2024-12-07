@@ -71,8 +71,6 @@ export default function Dashboard({
                                       todays_receivables,
                                       todays_payables,
 
-                                      suppliers_ledgers,
-                                      customers_ledgers,
                                   }) {
     const [selectedPeriod, setSelectedPeriod] = useState('daily');
 
@@ -209,14 +207,6 @@ export default function Dashboard({
                                 </div>
                             </ShadowBox>
                         </div>
-                    </div>
-
-                    <div className='flex justify-between gap-3 mt-4 w-full'>
-                        <SupplierLedger suppliers_ledgers={suppliers_ledgers}/>
-                    </div>
-
-                    <div className='flex justify-between gap-3 mt-4 w-full'>
-                        <CustomerLedger customers_ledgers={customers_ledgers}/>
                     </div>
 
                     <div className='flex justify-between gap-2 mt-4'>

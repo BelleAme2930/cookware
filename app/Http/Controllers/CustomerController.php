@@ -64,6 +64,7 @@ class CustomerController extends Controller
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255|unique:customers,email,' . $customer->id,
             'address' => 'nullable|string',
+            'existing_balance' => 'nullable|numeric',
         ]);
 
         $customer->update([
@@ -71,6 +72,7 @@ class CustomerController extends Controller
             'phone' => $request->phone,
             'email' => $request->email,
             'address' => $request->address,
+            'existing_balance' => $request->existing_balance,
         ]);
 
         return redirect()->route('customers.index')->with('success', 'Customer updated successfully.');

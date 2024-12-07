@@ -220,46 +220,6 @@ class DashboardController extends Controller
             ->where('remaining_balance', '>', 0)
             ->whereJsonContains('payment_method', 'credit')->get();
 
-        $suppliersLedgers = Supplier::with('purchases')
-            ->get()
-            ->flatMap(function ($supplier) {
-                $cumulativeBalance = 0;
-
-                return $supplier->purchases->map(function ($purchase) use (&$cumulativeBalance, $supplier) {
-                    $paidAmount = $purchase->amount_paid + $purchase->account_payment + $purchase->cheque_amount;
-                    $purchaseRemainingBalance = $purchase->total_price - $paidAmount;
-
-                    $cumulativeBalance += $purchaseRemainingBalance;
-
-                    return [
-                        'supplier_name' => $supplier->name,
-                        'purchase_date' => $purchase->purchase_date,
-                        'total_price' => $purchase->total_price,
-                        'paid_amount' => $paidAmount,
-                        'remaining_balance' => $cumulativeBalance,
-                    ];
-                });
-            });
-
-        $customersLedgers = Customer::with('sales')
-            ->get()
-            ->flatMap(function ($customer) {
-                $cumulativeBalance = 0;
-
-                return $customer->sales->map(function ($sale) use (&$cumulativeBalance, $customer) {
-                    $paidAmount = $sale->amount_paid;
-                    $saleRemainingBalance = $sale->total_price - $paidAmount;
-                    $cumulativeBalance += $saleRemainingBalance;
-
-                    return [
-                        'customer_name' => $customer->name,
-                        'sale_date' => $sale->sale_date,
-                        'total_price' => $sale->total_price,
-                        'paid_amount' => $paidAmount,
-                        'remaining_balance' => $cumulativeBalance,
-                    ];
-                });
-            });
 
         return Inertia::render('Dashboard/Dashboard', [
             'daily_purchases_sum' => $daily_purchases_sum,
@@ -323,8 +283,6 @@ class DashboardController extends Controller
             'todays_receivables' => $todays_receivables,
             'todays_payables' => $todays_payables,
 
-            'suppliers_ledgers' => $suppliersLedgers,
-            'customers_ledgers' => $customersLedgers,
         ]);
     }
 

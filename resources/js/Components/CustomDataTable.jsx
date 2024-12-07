@@ -3,7 +3,7 @@ import DataTable from 'react-data-table-component';
 import TextInput from "@/Components/TextInput.jsx";
 import Loader from "@/Components/Loader.jsx";
 
-const CustomDataTable = ({ title, data, columns, searchLabel, isLoading, filterCriteria }) => {
+const CustomDataTable = ({ title, data, columns, searchLabel, isLoading, filterCriteria, actions = null }) => {
     const [searchText, setSearchText] = useState('');
 
     const filteredData = data.filter(item =>
@@ -103,6 +103,8 @@ const CustomDataTable = ({ title, data, columns, searchLabel, isLoading, filterC
                     />
                 </div>
             </div>
+
+            {actions && <div className="mb-4">{actions}</div>}
 
             <div>
                 <DataTable

@@ -2,34 +2,71 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\CustomerResource;
-use App\Http\Resources\SaleResource;
 use App\Models\Customer;
 
 class CustomerLedgerController extends Controller
 {
-    public function index(Customer $customer)
+    public function index()
     {
-        $cumulativeBalance = 0;
-        $sales = $customer->sales()
-            ->orderBy('sale_date', 'asc')
-            ->whereJsonContains('payment_method', 'credit')
+        $customersLedgers = Customer::with('sales')
             ->get()
-            ->map(function ($sale) use (&$cumulativeBalance) {
-                $paidAmount = $sale->amount_paid + $sale->account_payment + $sale->cheque_amount;
+            ->map(function ($customer) {
+                $cumulativeBalance = 0;
 
-                $saleRemainingBalance = $sale->total_price - $paidAmount;
+                $ledger = $customer->sales->map(function ($customer) use (&$cumulativeBalance) {
+                    $paidAmount = $customer->amount_paid + $customer->account_payment + $customer->cheque_amount;
+                    $customerRemainingBalance = $customer->total_price - $paidAmount;
 
-                $cumulativeBalance += $saleRemainingBalance;
+                    $cumulativeBalance += $customerRemainingBalance;
 
-                $sale->remaining_balance = $cumulativeBalance;
+                    return [
+                        'sale_date' => $customer->sale_date,
+                        'total_price' => $customer->total_price,
+                        'paid_amount' => $paidAmount,
+                        'remaining_balance' => $cumulativeBalance,
+                    ];
+                });
 
-                return $sale;
+                return [
+                    'id' => $customer->id,
+                    'customer_name' => $customer->name,
+                    'ledger' => $ledger,
+                ];
             });
 
         return inertia('Customers/Ledger', [
-            'customer' => CustomerResource::make($customer)->resolve(),
-            'sales' => SaleResource::collection($sales)->resolve(),
+            'customers_ledgers' => $customersLedgers,
         ]);
     }
+
+
+    public function show($id)
+    {
+        $customer = Customer::with('sales')->findOrFail($id);
+
+        $cumulativeBalance = $customer->existing_balance;
+
+        $ledger = $customer->sales->map(function ($customer) use (&$cumulativeBalance) {
+            $paidAmount = $customer->amount_paid + $customer->account_payment + $customer->cheque_amount;
+            $customerRemainingBalance = $customer->total_price - $paidAmount;
+
+            // Add the purchase's remaining balance to the cumulative balance
+            $cumulativeBalance += $customerRemainingBalance;
+
+            return [
+                'sale_date' => $customer->sale_date,
+                'total_price' => $customer->total_price,
+                'paid_amount' => $paidAmount,
+                'remaining_balance' => $cumulativeBalance,
+            ];
+        });
+
+        return inertia('Customers/ShowLedger', [
+            'customer_name' => $customer->name,
+            'existing_balance' => $customer->existing_balance, // Pass existing balance
+            'ledger' => $ledger,
+        ]);
+    }
+
+
 }
