@@ -34,28 +34,23 @@ const Invoice = ({purchase, products}) => {
                     </h3>
                     <div className="grid grid-cols-2 gap-2">
                         <p>
-                            <span className="font-semibold">Invoice ID:</span> INV-P-{purchase.id}
-                        </p>
-                        <p>
                             <span
                                 className="font-semibold">Purchase Date:</span> {new Date(purchase.purchase_date).toLocaleDateString()}
                         </p>
                         <p>
-                            <span className="font-semibold">Supplier:</span> {purchase.supplier.name}
+                            <span className="font-semibold">Supplier Name:</span> {purchase.supplier.name}
                         </p>
                         <p className='capitalize'>
                             <span className="font-semibold">Payment Method:</span> {paymentMethods.join(', ')}
                         </p>
+                        {purchase.supplier.phone && (
+                            <p>
+                                <span
+                                    className="font-semibold">Contact Number:</span> {purchase.supplier.phone}
+                            </p>
+                        )}
                         {isCredit && (
                             <>
-                                <p>
-                                    <span
-                                        className="font-semibold">Amount Paid:</span> {purchase.amount_paid.toLocaleString()} Rs
-                                </p>
-                                <p>
-                                    <span
-                                        className="font-semibold">Credit Balance:</span> {purchase.remaining_balance.toLocaleString()} Rs
-                                </p>
                                 <p>
                                     <span
                                         className="font-semibold">Due Date:</span> {new Date(purchase.due_date).toLocaleDateString() ?? '-'}
@@ -202,19 +197,23 @@ const Invoice = ({purchase, products}) => {
                 <div className='mt-4 text-right py-4'>
                     <div>
                         <p className="text-lg mb-2">
-                            <span className='font-semibold'>Sub Total: </span><span
+                            <span className='font-semibold'>Total Bill: </span><span
                             className="text-gray-900 font-medium">{purchase.total_price.toLocaleString()} Rs</span>
                         </p>
                         <p className="text-lg mb-2">
-                            <span className='font-semibold'>Existing Balance: </span><span
-                            className="text-gray-900 font-medium">{purchase.supplier_old_balance.toLocaleString()} Rs</span>
+                            <span className='font-semibold'>Previous Balance: </span><span
+                            className="text-gray-900 font-medium">{purchase.supplier.existing_balance.toLocaleString()} Rs</span>
+                        </p>
+                        <p className="text-lg mb-2">
+                            <span className='font-semibold'>Amount Paid: </span><span
+                            className="text-gray-900 font-medium">{purchase.amount_paid.toLocaleString()} Rs</span>
                         </p>
                     </div>
                     <div className="border-t border-gray-300 my-2"></div>
                     <p className="text-xl font-bold text-gray-800">
-                        Total Price: <span
+                        Total Amount: <span
                         className="text-green-600">
-                            {(Number(purchase.total_price) + Number(purchase.supplier_old_balance)).toLocaleString()} Rs</span>
+                            {(Number(purchase.amount_paid) + Number(purchase.supplier.existing_balance)).toLocaleString()} Rs</span>
                     </p>
 
                 </div>

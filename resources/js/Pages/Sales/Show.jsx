@@ -48,21 +48,26 @@ const Show = ({sale, products}) => {
                                 className="font-semibold">Sale Date:</span> {new Date(sale.sale_date).toLocaleDateString()}
                             </p>
                             <p>
-                                <span className="font-semibold">Customer:</span> {sale.customer.name}
+                                <span className="font-semibold">Customer Name:</span> {sale.customer.name}
                             </p>
                             <p className='capitalize'>
                                 <span className="font-semibold">Payment Method:</span> {paymentMethods.join(', ')}
                             </p>
+                            {sale.customer.phone && (
+                            <p>
+                                <span className="font-semibold">Customer Contact Number:</span> {sale.customer.phone}
+                            </p>
+                            )}
                             {isCredit && (
                                 <>
-                                    <p>
-                                    <span
-                                        className="font-semibold">Amount Paid:</span> {sale.amount_paid.toLocaleString()} Rs
-                                    </p>
-                                    <p>
-                                    <span
-                                        className="font-semibold">Credit Balance:</span> {sale.remaining_balance.toLocaleString()} Rs
-                                    </p>
+                                    {/*<p>*/}
+                                    {/*<span*/}
+                                    {/*    className="font-semibold">Amount Paid:</span> {sale.amount_paid.toLocaleString()} Rs*/}
+                                    {/*</p>*/}
+                                    {/*<p>*/}
+                                    {/*<span*/}
+                                    {/*    className="font-semibold">Credit Balance:</span> {(sale.customer.existing_balance + sale.remaining_balance).toLocaleString()} Rs*/}
+                                    {/*</p>*/}
                                     <p>
                                     <span
                                         className="font-semibold">Due Date:</span> {new Date(sale.due_date).toLocaleDateString() ?? '-'}
@@ -163,19 +168,23 @@ const Show = ({sale, products}) => {
                     <div className='mt-4 text-right py-4'>
                         <div>
                             <p className="text-lg mb-2">
-                                <span className='font-semibold'>Sub Total: </span><span
+                                <span className='font-semibold'>Total Bill: </span><span
                                 className="text-gray-900 font-medium">{sale.total_price.toLocaleString()} Rs</span>
                             </p>
                             <p className="text-lg mb-2">
-                                <span className='font-semibold'>Existing Balance: </span><span
-                                className="text-gray-900 font-medium">{sale.customer_old_balance.toLocaleString()} Rs</span>
+                                <span className='font-semibold'>Previous Balance: </span><span
+                                className="text-gray-900 font-medium">{sale.customer.existing_balance.toLocaleString()} Rs</span>
+                            </p>
+                            <p className="text-lg mb-2">
+                                <span className='font-semibold'>Amount Paid: </span><span
+                                className="text-gray-900 font-medium">{sale.amount_paid.toLocaleString()} Rs</span>
                             </p>
                         </div>
                         <div className="border-t border-gray-300 my-2"></div>
                         <p className="text-xl font-bold text-gray-800">
-                            Total Price: <span
+                            Total Amount: <span
                             className="text-green-600">
-                            {(Number(sale.total_price) + Number(sale.customer_old_balance)).toLocaleString()} Rs</span>
+                            {(Number(sale.amount_paid) + Number(sale.customer.existing_balance)).toLocaleString()} Rs</span>
                         </p>
 
                     </div>
