@@ -9,7 +9,6 @@ use App\Http\Requests\UpdatePurchaseRequest;
 use App\Http\Resources\AccountResource;
 use App\Http\Resources\ProductResource;
 use App\Http\Resources\PurchaseResource;
-use App\Http\Resources\SaleResource;
 use App\Http\Resources\SupplierResource;
 use App\Models\Account;
 use App\Models\Product;
@@ -99,7 +98,7 @@ class PurchaseController extends Controller
                 'payment_method' => json_encode($validatedData['payment_method']),
                 'account_id' => $validatedData['account_id'] ?? null,
                 'due_date' => $validatedData['due_date'] ?? null,
-                'amount_paid' => $validatedData['amount_paid'] ?? 0,
+                'amount_paid' => $validatedData['amount_paid'] ?? $validatedData['total_price'],
                 'cheque_number' => $validatedData['cheque_number'] ?? null,
                 'cheque_date' => $validatedData['cheque_date'] ?? null,
                 'cheque_bank' => $validatedData['cheque_bank'] ?? null,

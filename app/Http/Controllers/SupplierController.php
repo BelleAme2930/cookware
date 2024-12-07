@@ -64,6 +64,7 @@ class SupplierController extends Controller
             'phone' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255|unique:suppliers,email,' . $supplier->id,
             'address' => 'nullable|string|max:500',
+            'existing_balance' => 'nullable|numeric',
         ]);
 
         $supplier->update([
@@ -71,6 +72,7 @@ class SupplierController extends Controller
             'phone' => $request->phone,
             'email' => $request->email,
             'address' => $request->address,
+            'existing_balance' => $request->existing_balance,
         ]);
 
         return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully.');

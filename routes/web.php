@@ -35,8 +35,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/sales/type/{saleType}', [SaleController::class, 'showSalesByType'])->name('sales.byType');
     Route::get('/purchases/type/{purchaseType}', [PurchaseController::class, 'showPurchasesByType'])->name('purchases.byType');
 
-    Route::get('/suppliers/{supplier}/ledger', [SupplierLedgerController::class, 'index'])->name('supplier.ledger');
-    Route::get('/customers/{customer}/ledger', [CustomerLedgerController::class, 'index'])->name('supplier.ledger');
+    Route::get('/suppliers/ledgers', [SupplierLedgerController::class, 'index'])->name('suppliers.ledgers.index');
+    Route::get('/suppliers/{supplier}/ledger', [SupplierLedgerController::class, 'show'])->name('suppliers.ledgers.show');
+    Route::get('/customers/ledgers', [CustomerLedgerController::class, 'index'])->name('customers.ledgers.index');
+    Route::get('/customers/{customer}/ledger', [CustomerLedgerController::class, 'show'])->name('customers.ledgers.show');
 
     Route::resource('categories', CategoryController::class);
     Route::resource('suppliers', SupplierController::class);

@@ -106,6 +106,15 @@ const Sidebar = ({ isCollapsed, toggleSidebar }) => {
                 { label: "Expense Listing", href: route('expenses.index') },
             ],
         },
+        {
+            label: "Ledgers",
+            dropdown: true,
+            icon: faFileAlt,
+            subItems: [
+                { label: "Supplier Ledgers", href: route('suppliers.ledgers.index') },
+                { label: "Customer Ledgers", href: route('customers.ledgers.index') },
+            ],
+        },
     ];
 
     return (
