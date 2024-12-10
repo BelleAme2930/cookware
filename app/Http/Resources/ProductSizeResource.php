@@ -20,6 +20,7 @@ class ProductSizeResource extends JsonResource
             'product_id' => $this->product_id,
             'size' => $this->size,
             'weight' => isset($this->weight) ? WeightHelper::toKilos($this->weight) : null,
+            'quantity' => $this->quantity,
             'sale_price' => $this->sale_price,
         ];
     }

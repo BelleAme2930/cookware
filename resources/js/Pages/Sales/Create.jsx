@@ -10,8 +10,8 @@ import IconButton from "@/Components/IconButton.jsx";
 import {faAdd, faTrash} from "@fortawesome/free-solid-svg-icons";
 
 const SalesCreate = ({customers, products, accounts}) => {
-
-    const {data, setData, post, processing, reset} = useForm({
+    console.log(products)
+    const {data, setData, post, processing, reset, errors} = useForm({
         customer_id: "",
         product_items: [{product_id: "", sizes: [], quantity: 0, weight: 0, sale_price: 0, weight_type: ''}],
         payment_method: [],
@@ -207,8 +207,7 @@ const SalesCreate = ({customers, products, accounts}) => {
 
                                                                                                 <div className='flex gap-3'>
                                                                                                     <div className='w-1/3'>
-                                                                                                        <label
-                                                                                                            className="block text-sm font-medium text-gray-700">Quantity</label>
+                                                                                                        <Label className='block text-sm font-medium text-gray-700' suffixStyle={selectedSize.quantity === 0 && 'text-red-500'} title='Quantity' suffix={`${selectedSize.quantity} pcs`}/>
                                                                                                         <input
                                                                                                             type="number"
                                                                                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
@@ -218,14 +217,14 @@ const SalesCreate = ({customers, products, accounts}) => {
                                                                                                                 updatedSizes[sizeIndex].quantity = parseInt(e.target.value);
                                                                                                                 handleProductChange(index, "sizes", updatedSizes);
                                                                                                             }}
-                                                                                                            min="1"
+                                                                                                            min={0}
+                                                                                                            max={selectedSize.quantity}
                                                                                                             required
                                                                                                         />
                                                                                                     </div>
 
                                                                                                     <div className='w-1/3'>
-                                                                                                        <label
-                                                                                                            className="block text-sm font-medium text-gray-700">Weight</label>
+                                                                                                        <Label className='block text-sm font-medium text-gray-700' suffixStyle={selectedSize.weight === 0 && 'text-red-500'} title='Weight' suffix={`${selectedSize.weight} kg`}/>
                                                                                                         <input
                                                                                                             type="number"
                                                                                                             className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
@@ -235,11 +234,13 @@ const SalesCreate = ({customers, products, accounts}) => {
                                                                                                                 updatedSizes[sizeIndex].weight = e.target.value;
                                                                                                                 handleProductChange(index, "sizes", updatedSizes);
                                                                                                             }}
-                                                                                                            min="0"
+                                                                                                            min={0}
+                                                                                                            max={selectedSize.weight}
                                                                                                             placeholder="Enter weight"
                                                                                                             required
                                                                                                         />
                                                                                                     </div>
+
 
                                                                                                     <div
                                                                                                         className='w-1/3'>
@@ -265,8 +266,7 @@ const SalesCreate = ({customers, products, accounts}) => {
                                                                                                 <div
                                                                                                     className='w-full p-4 rounded-md bg-gray-100'>
                                                                                                     <h4 className="text-md font-semibold mb-2">Size: {selectedSize.size}</h4>
-                                                                                                    <label
-                                                                                                        className="block text-sm font-medium text-gray-700">Quantity</label>
+                                                                                                    <Label className='block text-sm font-medium text-gray-700' suffixStyle={selectedSize.quantity === 0 && 'text-red-500'} title='Quantity' suffix={`${selectedSize.quantity} pcs`}/>
                                                                                                     <input
                                                                                                         type="number"
                                                                                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
@@ -276,7 +276,8 @@ const SalesCreate = ({customers, products, accounts}) => {
                                                                                                             updatedSizes[sizeIndex].quantity = parseInt(e.target.value);
                                                                                                             handleProductChange(index, "sizes", updatedSizes);
                                                                                                         }}
-                                                                                                        min="1"
+                                                                                                        min={0}
+                                                                                                        max={selectedSize.quantity}
                                                                                                         required
                                                                                                     />
                                                                                                 </div>
@@ -290,16 +291,16 @@ const SalesCreate = ({customers, products, accounts}) => {
                                                                     {weightType === 'total' && (
                                                                         <>
                                                                             <div>
-                                                                                <label
-                                                                                    className="block text-sm font-medium text-gray-700">Weight</label>
+                                                                                <Label className='block text-sm font-medium text-gray-700' suffixStyle={item.weight === 0 && 'text-red-500'} title='Weight' suffix={`${item.weight} kg`}/>
                                                                                 <input
                                                                                     type="number"
                                                                                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                                                                                     value={item.weight}
                                                                                     onChange={(e) => handleProductChange(index, "weight", e.target.value)}
-                                                                                    min="0"
+                                                                                    min={0}
                                                                                     placeholder="Enter weight"
                                                                                     required
+                                                                                    max={item.weight}
                                                                                 />
                                                                             </div>
                                                                             <div>
@@ -350,8 +351,7 @@ const SalesCreate = ({customers, products, accounts}) => {
 
                                                                                     <div className='flex gap-3'>
                                                                                         <div className='w-1/2'>
-                                                                                            <label
-                                                                                                className="block text-sm font-medium text-gray-700">Quantity</label>
+                                                                                            <Label className='block text-sm font-medium text-gray-700' suffixStyle={selectedSize.quantity === 0 && 'text-red-500'} title='Quantity' suffix={`${selectedSize.quantity} pcs`}/>
                                                                                             <input
                                                                                                 type="number"
                                                                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
@@ -361,8 +361,9 @@ const SalesCreate = ({customers, products, accounts}) => {
                                                                                                     updatedSizes[sizeIndex].quantity = parseInt(e.target.value);
                                                                                                     handleProductChange(index, "sizes", updatedSizes);
                                                                                                 }}
-                                                                                                min="1"
+                                                                                                min={0}
                                                                                                 required
+                                                                                                max={selectedSize.quantity}
                                                                                             />
                                                                                         </div>
 
@@ -393,16 +394,16 @@ const SalesCreate = ({customers, products, accounts}) => {
                                                         ) : (
                                                             <>
                                                                 <div>
-                                                                    <label
-                                                                        className="block text-sm font-medium text-gray-700">Quantity</label>
+                                                                    <Label className='block text-sm font-medium text-gray-700' suffixStyle={item.quantity === 0 && 'text-red-500'} title='Quantity' suffix={`${item.quantity} pcs`}/>
                                                                     <input
                                                                         type="number"
                                                                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                                                                         value={item.quantity}
                                                                         onChange={(e) => handleProductChange(index, "quantity", e.target.value)}
-                                                                        min="0"
+                                                                        min={0}
                                                                         placeholder="Enter Quantity"
                                                                         required
+                                                                        max={item.quantity}
                                                                     />
                                                                 </div>
                                                                 <div>
@@ -430,29 +431,29 @@ const SalesCreate = ({customers, products, accounts}) => {
                                                 {isWeightBased ? (
                                                     <>
                                                         <div>
-                                                            <label
-                                                                className="block text-sm font-medium text-gray-700">Weight</label>
+                                                            <Label className='block text-sm font-medium text-gray-700' suffixStyle={item.weight === 0 && 'text-red-500'} title='Weight' suffix={`${item.weight} kg`}/>
                                                             <input
                                                                 type="number"
                                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                                                                 value={item.weight}
                                                                 onChange={(e) => handleProductChange(index, "weight", e.target.value)}
-                                                                min="0"
+                                                                min={0}
                                                                 placeholder="Enter weight"
                                                                 required
+                                                                max={item.quantity}
                                                             />
                                                         </div>
                                                         <div>
-                                                            <label
-                                                                className="block text-sm font-medium text-gray-700">Quantity</label>
+                                                            <Label className='block text-sm font-medium text-gray-700' suffixStyle={item.quantity === 0 && 'text-red-500'} title='Quantity' suffix={`${item.quantity} pcs`}/>
                                                             <input
                                                                 type="number"
                                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                                                                 value={item.quantity}
                                                                 onChange={(e) => handleProductChange(index, "quantity", e.target.value)}
-                                                                min="0"
+                                                                min={0}
                                                                 placeholder="Enter quantity"
                                                                 required
+                                                                max={item.quantity}
                                                             />
                                                         </div>
                                                         <div>
@@ -472,16 +473,16 @@ const SalesCreate = ({customers, products, accounts}) => {
                                                 ) : (
                                                     <>
                                                         <div>
-                                                            <Label title='Quantity' suffix={item.quantity}
-                                                                className="block text-sm font-medium text-gray-700"/>
+                                                            <Label className='block text-sm font-medium text-gray-700' suffixStyle={item.quantity === 0 && 'text-red-500'} title='Quantity' suffix={`${item.quantity} pcs`}/>
                                                             <input
                                                                 type="number"
                                                                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
                                                                 value={item.quantity}
                                                                 onChange={(e) => handleProductChange(index, "quantity", e.target.value)}
-                                                                min="0"
+                                                                min={0}
                                                                 placeholder="Enter quantity"
                                                                 required
+                                                                max={item.quantity}
                                                             />
                                                         </div>
                                                         <div>
