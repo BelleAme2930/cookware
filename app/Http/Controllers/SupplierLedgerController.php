@@ -44,7 +44,6 @@ class SupplierLedgerController extends Controller
     {
         $supplier = Supplier::with('purchases')->findOrFail($id);
 
-        // Start with the supplier's existing balance
         $cumulativeBalance = $supplier->existing_balance;
 
         $ledger = $supplier->purchases->map(function ($purchase) use (&$cumulativeBalance) {
@@ -64,7 +63,7 @@ class SupplierLedgerController extends Controller
 
         return inertia('Suppliers/ShowLedger', [
             'supplier_name' => $supplier->name,
-            'existing_balance' => $supplier->existing_balance, // Pass existing balance
+            'existing_balance' => $supplier->existing_balance,
             'ledger' => $ledger,
         ]);
     }
