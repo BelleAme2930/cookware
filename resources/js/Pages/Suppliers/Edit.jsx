@@ -28,8 +28,8 @@ const Edit = ({ supplier }) => {
             onSuccess: () => {
                 toast.success('Supplier updated successfully');
             },
-            onError: () => {
-                toast.error('Failed to update supplier');
+            onError: (error) => {
+                toast.error(error.existing_balance ?? 'Failed to update supplier');
             },
         });
     };
@@ -113,7 +113,7 @@ const Edit = ({ supplier }) => {
                                 </label>
                             </div>
                         </div>
-                        {selectedBalance === 'existing_balance' && data.existing_balance > 0 && (
+                        {selectedBalance === 'existing_balance' && (
                             <div className="mb-4">
                                 <Label title='Existing Balance' htmlFor='existing_balance'/>
                                 <TextInput
@@ -125,7 +125,7 @@ const Edit = ({ supplier }) => {
                                 {errors.existing_balance && <div className="text-red-600 text-sm">{errors.existing_balance}</div>}
                             </div>
                         )}
-                        {selectedBalance === 'advance_balance' && data.advance_balance > 0 && (
+                        {selectedBalance === 'advance_balance' && (
                             <div className="mb-4">
                                 <Label title='Advance Balance' htmlFor='advance_balance'/>
                                 <TextInput

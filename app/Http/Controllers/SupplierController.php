@@ -65,7 +65,14 @@ class SupplierController extends Controller
             'email' => 'nullable|email|max:255|unique:suppliers,email,' . $supplier->id,
             'address' => 'nullable|string|max:500',
             'existing_balance' => 'nullable|numeric',
+            'advance_balance' => 'nullable|numeric',
         ]);
+
+        if (!($request->has('existing_balance') && $request->existing_balance === 0) && ($request->has('advance_balance') && $supplier->existing_balance > 0)) {
+            return redirect()->back()->withErrors([
+                'existing_balance' => 'To add advance balance, supplier\'s existing balance should be zero.',
+            ]);
+        }
 
         $supplier->update([
             'name' => $request->name,
@@ -73,6 +80,7 @@ class SupplierController extends Controller
             'email' => $request->email,
             'address' => $request->address,
             'existing_balance' => $request->existing_balance,
+            'advance_balance' => $request->advance_balance,
         ]);
 
         return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully.');
