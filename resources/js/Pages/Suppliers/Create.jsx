@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import { Head, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.jsx";
 import TextInput from "@/Components/TextInput.jsx";
@@ -15,7 +15,10 @@ const Create = () => {
         email: '',
         address: '',
         existing_balance: 0,
+        advance_balance: 0,
     });
+
+    const [selectedBalance, setSelectedBalance] = useState('existing_balance');
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -85,15 +88,54 @@ const Create = () => {
                             {errors.address && <div className="text-red-600 text-sm">{errors.address}</div>}
                         </div>
                         <div className="mb-4">
-                            <Label title='Existing Balance' htmlFor='existing_balance'/>
-                            <TextInput
-                                id="existing_balance"
-                                value={data.existing_balance || 0}
-                                onChange={(e) => setData('existing_balance', parseInt(e.target.value))}
-                                className={`w-full ${errors.existing_balance ? 'border-red-600' : ''}`}
-                            />
-                            {errors.address && <div className="text-red-600 text-sm">{errors.address}</div>}
+                            <Label title='Select Balance Type'/>
+                            <div className="flex items-center gap-4">
+                                <label className='flex gap-2 items-center'>
+                                    <input
+                                        type="radio"
+                                        name="balance_type"
+                                        value="existing_balance"
+                                        checked={selectedBalance === 'existing_balance'}
+                                        onChange={() => setSelectedBalance('existing_balance')}
+                                    />
+                                    <span>Existing Balance</span>
+                                </label>
+                                <label className='flex gap-2 items-center'>
+                                    <input
+                                        type="radio"
+                                        name="balance_type"
+                                        value="advance_balance"
+                                        checked={selectedBalance === 'advance_balance'}
+                                        onChange={() => setSelectedBalance('advance_balance')}
+                                    />
+                                    <span>Advance Balance</span>
+                                </label>
+                            </div>
                         </div>
+                        {selectedBalance === 'existing_balance' && (
+                            <div className="mb-4">
+                                <Label title='Existing Balance' htmlFor='existing_balance'/>
+                                <TextInput
+                                    id="existing_balance"
+                                    value={data.existing_balance || 0}
+                                    onChange={(e) => setData('existing_balance', parseInt(e.target.value))}
+                                    className={`w-full ${errors.existing_balance ? 'border-red-600' : ''}`}
+                                />
+                                {errors.existing_balance && <div className="text-red-600 text-sm">{errors.existing_balance}</div>}
+                            </div>
+                        )}
+                        {selectedBalance === 'advance_balance' && (
+                            <div className="mb-4">
+                                <Label title='Advance Balance' htmlFor='advance_balance'/>
+                                <TextInput
+                                    id="advance_balance"
+                                    value={data.advance_balance || 0}
+                                    onChange={(e) => setData('advance_balance', parseInt(e.target.value))}
+                                    className={`w-full ${errors.advance_balance ? 'border-red-600' : ''}`}
+                                />
+                                {errors.advance_balance && <div className="text-red-600 text-sm">{errors.advance_balance}</div>}
+                            </div>
+                        )}
                         <Button
                             type="submit"
                             disabled={processing}
