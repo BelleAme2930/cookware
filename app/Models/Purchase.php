@@ -9,8 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Purchase extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'due_date',
         'purchase_date',
@@ -28,6 +26,8 @@ class Purchase extends Model
         'quantity',
         'remaining_balance',
     ];
+
+    use HasFactory;
 
     public function supplier(): BelongsTo
     {
