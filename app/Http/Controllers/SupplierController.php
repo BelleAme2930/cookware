@@ -30,7 +30,6 @@ class SupplierController extends Controller
             'email' => 'nullable|email|max:255|unique:suppliers,email',
             'address' => 'nullable|string|max:500',
             'existing_balance' => 'nullable|numeric',
-            'advance_balance' => 'nullable|numeric',
         ]);
 
         Supplier::create([
@@ -39,7 +38,6 @@ class SupplierController extends Controller
             'email' => $request->email,
             'address' => $request->address,
             'existing_balance' => $request->existing_balance,
-            'advance_balance' => $request->advance_balance,
         ]);
 
         return redirect()->route('suppliers.index')->with('success', 'Supplier created successfully.');
@@ -67,31 +65,7 @@ class SupplierController extends Controller
             'email' => 'nullable|email|max:255|unique:suppliers,email,' . $supplier->id,
             'address' => 'nullable|string|max:500',
             'existing_balance' => 'nullable|numeric',
-            'advance_balance' => 'nullable|numeric',
         ]);
-
-        $advanceBalance = $request->advance_balance ?? 0;
-
-        $purchases = $supplier->purchases()->where('remaining_balance', '>', 0)->orderBy('id')->get();
-
-        foreach ($purchases as $purchase) {
-            if ($advanceBalance <= 0) {
-                break;
-            }
-
-            $remainingBalance = $purchase->remaining_balance;
-
-            if ($advanceBalance >= $remainingBalance) {
-                $purchase->update([
-                    'remaining_balance' => 0,
-                    'due_date' => null,
-                ]);
-                $advanceBalance -= $remainingBalance;
-            } else {
-                $purchase->update(['remaining_balance' => $remainingBalance - $advanceBalance]);
-                $advanceBalance = 0;
-            }
-        }
 
         $supplier->update([
             'name' => $request->name,
@@ -99,7 +73,6 @@ class SupplierController extends Controller
             'email' => $request->email,
             'address' => $request->address,
             'existing_balance' => $request->existing_balance ?? 0,
-            'advance_balance' => $advanceBalance,
         ]);
 
         return redirect()->route('suppliers.index')->with('success', 'Supplier updated successfully.');
