@@ -21,7 +21,6 @@ class SupplierResource extends JsonResource
             'email' => $this->email,
             'address' => $this->address,
             'existing_balance' => $this->existing_balance,
-            'advance_balance' => $this->advance_balance,
             'created_at' => $this->created_at->format('Y-m-d'),
             'updated_at' => $this->updated_at->format('Y-m-d'),
         ];

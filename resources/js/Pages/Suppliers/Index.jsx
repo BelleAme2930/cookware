@@ -18,7 +18,6 @@ const Index = ({ suppliers }) => {
         {name: 'Email', selector: row => row.email},
         {name: 'Address', selector: row => row.address},
         {name: 'Existing Balance', selector: row => row.existing_balance + ' Rs' ?? '-'},
-        {name: 'Advance Balance', selector: row => row.advance_balance + ' Rs' ?? '-'},
         {
             name: 'Actions',
             cell: row => (
